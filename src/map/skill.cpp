@@ -159,8 +159,9 @@ static bool skill_check(uint16 id) {
 	return var;\
 } while(0)
 
+// RAGNAROKMAC: unlearned skills have level zero; never index before the array.
 #define skill_get_lv(id, lv, arrvar) do {\
-	if (!skill_check(id))\
+	if (!skill_check(id) || (lv) == 0)\
 		return 0;\
 	int32 lv_idx = min(lv, MAX_SKILL_LEVEL) - 1;\
 	if (lv > MAX_SKILL_LEVEL && arrvar[lv_idx] > 1 && lv_idx > 1) {\
