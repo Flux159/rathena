@@ -2156,6 +2156,8 @@ ACMD_FUNC(go)
 		{ MAP_MALAYA,      242, 211 }, // 34=Malaya Port
 		{ MAP_ECLAGE,      110,  39 }, // 35=Eclage
 		{ MAP_LASAGNA,     193, 182 }, // 36=Lasagna
+		{ MAP_EDEN,         31,  14 }, // 37=Eden Group Headquarters
+		{ MAP_PARA_MARKET,  97,  17 }, // 38=Para Market
 	};
 
 	nullpo_retr(-1, sd);
@@ -2192,6 +2194,11 @@ ACMD_FUNC(go)
 	map_name[MAP_NAME_LENGTH-1] = '\0';
 	for (i = 0; map_name[i]; i++)
 		map_name[i] = TOLOWER(map_name[i]);
+	// A name is not a number: if none of the names below matches it, it is an
+	// unknown location, not town 0. atoi() reads "eden" as 0, so an unknown name
+	// used to warp to Prontera and report success.
+	if (!ISDIGIT(map_name[0]))
+		town = -1;
 	// try to identify the map name
 	if (strncmp(map_name, "prontera", 3) == 0) {
 		town = 0;
@@ -2277,6 +2284,11 @@ ACMD_FUNC(go)
 		town = 35;
 	} else if (strncmp(map_name, "lasagna", 2) == 0) {
 		town = 36;
+	} else if (strncmp(map_name, "eden", 3) == 0 ||
+	           strncmp(map_name, "moc_para01", 8) == 0) {
+		town = 37;
+	} else if (strncmp(map_name, "paramk", 4) == 0) {
+		town = 38;
 	}
 
 	if (town >= 0 && town < ARRAYLENGTH(data))
@@ -2296,8 +2308,12 @@ ACMD_FUNC(go)
 			clif_displaymessage(fd, msg_txt(sd,1)); // Map not found.
 			return -1;
 		}
-	} else { // if you arrive here, you have an error in town variable when reading of names
+	} else { // an unknown name: say so, and list the ones that exist
+		const char* text = atcommand_help_string( command );
+
 		clif_displaymessage(fd, msg_txt(sd,38)); // Invalid location number or name.
+		if( text )
+			clif_displaymessage( fd, text );
 		return -1;
 	}
 
