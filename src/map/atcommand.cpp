@@ -2156,8 +2156,12 @@ ACMD_FUNC(go)
 		{ MAP_MALAYA,      242, 211 }, // 34=Malaya Port
 		{ MAP_ECLAGE,      110,  39 }, // 35=Eclage
 		{ MAP_LASAGNA,     193, 182 }, // 36=Lasagna
-		{ MAP_EDEN,         31,  14 }, // 37=Eden Group Headquarters
-		{ MAP_PARA_MARKET,  97,  17 }, // 38=Para Market
+#ifdef RENEWAL
+		// Renewal content: in pre-renewal the maps load but hold no NPCs and
+		// no way out. Last in the list, so no other number moves.
+		{ MAP_EDEN,         31,  14 }, // 37=Eden Group Headquarters (Renewal)
+		{ MAP_PARA_MARKET,  97,  17 }, // 38=Para Market (Renewal)
+#endif
 	};
 
 	nullpo_retr(-1, sd);
@@ -2284,11 +2288,13 @@ ACMD_FUNC(go)
 		town = 35;
 	} else if (strncmp(map_name, "lasagna", 2) == 0) {
 		town = 36;
+#ifdef RENEWAL
 	} else if (strncmp(map_name, "eden", 3) == 0 ||
 	           strncmp(map_name, "moc_para01", 8) == 0) {
 		town = 37;
 	} else if (strncmp(map_name, "paramk", 4) == 0) {
 		town = 38;
+#endif
 	}
 
 	if (town >= 0 && town < ARRAYLENGTH(data))
