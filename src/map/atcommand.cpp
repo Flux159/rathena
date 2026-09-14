@@ -7003,6 +7003,7 @@ ACMD_FUNC(autoloot)
 	if (rate > 10000) rate = 10000;
 
 	sd->state.autoloot = rate;
+	pc_save_loot_prefs(sd); // RAGNAROKMAC: keep the setting across logins
 	if (sd->state.autoloot) {
 		snprintf(atcmd_output, sizeof atcmd_output, msg_txt(sd,1187),((double)sd->state.autoloot)/100.); // Autolooting items with drop rates of %0.02f%% and below.
 		clif_displaymessage(fd, atcmd_output);
@@ -7186,6 +7187,7 @@ ACMD_FUNC(autoloottype)
 				return -1;
 			}
 			sd->state.autoloottype |= (1<<type); // Stores the type
+			pc_save_loot_prefs(sd); // RAGNAROKMAC: keep the setting across logins
 			sprintf(atcmd_output, msg_txt(sd,1483), itemdb_typename(type), type); // Autolooting item type: '%s' {%u}
 			clif_displaymessage(fd, atcmd_output);
 			break;
@@ -7195,6 +7197,7 @@ ACMD_FUNC(autoloottype)
 				return -1;
 			}
 			sd->state.autoloottype &= ~(1<<type);
+			pc_save_loot_prefs(sd); // RAGNAROKMAC: keep the setting across logins
 			sprintf(atcmd_output, msg_txt(sd,1485), itemdb_typename(type), type); // Removed item type: '%s' {%u} from your autoloottype list.
 			clif_displaymessage(fd, atcmd_output);
 			break;
@@ -7218,6 +7221,7 @@ ACMD_FUNC(autoloottype)
 			break;
 		case 4:
 			sd->state.autoloottype = 0;
+			pc_save_loot_prefs(sd); // RAGNAROKMAC: keep the setting across logins
 			clif_displaymessage(fd, msg_txt(sd,1491)); // Your autoloottype list has been reset.
 			break;
 	}
@@ -9167,11 +9171,13 @@ ACMD_FUNC(showexp)
 {
 	if (sd->state.showexp) {
 		sd->state.showexp = 0;
+		pc_save_loot_prefs(sd); // RAGNAROKMAC: keep the setting across logins
 		clif_displaymessage(fd, msg_txt(sd,1316)); // Gained exp will not be shown.
 		return 0;
 	}
 
 	sd->state.showexp = 1;
+	pc_save_loot_prefs(sd); // RAGNAROKMAC: keep the setting across logins
 	clif_displaymessage(fd, msg_txt(sd,1317)); // Gained exp is now shown.
 	return 0;
 }

@@ -93,6 +93,11 @@ class MapGuild;
 #define ROULETTE_SILVER_VAR "RouletteSilver"
 #define ROULETTE_GOLD_VAR "RouletteGold"
 #define COOKMASTERY_VAR "COOK_MASTERY"
+// RAGNAROKMAC: per-character loot and exp display preferences. Stored as
+// ordinary character variables so they persist without a schema change.
+#define AUTOLOOT_RATE_VAR "AUTOLOOT_RATE"
+#define AUTOLOOT_TYPE_VAR "AUTOLOOT_TYPE"
+#define SHOWEXP_VAR "SHOWEXP"
 #define PCDIECOUNTER_VAR "PC_DIE_COUNTER"
 #define JOBCHANGE2ND_VAR "jobchange_level"
 #define JOBCHANGE3RD_VAR "jobchange_level_3rd"
@@ -1697,6 +1702,8 @@ void pc_inventory_rental_add(map_session_data *sd, uint32 seconds);
 int32 pc_read_motd(void); // [Valaris]
 int32 pc_disguise(map_session_data *sd, int32 class_);
 bool pc_isautolooting(map_session_data *sd, t_itemid nameid);
+// RAGNAROKMAC: write the current loot/exp preferences to character variables.
+void pc_save_loot_prefs(map_session_data *sd);
 
 void pc_overheat(map_session_data &sd, int16 heat);
 

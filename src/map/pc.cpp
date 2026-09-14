@@ -2351,6 +2351,17 @@ bool pc_set_hate_mob(map_session_data *sd, int32 pos, block_list *bl)
  * We didn't receive item information at this point so DO NOT attempt to do item operations here.
  * See intif_parse_StorageReceived() for item operations [lighta]
  *------------------------------------------*/
+// RAGNAROKMAC: persist the loot and exp display preferences. Called from the
+// commands that change them, so a value survives a crash as well as a logout.
+void pc_save_loot_prefs(map_session_data *sd)
+{
+	nullpo_retv(sd);
+
+	pc_setglobalreg(sd, add_str(AUTOLOOT_RATE_VAR), sd->state.autoloot);
+	pc_setglobalreg(sd, add_str(AUTOLOOT_TYPE_VAR), sd->state.autoloottype);
+	pc_setglobalreg(sd, add_str(SHOWEXP_VAR), sd->state.showexp);
+}
+
 void pc_reg_received(map_session_data *sd)
 {
 	uint8 i;
@@ -2361,6 +2372,13 @@ void pc_reg_received(map_session_data *sd)
 	sd->change_level_3rd = static_cast<unsigned char>(pc_readglobalreg(sd, add_str(JOBCHANGE3RD_VAR)));
 	sd->change_level_4th = static_cast<unsigned char>(pc_readglobalreg(sd, add_str(JOBCHANGE4TH_VAR)));
 	sd->die_counter = static_cast<int32>(pc_readglobalreg(sd, add_str(PCDIECOUNTER_VAR)));
+
+	// RAGNAROKMAC: @autoloot, @autoloottype and @showexp were session-only, so
+	// every login began by retyping them. They are read here rather than at
+	// pc_authok because character variables have only arrived by this point.
+	sd->state.autoloot = static_cast<uint16>(cap_value(pc_readglobalreg(sd, add_str(AUTOLOOT_RATE_VAR)), 0, 10000));
+	sd->state.autoloottype = static_cast<uint16>(cap_value(pc_readglobalreg(sd, add_str(AUTOLOOT_TYPE_VAR)), 0, UINT16_MAX));
+	sd->state.showexp = pc_readglobalreg(sd, add_str(SHOWEXP_VAR)) ? 1 : 0;
 
 	sd->langtype = static_cast<int32>(pc_readaccountreg(sd, add_str(LANGTYPE_VAR)));
 	if (msg_checklangtype(sd->langtype,true) < 0)
