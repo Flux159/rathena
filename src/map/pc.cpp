@@ -13780,6 +13780,10 @@ uint32 JobDatabase::calc_basesp( const uint16 level, const std::shared_ptr<s_job
 		base_sp += floor( ( base_sp / 2 ) + 0.5 );
 	}
 
+	// RAGNAROKMAC: incomplete job tables can produce negative base SP;
+	// clamp while still floating point, before converting to unsigned.
+	if( base_sp <= 0. ) return 0;
+	if( base_sp >= static_cast<double>( UINT_MAX ) ) return UINT_MAX;
 	return static_cast<uint32>( base_sp );
 }
 
