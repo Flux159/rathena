@@ -52,6 +52,8 @@
 #define MAP_ECLAGE "eclage"
 #define MAP_ECLAGE_IN "ecl_in01"
 #define MAP_LASAGNA "lasagna"
+#define MAP_EDEN "moc_para01"
+#define MAP_PARA_MARKET "paramk"
 #define MAP_GLASTHEIM "glast_01"
 #define MAP_THANATOS "hu_fild01"
 
