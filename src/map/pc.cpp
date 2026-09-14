@@ -4699,10 +4699,16 @@ void pc_bonus2(map_session_data *sd,int32 type,int32 type2,int32 val)
 		sd->special_state.bonus_coma = 1;
 		break;
 	case SP_WEAPON_ATK: // bonus2 bWeaponAtk,w,n;
+		// RAGNAROKMAC: item scripts cannot index beyond the weapon table.
+		if (type2 < 0 || type2 >= MAX_WEAPON_TYPE)
+			break;
 		if (sd->state.lr_flag != LR_FLAG_ARROW)
 			sd->indexed_bonus.weapon_atk[type2]+=val;
 		break;
 	case SP_WEAPON_DAMAGE_RATE: // bonus2 bWeaponDamageRate,w,n;
+		// RAGNAROKMAC: item scripts cannot index beyond the weapon table.
+		if (type2 < 0 || type2 >= MAX_WEAPON_TYPE)
+			break;
 		if (sd->state.lr_flag != LR_FLAG_ARROW)
 			sd->indexed_bonus.weapon_damage_rate[type2]+=val;
 		break;
