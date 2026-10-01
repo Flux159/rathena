@@ -1496,6 +1496,10 @@ int32 skill_additional_effect( block_list* src, block_list *bl, uint16 skill_id,
 		}
 	}
 
+	// A mod's Lua item hooks (item(...).on_attack), beside the autospells.
+	if( !status_isdead(*bl) )
+		skill_lua_item_attack(src, bl, skill_id, skill_lv, attack_type);
+
 	// Autospell when attacking
 	if( sd && !status_isdead(*bl) && !sd->autospell.empty() )
 	{
@@ -1793,6 +1797,10 @@ int32 skill_counter_additional_effect (block_list* src, block_list *bl, uint16 s
 		if (sc && sc->getSCE(SC_DORAM_SVSP) && attack_type&(BF_MAGIC|BF_LONG))
 			skill_castend_damage_id(bl, src, SU_SV_STEMSPEAR, (pc_checkskill(dstsd, SU_SV_STEMSPEAR) ? pc_checkskill(dstsd, SU_SV_STEMSPEAR) : 1), tick, 0);
 	}
+
+	// A mod's Lua item hooks (item(...).on_hit_taken), beside the counter-spells.
+	if( !(skill_id && skill_get_nk(skill_id, NK_NODAMAGE)) )
+		skill_lua_item_hit_taken(src, bl, skill_id, skill_lv, attack_type);
 
 	// Trigger counter-spells to retaliate against damage causing skills.
 	if(dstsd && !status_isdead(*bl) && !dstsd->autospell2.empty() &&

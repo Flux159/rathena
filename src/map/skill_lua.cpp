@@ -20,12 +20,14 @@
 #include "../../3rdparty/lua/src/lualib.h"
 
 #include "battle.hpp"
+#include "itemdb.hpp"
 #include "map.hpp"
 #include "mob.hpp"
 #include "pc.hpp"
 #include "script.hpp"
 #include "skill.hpp"
 #include "status.hpp"
+#include "unit.hpp"
 #include "skills/skill_impl.hpp"
 
 namespace {
@@ -91,6 +93,22 @@ struct s_skill_hooks {
 
 std::unordered_map<std::string, s_skill_hooks> hooks_by_name;
 std::unordered_map<uint16, s_skill_hooks*> hooks_by_id;
+
+// item("Aegis_Name", { on_attack = ..., on_hit_taken = ... })
+struct s_item_hooks {
+	std::string item;
+	s_hook on_attack;
+	s_hook on_hit_taken;
+};
+
+std::unordered_map<std::string, s_item_hooks> item_hooks_by_name;
+std::unordered_map<t_itemid, s_item_hooks*> item_hooks_by_id;
+
+// While a skill cast from Lua (c:cast) runs, no Lua hook runs: an item whose
+// on_attack casts a skill that hits would otherwise trigger itself forever.
+bool in_lua_cast = false;
+
+void cast_like_autospell(block_list* src, block_list* target, uint16 skill_id, uint16 skill_lv);
 
 s_skill_hooks* hooks_for(uint16 skill_id) {
 	if (L == nullptr || hooks_by_id.empty())
@@ -282,6 +300,24 @@ int32 lua_hit_polymorph(lua_State* state) {
 	return 0;
 }
 
+// c:cast("MG_FIREBOLT", 3, {who}) -- cast a skill the way bAutoSpell does:
+// at "target" (default) or "caster", with the skill's own checks and delays.
+int32 lua_hit_cast(lua_State* state) {
+	s_skill_lua_hit& hit = hit_or_error(state, "cast");
+	uint16 skill_id = lua_type(state, 2) == LUA_TNUMBER ? (uint16)lua_tointeger(state, 2) : skill_name2id(luaL_checkstring(state, 2));
+
+	if (skill_id == 0 || skill_get_index(skill_id) == 0)
+		return luaL_error(state, "c:cast: there is no skill %s (use the AegisName, like MG_FIREBOLT)", luaL_tolstring(state, 2, nullptr));
+
+	s_skill_lua_action action = { SKILL_LUA_CAST };
+
+	action.type = skill_id;
+	action.val1 = static_cast<int32>(std::clamp<lua_Integer>(luaL_optinteger(state, 3, 1), 1, MAX_SKILL_LEVEL));
+	action.unit_id = unit_arg(state, 4, hit);
+	hit.actions.push_back(action);
+	return 0;
+}
+
 // c:chance(n) -- true n times in 10000, from the server's own random numbers.
 int32 lua_hit_chance(lua_State* state) {
 	lua_Integer n = luaL_checkinteger(state, 2);
@@ -289,9 +325,12 @@ int32 lua_hit_chance(lua_State* state) {
 	return 1;
 }
 
-void push_context(uint16 skill_id, uint16 skill_lv, const block_list* src, const block_list* target, const int64* damage) {
-	lua_createtable(L, 0, 12);
-	lua_pushstring(L, skill_get_name(skill_id));
+void push_context(uint16 skill_id, uint16 skill_lv, const block_list* src, const block_list* target, const int64* damage, bool actions = false) {
+	lua_createtable(L, 0, 16);
+	if (skill_id != 0)
+		lua_pushstring(L, skill_get_name(skill_id));
+	else
+		lua_pushnil(L);  // a normal attack
 	lua_setfield(L, -2, "skill");
 	set_int("skill_id", skill_id);
 	set_int("skill_lv", skill_lv);
@@ -302,8 +341,11 @@ void push_context(uint16 skill_id, uint16 skill_lv, const block_list* src, const
 	lua_pushcfunction(L, lua_hit_chance);
 	lua_setfield(L, -2, "chance");
 
-	if (damage != nullptr) {
+	if (damage != nullptr)
 		set_int("damage", *damage);
+	if (actions) {
+		lua_pushcfunction(L, lua_hit_cast);
+		lua_setfield(L, -2, "cast");
 		lua_pushcfunction(L, lua_hit_drain);
 		lua_setfield(L, -2, "drain");
 		lua_pushcfunction(L, lua_hit_heal);
@@ -435,6 +477,31 @@ int32 lua_register_skill(lua_State* state) {
 	return 0;
 }
 
+// item("Moon_Ribbon", { on_attack = ..., on_hit_taken = ... })
+// As with skill(), a later file replaces only the hooks it names.
+int32 lua_register_item(lua_State* state) {
+	const char* name = luaL_checkstring(state, 1);
+	luaL_checktype(state, 2, LUA_TTABLE);
+
+	s_item_hooks& entry = item_hooks_by_name[name];
+	entry.item = name;
+
+	lua_pushnil(state);
+	while (lua_next(state, 2) != 0) {
+		const char* key = lua_type(state, -2) == LUA_TSTRING ? lua_tostring(state, -2) : "";
+		s_hook* hook = strcmp(key, "on_attack") == 0 ? &entry.on_attack : strcmp(key, "on_hit_taken") == 0 ? &entry.on_hit_taken : nullptr;
+
+		if (hook == nullptr)
+			return luaL_error(state, "item %s: unknown hook \"%s\" (on_attack or on_hit_taken)", name, key);
+		if (!lua_isfunction(state, -1))
+			return luaL_error(state, "item %s: %s must be a function", name, key);
+		luaL_unref(state, LUA_REGISTRYINDEX, hook->ref);
+		hook->ref = luaL_ref(state, LUA_REGISTRYINDEX);
+		hook->mod = current_mod;
+	}
+	return 0;
+}
+
 // const("SC_STUN") -> the number the server uses for it. Any script constant.
 int32 lua_constant(lua_State* state) {
 	const char* name = luaL_checkstring(state, 1);
@@ -555,6 +622,7 @@ void do_init_skill_lua() {
 	lua_settop(L, 0);
 
 	lua_register(L, "skill", lua_register_skill);
+	lua_register(L, "item", lua_register_item);
 	lua_register(L, "const", lua_constant);
 	lua_register(L, "log", lua_log);
 	lua_register(L, "print", lua_log);
@@ -573,13 +641,26 @@ void do_init_skill_lua() {
 	for (const auto& file : files)
 		loaded += run_file(file.second, file.first) ? 1 : 0;
 
-	ShowStatus("Lua: loaded %zu of %zu file(s), hooks for %zu skill(s).\n", loaded, files.size(), hooks_by_name.size());
+	// Items are named by AegisName; the item database is loaded by now.
+	for (auto& it : item_hooks_by_name) {
+		std::shared_ptr<item_data> item = item_db.search_aegisname(it.first.c_str());
+
+		if (item == nullptr) {
+			ShowWarning("Lua: there is no item called %s (use the AegisName, like Red_Potion).\n", it.first.c_str());
+			continue;
+		}
+		item_hooks_by_id[item->nameid] = &it.second;
+	}
+
+	ShowStatus("Lua: loaded %zu of %zu file(s), hooks for %zu skill(s) and %zu item(s).\n", loaded, files.size(), hooks_by_name.size(), item_hooks_by_id.size());
 	skill_lua_attach();
 }
 
 void do_final_skill_lua() {
 	hooks_by_id.clear();
 	hooks_by_name.clear();
+	item_hooks_by_id.clear();
+	item_hooks_by_name.clear();
 	current_hit = nullptr;
 	if (L != nullptr) {
 		lua_close(L);
@@ -625,7 +706,7 @@ void skill_lua_attach() {
 std::unique_ptr<s_skill_lua_hit> skill_lua_on_hit(block_list* src, block_list* target, uint16 skill_id, uint16 skill_lv, int64 damage, int32 attack_type) {
 	s_skill_hooks* hooks = hooks_for(skill_id);
 
-	if (hooks == nullptr || hooks->hooks[HOOK_ON_HIT].ref == LUA_NOREF || src == nullptr || target == nullptr || current_hit != nullptr)
+	if (hooks == nullptr || hooks->hooks[HOOK_ON_HIT].ref == LUA_NOREF || src == nullptr || target == nullptr || current_hit != nullptr || in_lua_cast)
 		return nullptr;
 
 	auto hit = std::make_unique<s_skill_lua_hit>();
@@ -641,7 +722,7 @@ std::unique_ptr<s_skill_lua_hit> skill_lua_on_hit(block_list* src, block_list* t
 	s_hook& hook = hooks->hooks[HOOK_ON_HIT];
 
 	lua_rawgeti(L, LUA_REGISTRYINDEX, hook.ref);
-	push_context(skill_id, skill_lv, src, target, &damage);
+	push_context(skill_id, skill_lv, src, target, &damage, true);
 	current_hit = hit.get();
 	protected_call(hook, hooks->skill.c_str(), 1, 0);
 	current_hit = nullptr;
@@ -676,6 +757,10 @@ void skill_lua_apply(std::unique_ptr<s_skill_lua_hit>& hit) {
 				if (bl != nullptr && !status_isdead(*bl))
 					sc_start(src != nullptr ? src : bl, bl, static_cast<sc_type>(action.type), action.rate, action.val1, static_cast<t_tick>(action.duration));
 				break;
+			case SKILL_LUA_CAST:
+				if (src != nullptr && bl != nullptr && !status_isdead(*src) && !status_isdead(*bl))
+					cast_like_autospell(src, bl, static_cast<uint16>(action.type), static_cast<uint16>(action.val1));
+				break;
 			case SKILL_LUA_POLYMORPH:
 				if (bl != nullptr && bl->type == BL_MOB && !status_isdead(*bl)) {
 					mob_data* md = reinterpret_cast<mob_data*>(bl);
@@ -691,4 +776,140 @@ void skill_lua_apply(std::unique_ptr<s_skill_lua_hit>& hit) {
 		}
 	}
 	hit.reset();
+}
+
+namespace {
+
+/// Cast a skill the way bAutoSpell does (skill_additional_effect): the same
+/// "can this be cast here" check, ground-skill limit, item requirements and
+/// after-cast delay. No Lua hook runs while it does (in_lua_cast).
+void cast_like_autospell(block_list* src, block_list* target, uint16 skill_id, uint16 skill_lv) {
+	map_session_data* sd = BL_CAST(BL_PC, src);
+	t_tick tick = gettick();
+
+	if (sd != nullptr) {
+		sd->state.autocast = 1;
+		bool refused = skill_isNotOk(skill_id, *sd);
+		sd->state.autocast = 0;
+		if (refused)
+			return;
+	}
+
+	e_cast_type type = skill_get_casttype(skill_id);
+
+	if (type == CAST_GROUND && !skill_pos_maxcount_check(src, target->x, target->y, skill_id, skill_lv, BL_PC, false))
+		return;
+	if (skill_id == PF_SPIDERWEB)
+		type = CAST_GROUND;
+
+	in_lua_cast = true;
+	if (sd != nullptr) {
+		sd->state.autocast = 1;
+		skill_consume_requirement(sd, skill_id, skill_lv, 1);
+	}
+	switch (type) {
+		case CAST_GROUND:
+			skill_castend_pos2(src, target->x, target->y, skill_id, skill_lv, tick, 0);
+			break;
+		case CAST_NODAMAGE:
+			skill_castend_nodamage_id(src, target, skill_id, skill_lv, tick, 0);
+			break;
+		case CAST_DAMAGE:
+			skill_castend_damage_id(src, target, skill_id, skill_lv, tick, 0);
+			break;
+	}
+	if (sd != nullptr)
+		sd->state.autocast = 0;
+	in_lua_cast = false;
+
+	if (unit_data* ud = unit_bl2ud(src); ud != nullptr) {
+		int32 delay = skill_delayfix(src, skill_id, skill_lv);
+
+		if (DIFF_TICK(ud->canact_tick, tick + delay) < 0)
+			ud->canact_tick = i64max(tick + delay, ud->canact_tick);
+	}
+}
+
+/// Run one item hook kind for every hooked item `wearer` has equipped, cards
+/// in equipped items included. `other` is whoever is on the other end of the
+/// hit; to the hook, the wearer is c.caster and `other` is c.target.
+void run_item_hooks(s_hook s_item_hooks::*which, block_list* wearer, block_list* other, uint16 skill_id, uint16 skill_lv, int32 attack_type) {
+	if (L == nullptr || item_hooks_by_id.empty() || in_lua_cast || current_hit != nullptr || wearer == nullptr || other == nullptr || status_isdead(*wearer))
+		return;
+
+	map_session_data* sd = BL_CAST(BL_PC, wearer);
+
+	if (sd == nullptr)
+		return;
+
+	// Gathered first: a hook's actions can change what is equipped.
+	std::vector<std::pair<t_itemid, s_item_hooks*>> hooked;
+
+	for (int32 i = 0; i < EQI_MAX; i++) {
+		int16 index = sd->equip_index[i];
+
+		if (index < 0)
+			continue;
+
+		bool seen = false;  // a two-handed weapon fills two slots
+
+		for (int32 j = 0; j < i; j++)
+			seen = seen || sd->equip_index[j] == index;
+		if (seen)
+			continue;
+
+		const item& equipped = sd->inventory.u.items_inventory[index];
+		auto check = [&](t_itemid id) {
+			if (auto it = item_hooks_by_id.find(id); it != item_hooks_by_id.end() && (it->second->*which).ref != LUA_NOREF)
+				hooked.emplace_back(id, it->second);
+		};
+
+		check(equipped.nameid);
+		if (!itemdb_isspecial(equipped.card[0]))
+			for (int32 c = 0; c < MAX_SLOTS; c++)
+				if (equipped.card[c] != 0)
+					check(equipped.card[c]);
+	}
+
+	for (const auto& [id, hooks] : hooked) {
+		s_hook& hook = hooks->*which;
+
+		if (hook.ref == LUA_NOREF)
+			continue;  // switched off by an error earlier in this loop
+
+		auto hit = std::make_unique<s_skill_lua_hit>();
+		const status_data* other_status = status_get_status_data(*other);
+
+		hit->src_id = wearer->id;
+		hit->target_id = other->id;
+		hit->skill_id = skill_id;
+		hit->damage = 0;
+		hit->race = other_status->race;
+		hit->class_ = other_status->class_;
+
+		lua_rawgeti(L, LUA_REGISTRYINDEX, hook.ref);
+		push_context(skill_id, skill_lv, wearer, other, nullptr, true);
+		lua_pushstring(L, hooks->item.c_str());
+		lua_setfield(L, -2, "item");
+		set_int("item_id", id);
+		lua_pushstring(L, attack_type & BF_MAGIC ? "magic" : attack_type & BF_MISC ? "misc" : "weapon");
+		lua_setfield(L, -2, "attack");
+		lua_pushboolean(L, (attack_type & BF_LONG) != 0);
+		lua_setfield(L, -2, "ranged");
+
+		current_hit = hit.get();
+		protected_call(hook, hooks->item.c_str(), 1, 0);
+		current_hit = nullptr;
+		skill_lua_apply(hit);
+	}
+}
+
+} // namespace
+
+void skill_lua_item_attack(block_list* src, block_list* target, uint16 skill_id, uint16 skill_lv, int32 attack_type) {
+	run_item_hooks(&s_item_hooks::on_attack, src, target, skill_id, skill_lv, attack_type);
+}
+
+void skill_lua_item_hit_taken(block_list* src, block_list* target, uint16 skill_id, uint16 skill_lv, int32 attack_type) {
+	run_item_hooks(&s_item_hooks::on_hit_taken, target, src, skill_id, skill_lv, attack_type);
 }
