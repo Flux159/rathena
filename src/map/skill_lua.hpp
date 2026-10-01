@@ -27,7 +27,18 @@
  * so they reach every skill that has one; the stock result is passed in and
  * returning nil keeps it. on_hit runs from skill_attack for any skill, and
  * may ask for a few actions (drain, heal, status, polymorph), which are
- * applied once the hit has been dealt. Nothing a script does can reach the
+ * applied once the hit has been dealt.
+ *
+ * Items hook the same way, by AegisName, for whoever has them equipped (a
+ * card counts when it is slotted in something equipped):
+ *
+ *   item("My_Card", {
+ *     on_attack    = function(c) ... end,  -- the wearer lands a hit
+ *     on_hit_taken = function(c) ... end,  -- the wearer is hit
+ *   })
+ *
+ * They run where rAthena's own bAutoSpell and bAutoSpellWhenHit do, and
+ * c:cast(skill, level, who) casts the way those do. Nothing a script does can reach the
  * disk, the network or the server's memory; an error or a runaway loop
  * switches that one hook off and says so in the log.
  */
@@ -39,6 +50,7 @@ enum e_skill_lua_action : uint8 {
 	SKILL_LUA_HEAL,
 	SKILL_LUA_STATUS,
 	SKILL_LUA_POLYMORPH,
+	SKILL_LUA_CAST,
 };
 
 /// One thing an on_hit hook asked for. Units are kept by id, never by
@@ -46,9 +58,9 @@ enum e_skill_lua_action : uint8 {
 struct s_skill_lua_action {
 	e_skill_lua_action kind;
 	int32 unit_id;      ///< who it happens to
-	int32 type;         ///< SKILL_LUA_STATUS: the sc_type
+	int32 type;         ///< SKILL_LUA_STATUS: the sc_type; SKILL_LUA_CAST: the skill id
 	int32 rate;         ///< SKILL_LUA_STATUS: chance out of 10000
-	int32 val1;         ///< SKILL_LUA_STATUS
+	int32 val1;         ///< SKILL_LUA_STATUS; SKILL_LUA_CAST: the skill level
 	int64 duration;     ///< SKILL_LUA_STATUS, in milliseconds
 	int64 hp, sp;       ///< SKILL_LUA_HEAL
 };
@@ -76,5 +88,11 @@ std::unique_ptr<s_skill_lua_hit> skill_lua_on_hit(block_list* src, block_list* t
 
 /// Apply what an on_hit hook asked for. Does nothing for an empty hit.
 void skill_lua_apply(std::unique_ptr<s_skill_lua_hit>& hit);
+
+/// Item hooks: `src` hit `target`, with skill_id 0 for a normal attack. Called
+/// from skill_additional_effect and skill_counter_additional_effect, beside
+/// the autospells; what the hooks ask for is applied before they return.
+void skill_lua_item_attack(block_list* src, block_list* target, uint16 skill_id, uint16 skill_lv, int32 attack_type);
+void skill_lua_item_hit_taken(block_list* src, block_list* target, uint16 skill_id, uint16 skill_lv, int32 attack_type);
 
 #endif /* SKILL_LUA_HPP */
