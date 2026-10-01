@@ -31,6 +31,7 @@
 #include "loginclif.hpp"
 #include "logincnslif.hpp"
 #include "loginlog.hpp"
+#include "login_token.hpp"
 
 using namespace rathena;
 using namespace rathena::server_login;
@@ -362,7 +363,10 @@ int32 login_mmo_auth(struct login_session_data* sd, bool isServer) {
 		return 0; // 0 = Unregistered ID
 	}
 
-	if( !login_check_password( *sd, acc ) ) {
+	// A one-time login token (login_token.hpp) logs its account in instead of
+	// the password; anything that is not one is checked as a password.
+	bool token = login_config.use_login_tokens && login_token_accept( accounts, *sd, acc );
+	if( !token && !login_check_password( *sd, acc ) ) {
 		ShowNotice("Invalid password (account: '%s', ip: %s)\n", sd->userid, ip);
 		return 1; // 1 = Incorrect Password
 	}
@@ -656,6 +660,8 @@ bool login_config_read(const char* cfgName, bool normal) {
 			safestrncpy(console_log_filepath, w2, sizeof(console_log_filepath));
 		else if(!strcmpi(w1, "log_login"))
 			login_config.log_login = (bool)config_switch(w2);
+		else if(!strcmpi(w1, "login_tokens"))
+			login_config.use_login_tokens = (bool)config_switch(w2);
 		else if(!strcmpi(w1, "new_account"))
 			login_config.new_account_flag = (bool)config_switch(w2);
 		else if(!strcmpi(w1, "acc_name_min_length"))
@@ -779,6 +785,7 @@ void login_set_defaults() {
 	login_config.log_login = true;
 	safestrncpy(login_config.date_format, "%Y-%m-%d %H:%M:%S", sizeof(login_config.date_format));
 	login_config.console = false;
+	login_config.use_login_tokens = true;
 	login_config.new_account_flag = true;
 #if PACKETVER >= 20181114
 	login_config.acc_name_min_length = 6;
@@ -842,6 +849,7 @@ void LoginServer::finalize(){
 
 	if( login_config.log_login )
 		loginlog_final();
+	login_token_final();
 
 	do_final_msg();
 	ipban_final();

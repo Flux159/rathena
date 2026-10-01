@@ -194,6 +194,7 @@
     <ClInclude Include="loginclif.hpp" />
     <ClInclude Include="logincnslif.hpp" />
     <ClInclude Include="loginlog.hpp" />
+    <ClInclude Include="login_token.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="account.cpp" />
@@ -204,6 +205,7 @@
     <ClCompile Include="loginclif.cpp" />
     <ClCompile Include="logincnslif.cpp" />
     <ClCompile Include="loginlog.cpp" />
+    <ClCompile Include="login_token.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -86,6 +86,7 @@ struct Login_Config {
 	bool log_login;                                 /// whether to log login server actions or not
 	char date_format[32];                           /// date format used in messages
 	bool console;                                   /// console input system enabled?
+	bool use_login_tokens;                          /// accept one-time login tokens (login_token.hpp) in place of a password?
 	bool new_account_flag;                          /// autoregistration via _M/_F ?
 	uint8 acc_name_min_length;                      /// minimum account name length
 	uint8 password_min_length;                      /// minimum password length
