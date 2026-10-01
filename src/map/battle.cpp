@@ -33,6 +33,7 @@
 #include "pc.hpp"
 #include "pc_groups.hpp"
 #include "pet.hpp"
+#include "skill_lua.hpp"
 #include "./skills/skill_impl.hpp"
 
 using namespace rathena;
@@ -7383,6 +7384,13 @@ enum damage_lv battle_weapon_attack(block_list* src, block_list* target, t_tick 
 		battle_consume_ammo(sd, 0, 0);
 
 	damage = wd.damage + wd.damage2;
+
+	// Fire any item() Lua hooks on both the attacker's and defender's
+	// equipment. For a normal weapon attack skill_id is 0; the hook sees
+	// final damage, dmg_lv and critical flag, and may queue drain/heal/
+	// status/polymorph actions applied once the hit has been dealt.
+	std::unique_ptr<s_skill_lua_hit> lua_hit = skill_lua_on_damage(src, target, 0, 0, damage, wd.flag, wd.dmg_lv, wd.type == DMG_CRITICAL, sstatus->rhw.ele);
+
 	if( damage > 0 && src != target )
 	{
 		if (sc && sc->getSCE(SC_DUPLELIGHT) && (wd.flag & BF_SHORT)) { // Activates only from regular melee damage. Success chance is separate for both duple light attacks.
@@ -7555,6 +7563,7 @@ enum damage_lv battle_weapon_attack(block_list* src, block_list* target, t_tick 
 
 					if( type != CAST_GROUND ){
 						clif_skill_fail( *sd, r_skill );
+						skill_lua_apply(lua_hit);
 						return wd.dmg_lv;
 					}
 				}
@@ -7764,6 +7773,8 @@ enum damage_lv battle_weapon_attack(block_list* src, block_list* target, t_tick 
 
 	if (sd && tsc && wd.flag&BF_LONG && tsc->getSCE(SC_WINDSIGN) && rand()%100 < tsc->getSCE(SC_WINDSIGN)->val2)
 		status_heal(src, 0, 0, 1, 0);
+
+	skill_lua_apply(lua_hit);
 
 	return wd.dmg_lv;
 }

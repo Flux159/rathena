@@ -3159,9 +3159,17 @@ int64 skill_attack (int32 attack_type, block_list* src, block_list *dsrc, block_
 
 	shadow_flag = skill_check_shadowform(bl, damage, dmg.div_);
 
-	// A mod's Lua on_hit sees the hit now, while the target is certainly
-	// alive; what it asks for is applied once the hit has been dealt.
-	std::unique_ptr<s_skill_lua_hit> lua_hit = skill_lua_on_hit(src, bl, skill_id, skill_lv, damage, dmg.flag);
+	// Fire every interested Lua hook now, while the target is certainly
+	// alive: the skill's on_hit (if a mod registered one), on_attack for
+	// each of the attacker's equipped items, on_hit_taken for each of the
+	// defender's. What any of them asks for is applied once the hit has
+	// been dealt.
+	// A skill of the weapon's (-1) or an endowed (-2) element reports the
+	// weapon's, which already carries any endow.
+	int32 lua_element = skill_id != 0 ? skill_get_ele(skill_id, skill_lv) : -1;
+	if (lua_element < 0)
+		lua_element = status_get_status_data(*src)->rhw.ele;
+	std::unique_ptr<s_skill_lua_hit> lua_hit = skill_lua_on_damage(src, bl, skill_id, skill_lv, damage, dmg.flag, dmg.dmg_lv, dmg.type == DMG_CRITICAL, lua_element);
 
 	// Instant damage
 	if( !dmg.amotion ) {
