@@ -3934,6 +3934,55 @@ Example:
 
 ---------------------------------------
 
+*getmobdroprate(<mob id>,<item id>{,<char id>})
+
+Returns the chance that the monster drops the item when the attached player
+(or <char id>) kills it, in 1/100 of a percent (1 = .01%). Unlike the rate
+'getmobdrops' reports, this is the number the server rolls against: it counts
+the server's drop rate settings, the renewal level penalty and the player's own
+bonuses (bDropAddRace, bDropAddClass, Bubble Gum, VIP, LUK if drops_by_luk is
+set). It does not count mob_size_influence, as it asks about no particular
+monster. If the monster lists the item more than once, the best chance is
+returned. Returns -1 if the monster does not drop the item at all.
+
+@autoloot compares the base rate from 'getmobdrops' to its threshold, unless
+the 'autoloot_adjust' battle flag is on; then it compares this one.
+
+Example:
+
+	.@rate = getmobdroprate(1002, 909);	// Poring, Jellopy
+	if (.@rate >= 0)
+		mes "You have a " + (.@rate / 100) + "." + (.@rate % 100) + "% chance.";
+
+---------------------------------------
+
+*getautolootitems(<array variable>{,<char id>})
+*setautolootitems(<array variable>{,<char id>})
+
+getautolootitems fills <array variable> with the item IDs on the attached
+player's (or <char id>'s) @autolootid list and returns how many there are. The
+list holds up to AUTOLOOTITEM_SIZE items (src/config/core.hpp).
+
+setautolootitems replaces that list with the item IDs in <array variable>,
+quietly (@autolootitem prints a chat line per item), and returns how many are
+on it now. Unknown items, zeros and repeats are skipped.
+
+The @autoloot rate and @autoloottype list are kept in the character variables
+AUTOLOOT_RATE (1/100 of a percent: 10000 loots everything, 0 is off) and
+AUTOLOOT_TYPE (a bitmask of 1<<IT_* item types), which a script can read
+directly. To change any of these settings, a script runs the commands
+themselves with 'atcommand', which does not need the player to be allowed them.
+
+Example:
+
+	if (AUTOLOOT_TYPE & (1<<IT_CARD))
+		dispbottom "You are looting every card.";
+	.@n = getautolootitems(.@items);
+	dispbottom "Autolooting " + .@n + " items.";
+	setautolootitems(.@saved);	// back to a list kept earlier
+
+---------------------------------------
+
 *skillpointcount({<char_id>})
 
 Returns the total amount of skill points a character possesses (SkillPoint+SP's used in skills)
