@@ -14239,7 +14239,8 @@ BUILDIN_FUNC(getequipcardcnt)
 
 /// Removes all cards from the item found in the specified equipment slot of the invoking character,
 /// and give them to the character. If any cards were removed in this manner, it will also show a success effect.
-/// successremovecards <slot>;
+/// With <card slot> (0-3), only the card in that slot is removed, and the item stays equipped.
+/// successremovecards <slot>{,<card slot>};
 BUILDIN_FUNC(successremovecards) {
 	int32 i=-1,c,cardflag=0;
 
@@ -14260,6 +14261,45 @@ BUILDIN_FUNC(successremovecards) {
 
 	if(itemdb_isspecial(sd->inventory.u.items_inventory[i].card[0]))
 		return SCRIPT_CMD_SUCCESS;
+
+	// One card: take it out of the item in place, the way successrefitem
+	// refines one, so the item keeps everything else and stays equipped.
+	if( script_hasdata(st,3) ) {
+		c = script_getnum(st,3);
+
+		if( c < 0 || c >= sd->inventory_data[i]->slots )
+			return SCRIPT_CMD_SUCCESS;
+
+		t_itemid card = sd->inventory.u.items_inventory[i].card[c];
+
+		if( !card || itemdb_type(card) != IT_CARD )
+			return SCRIPT_CMD_SUCCESS;
+
+		item item_tmp = {};
+
+		item_tmp.nameid   = card;
+		item_tmp.identify = 1;
+
+		e_additem_result flag = pc_additem( sd, &item_tmp, 1, LOG_TYPE_SCRIPT );
+
+		if( flag != ADDITEM_SUCCESS ){
+			clif_additem(sd,0,0,flag);
+			ShowError( "buildin_successremovecards: Failed to add the item to player.\n" );
+			return SCRIPT_CMD_FAILURE;
+		}
+
+		uint32 ep = sd->inventory.u.items_inventory[i].equip;
+
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[i]);
+		sd->inventory.u.items_inventory[i].card[c] = 0;
+		pc_unequipitem(sd,i,2); // status calc will happen in pc_equipitem() below
+		clif_delitem( *sd, i, 1, 3 );
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[i]);
+		clif_additem(sd,i,1,0);
+		pc_equipitem(sd,i,ep);
+		clif_misceffect( *sd, NOTIFYEFFECT_REFINE_SUCCESS );
+		return SCRIPT_CMD_SUCCESS;
+	}
 
 	for( c = sd->inventory_data[i]->slots - 1; c >= 0; --c ) {
 		if( sd->inventory.u.items_inventory[i].card[c] && itemdb_type(sd->inventory.u.items_inventory[i].card[c]) == IT_CARD ) {// extract this card from the item
@@ -28497,7 +28537,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setcastledata,"sii"),
 	BUILDIN_DEF(requestguildinfo,"i?"),
 	BUILDIN_DEF(getequipcardcnt,"i"),
-	BUILDIN_DEF(successremovecards,"i"),
+	BUILDIN_DEF(successremovecards,"i?"),
 	BUILDIN_DEF(failedremovecards,"ii"),
 	BUILDIN_DEF(marriage,"s"),
 	BUILDIN_DEF2(wedding_effect,"wedding",""),

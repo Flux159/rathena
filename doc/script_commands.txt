@@ -5784,12 +5784,21 @@ a rune and has the appropriate raw materials in their inventory.
 
 ---------------------------------------
 
-*successremovecards <equipment slot>;
+*successremovecards <equipment slot>{,<card slot>};
 
 This command will remove all cards of the cards slots defined in db/item_db.yml
 from the item found in the specified equipment slot of the invoking character,
 create new card items and give them to the character.
 If any cards were removed in this manner, it will also show a success effect.
+
+If <card slot> (0-3, the numbering 'getequipcardid' uses) is given, only the
+card in that slot is removed. The item is changed in place, like a refine: it
+stays equipped and keeps its other cards and everything else about it, and
+the slot is left empty. Nothing happens if that slot is beyond the item's
+slots or holds no card.
+
+	// take the card in the second slot out of the equipped weapon
+	successremovecards EQI_HAND_R,1;
 
 ---------------------------------------
 
