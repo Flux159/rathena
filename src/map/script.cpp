@@ -18499,7 +18499,7 @@ BUILDIN_FUNC(query_logsql) {
 		return SCRIPT_CMD_FAILURE;
 	}
 
-	return buildin_query_sql_sub(st, logmysql_handle);
+	return buildin_query_sql_sub(st, qslogmysql_handle);
 }
 
 //Allows escaping of a given string.

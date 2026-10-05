@@ -64,6 +64,11 @@ int32 map_server_port = 3306;
 std::string map_server_ip = "127.0.0.1";
 std::string map_server_id = "ragnarok";
 std::string map_server_pw = "";
+// Optional login for script SQL (query_sql). Empty: script SQL uses the map
+// server's own login, as it always has. Set it to a read-only user to keep
+// scripts from changing the database.
+std::string map_query_server_id = "";
+std::string map_query_server_pw = "";
 std::string map_server_db = "ragnarok";
 Sql* mmysql_handle;
 Sql* qsmysql_handle; /// For query_sql
@@ -101,7 +106,12 @@ uint16 log_db_port = 3306;
 std::string log_db_id = "ragnarok";
 std::string log_db_pw = "";
 std::string log_db_db = "log";
+// Optional login for script SQL on the log database (query_logsql), on its own
+// connection. Empty: query_logsql shares the log writer's connection.
+std::string log_query_db_id = "";
+std::string log_query_db_pw = "";
 Sql* logmysql_handle;
+Sql* qslogmysql_handle; /// For query_logsql: logmysql_handle, or its own read-only connection
 
 // inter config
 struct inter_conf inter_config {};
@@ -4344,6 +4354,12 @@ int32 inter_config_read(const char *cfgName)
 		if(strcmpi(w1,"map_server_pw")==0)
 			map_server_pw = w2;
 		else
+		if(strcmpi(w1,"map_query_server_id")==0)
+			map_query_server_id = w2;
+		else
+		if(strcmpi(w1,"map_query_server_pw")==0)
+			map_query_server_pw = w2;
+		else
 		if(strcmpi(w1,"map_server_db")==0)
 			map_server_db = w2;
 		else
@@ -4362,6 +4378,12 @@ int32 inter_config_read(const char *cfgName)
 		else
 		if(strcmpi(w1,"log_db_pw")==0)
 			log_db_pw = w2;
+		else
+		if(strcmpi(w1,"log_query_db_id")==0)
+			log_query_db_id = w2;
+		else
+		if(strcmpi(w1,"log_query_db_pw")==0)
+			log_query_db_pw = w2;
 		else
 		if(strcmpi(w1,"log_db_port")==0)
 			log_db_port = (uint16)strtoul( w2, nullptr, 10 );
@@ -4401,12 +4423,16 @@ int32 map_sql_init(void)
 	mmysql_handle = Sql_Malloc();
 	qsmysql_handle = Sql_Malloc();
 
+	const bool query_login = !map_query_server_id.empty();
+	const std::string& query_id = query_login ? map_query_server_id : map_server_id;
+	const std::string& query_pw = query_login ? map_query_server_pw : map_server_pw;
+
 	ShowInfo("Connecting to the Map DB Server....\n");
 	if( SQL_ERROR == Sql_Connect(mmysql_handle, map_server_id.c_str(), map_server_pw.c_str(), map_server_ip.c_str(), map_server_port, map_server_db.c_str()) ||
-		SQL_ERROR == Sql_Connect(qsmysql_handle, map_server_id.c_str(), map_server_pw.c_str(), map_server_ip.c_str(), map_server_port, map_server_db.c_str()) )
+		SQL_ERROR == Sql_Connect(qsmysql_handle, query_id.c_str(), query_pw.c_str(), map_server_ip.c_str(), map_server_port, map_server_db.c_str()) )
 	{
-		ShowError("Couldn't connect with uname='%s',host='%s',port='%d',database='%s'\n",
-			map_server_id.c_str(), map_server_ip.c_str(), map_server_port, map_server_db.c_str());
+		ShowError("Couldn't connect with uname='%s' (script SQL: '%s'),host='%s',port='%d',database='%s'\n",
+			map_server_id.c_str(), query_id.c_str(), map_server_ip.c_str(), map_server_port, map_server_db.c_str());
 		Sql_ShowDebug(mmysql_handle);
 		Sql_Free(mmysql_handle);
 		Sql_ShowDebug(qsmysql_handle);
@@ -4414,6 +4440,8 @@ int32 map_sql_init(void)
 		exit(EXIT_FAILURE);
 	}
 	ShowStatus("Connect success! (Map Server Connection)\n");
+	if( query_login )
+		ShowStatus("Script SQL (query_sql) uses the login '%s'.\n", query_id.c_str());
 
 	if( !default_codepage.empty() ) {
 		if ( SQL_ERROR == Sql_SetEncoding(mmysql_handle, default_codepage.c_str()) )
@@ -4435,6 +4463,9 @@ int32 map_sql_close(void)
 	if (log_config.sql_logs)
 	{
 		ShowStatus("Close Log DB Connection....\n");
+		if( qslogmysql_handle != logmysql_handle )
+			Sql_Free(qslogmysql_handle);
+		qslogmysql_handle = nullptr;
 		Sql_Free(logmysql_handle);
 		logmysql_handle = nullptr;
 	}
@@ -4460,6 +4491,23 @@ int32 log_sql_init(void)
 	if( !default_codepage.empty() )
 		if ( SQL_ERROR == Sql_SetEncoding(logmysql_handle, default_codepage.c_str()) )
 			Sql_ShowDebug(logmysql_handle);
+
+	// query_logsql: the writer's connection, unless a login of its own is set.
+	qslogmysql_handle = logmysql_handle;
+	if( !log_query_db_id.empty() ){
+		qslogmysql_handle = Sql_Malloc();
+		if ( SQL_ERROR == Sql_Connect(qslogmysql_handle, log_query_db_id.c_str(), log_query_db_pw.c_str(), log_db_ip.c_str(), log_db_port, log_db_db.c_str()) ){
+			ShowError("Couldn't connect script SQL to the log database with uname='%s',host='%s',port='%hu',database='%s'\n",
+				log_query_db_id.c_str(), log_db_ip.c_str(), log_db_port, log_db_db.c_str());
+			Sql_ShowDebug(qslogmysql_handle);
+			Sql_Free(qslogmysql_handle);
+			exit(EXIT_FAILURE);
+		}
+		if( !default_codepage.empty() )
+			if ( SQL_ERROR == Sql_SetEncoding(qslogmysql_handle, default_codepage.c_str()) )
+				Sql_ShowDebug(qslogmysql_handle);
+		ShowStatus("Script SQL (query_logsql) uses the login '%s'.\n", log_query_db_id.c_str());
+	}
 
 	return 0;
 }
