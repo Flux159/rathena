@@ -37,6 +37,7 @@
 #include "elemental.hpp"
 #include "extensions.hpp"
 #include "skill_lua.hpp"
+#include "mod_store.hpp"
 #include "guild.hpp"
 #include "homunculus.hpp"
 #include "instance.hpp"
@@ -2239,6 +2240,9 @@ int32 map_quit(map_session_data *sd) {
 		//Non-active players should not have loaded any data yet (or it was cleared already) so no additional cleanups are needed.
 		return 0;
 	}
+
+	// Save the player's account and char mod-store documents.
+	mod_store::logout(*sd);
 
 	if (sd->expiration_tid != INVALID_TIMER)
 		delete_timer(sd->expiration_tid, pc_expiration_timer);
@@ -5064,6 +5068,7 @@ void MapServer::finalize(){
 	do_final_mob(false);
 	do_final_msg();
 	do_final_skill_lua();
+	mod_store::final();
 	do_final_skill();
 	do_final_status();
 	do_final_unit();
@@ -5436,6 +5441,7 @@ bool MapServer::initialize( int32 argc, char *argv[] ){
 	do_init_mob();
 	do_init_pc();
 	do_init_status();
+	mod_store::init();
 	do_init_skill_lua();
 	do_init_party();
 	do_init_guild();
