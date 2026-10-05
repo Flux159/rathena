@@ -854,18 +854,62 @@ bool store_write(lua_State* state, const mod_store::s_target& t, const std::stri
 	return mod_store::set(t, path, value, error);
 }
 
+void push_store_value(lua_State* state, const mod_store::s_value& value) {
+	if (value.is_string)
+		lua_pushlstring(state, value.text.data(), value.text.size());
+	else
+		lua_pushinteger(state, value.number);
+}
+
+/// A segment as the table key it was written from: "3" was the integer 3
+/// (store_write), so an array read back is an array again.
+void push_store_key(lua_State* state, const std::string& segment) {
+	bool integer = !segment.empty() && segment.size() <= 18
+		&& (segment == "0" || segment[0] != '0')
+		&& std::all_of(segment.begin(), segment.end(), [](char c) { return c >= '0' && c <= '9'; });
+	if (integer)
+		lua_pushinteger(state, std::stoll(segment));
+	else
+		lua_pushlstring(state, segment.data(), segment.size());
+}
+
+/// The value at a path, or everything under it as a table -- what store.set
+/// wrote, read back.
 int32 lua_store_get(lua_State* state) {
-	mod_store::s_value value;
-	bool found = false;
+	std::vector<std::pair<std::string, mod_store::s_value>> entries;
 	std::string error;
-	if (mod_store::get(store_target(state), store_path(state, 1), value, found, error) && found) {
-		if (value.is_string)
-			lua_pushlstring(state, value.text.data(), value.text.size());
-		else
-			lua_pushinteger(state, value.number);
+	if (!mod_store::read(store_target(state), store_path(state, 1), entries, error) || entries.empty()) {
+		lua_settop(state, 2);  // the default, or nil
 		return 1;
 	}
-	lua_settop(state, 2);  // the default, or nil
+	if (entries.size() == 1 && entries[0].first.empty()) {
+		push_store_value(state, entries[0].second);
+		return 1;
+	}
+	lua_newtable(state);
+	const int32 root = lua_gettop(state);
+	for (const auto& entry : entries) {
+		lua_pushvalue(state, root);
+		size_t start = 0;
+		for (size_t dot = entry.first.find('.'); dot != std::string::npos; dot = entry.first.find('.', start)) {
+			push_store_key(state, entry.first.substr(start, dot - start));
+			lua_pushvalue(state, -1);
+			if (lua_gettable(state, -3) != LUA_TTABLE) {
+				lua_pop(state, 1);
+				lua_newtable(state);
+				lua_pushvalue(state, -2);  // key
+				lua_pushvalue(state, -2);  // the new table
+				lua_settable(state, -5);
+			}
+			lua_remove(state, -2);  // key
+			lua_remove(state, -2);  // parent
+			start = dot + 1;
+		}
+		push_store_key(state, entry.first.substr(start));
+		push_store_value(state, entry.second);
+		lua_settable(state, -3);
+		lua_pop(state, 1);
+	}
 	return 1;
 }
 

@@ -80,6 +80,13 @@ bool keys(const s_target& t, const std::string& path, std::vector<std::string>& 
 /// `path`'s children that hold an integer, highest first, at most `limit`.
 bool top(const s_target& t, const std::string& path, size_t limit, std::vector<std::pair<std::string, int64>>& out, std::string& error);
 
+/// `path` and everything under it ("" = the whole document), named relative
+/// to `path` ("" for a value at `path` itself), in order. A path holds either
+/// a value or entries under it, never both.
+bool read(const s_target& t, const std::string& path, std::vector<std::pair<std::string, s_value>>& out, std::string& error);
+/// What read() returned, as JSON: a value, or an object of objects. Bytes
+/// outside printable ASCII are written as \u00XX, one per byte.
+std::string to_json(const std::vector<std::pair<std::string, s_value>>& entries);
 /// Bytes the document uses, and the most it may (from the battle settings).
 size_t used(const s_target& t);
 size_t limit(e_scope scope);

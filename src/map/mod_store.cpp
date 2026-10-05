@@ -336,6 +336,22 @@ bool set(const s_target& t, const std::string& path, const s_value& value, std::
 		warn(t, path, error);
 		return false;
 	}
+	// A tree, so it reads back as the table or object it was written as: a
+	// path holds a value or entries under it, never both.
+	for (size_t dot = path.find('.'); dot != std::string::npos; dot = path.find('.', dot + 1)) {
+		if (doc->values.count(path.substr(0, dot))) {
+			error = "'" + path.substr(0, dot) + "' holds a value, so nothing can go under it";
+			warn(t, path, error);
+			return false;
+		}
+	}
+	const std::string below = path + ".";
+	auto child = doc->values.lower_bound(below);
+	if (child != doc->values.end() && child->first.compare(0, below.size(), below) == 0) {
+		error = "it has entries under it; delete them first";
+		warn(t, path, error);
+		return false;
+	}
 	auto it = doc->values.find(path);
 	size_t before = it == doc->values.end() ? 0 : entry_bytes(path, it->second);
 	size_t after = doc->bytes - before + entry_bytes(path, value);
@@ -370,6 +386,100 @@ bool inc(const s_target& t, const std::string& path, int64 by, int64& result, st
 		return false;
 	result = next.number;
 	return true;
+}
+
+bool read(const s_target& t, const std::string& path, std::vector<std::pair<std::string, s_value>>& out, std::string& error) {
+	out.clear();
+	if (!valid_path(path, true, error))
+		return false;
+	const bool was_loaded = docs.count(key_of(t)) != 0;
+	s_doc* doc = doc_for(t, error);
+	if (doc == nullptr)
+		return false;
+	auto exact = path.empty() ? doc->values.end() : doc->values.find(path);
+	if (exact != doc->values.end()) {
+		out.emplace_back("", exact->second);
+	} else {
+		const std::string prefix = path.empty() ? "" : path + ".";
+		for (auto it = doc->values.lower_bound(prefix); it != doc->values.end() && it->first.compare(0, prefix.size(), prefix) == 0; ++it)
+			out.emplace_back(it->first.substr(prefix.size()), it->second);
+	}
+	// A client can name any mod; don't keep a document that was loaded only
+	// to find it empty.
+	if (!was_loaded && doc->values.empty() && doc->dirty.empty() && doc->removed.empty())
+		docs.erase(key_of(t));
+	return true;
+}
+
+namespace {
+
+struct s_json_node {
+	const s_value* value = nullptr;
+	std::map<std::string, s_json_node> children;
+};
+
+void json_string(std::string& out, const std::string& text) {
+	static const char* hex = "0123456789abcdef";
+	out += '"';
+	for (unsigned char c : text) {
+		if (c == '"' || c == '\\') {
+			out += '\\';
+			out += static_cast<char>(c);
+		} else if (c < 0x20 || c >= 0x7F) {
+			out += "\\u00";
+			out += hex[c >> 4];
+			out += hex[c & 15];
+		} else {
+			out += static_cast<char>(c);
+		}
+	}
+	out += '"';
+}
+
+void json_node(std::string& out, const s_json_node& node) {
+	if (node.value != nullptr) {
+		if (node.value->is_string)
+			json_string(out, node.value->text);
+		else
+			out += std::to_string(node.value->number);
+		return;
+	}
+	out += '{';
+	bool first = true;
+	for (const auto& child : node.children) {
+		if (!first)
+			out += ',';
+		first = false;
+		json_string(out, child.first);
+		out += ':';
+		json_node(out, child.second);
+	}
+	out += '}';
+}
+
+}  // namespace
+
+std::string to_json(const std::vector<std::pair<std::string, s_value>>& entries) {
+	s_json_node root;
+	for (const auto& entry : entries) {
+		if (entry.first.empty()) {
+			root.value = &entry.second;
+			continue;
+		}
+		s_json_node* node = &root;
+		size_t start = 0;
+		for (;;) {
+			size_t dot = entry.first.find('.', start);
+			node = &node->children[entry.first.substr(start, dot == std::string::npos ? std::string::npos : dot - start)];
+			if (dot == std::string::npos)
+				break;
+			start = dot + 1;
+		}
+		node->value = &entry.second;
+	}
+	std::string out;
+	json_node(out, root);
+	return out;
 }
 
 bool remove(const s_target& t, const std::string& path, int32& removed, std::string& error) {
