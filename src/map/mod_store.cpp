@@ -456,21 +456,12 @@ void logout(map_session_data& sd) {
 }
 
 void init() {
-	// The app's mod reader has no rights on this table, so no mod can read
-	// another mod's store through query_sql.
-	if (SQL_ERROR == Sql_Query(mmysql_handle,
-			"CREATE TABLE IF NOT EXISTS `%s` ("
-			" `mod_name` varchar(64) CHARACTER SET ascii NOT NULL,"
-			" `scope` tinyint unsigned NOT NULL,"
-			" `owner` int unsigned NOT NULL DEFAULT '0',"
-			" `path` varchar(255) CHARACTER SET ascii NOT NULL,"
-			" `kind` char(1) CHARACTER SET ascii NOT NULL DEFAULT 'i',"
-			" `num` bigint NOT NULL DEFAULT '0',"
-			" `str` mediumblob NULL,"
-			" PRIMARY KEY (`mod_name`, `scope`, `owner`, `path`)"
-			") ENGINE=MyISAM", TABLE)) {
+	// The table is in sql-files/main.sql (and upgrade_20261005.sql); the map
+	// server's login only needs to read and write it. The app's mod reader has
+	// no rights on it, so no mod can read another mod's store through query_sql.
+	if (SQL_ERROR == Sql_Query(mmysql_handle, "SELECT 1 FROM `%s` LIMIT 0", TABLE)) {
 		Sql_ShowDebug(mmysql_handle);
-		ShowError("Mod store: the `%s` table could not be created; mods cannot keep data.\n", TABLE);
+		ShowError("Mod store: the `%s` table is missing (sql-files/upgrades/upgrade_20261005.sql); mods cannot keep data.\n", TABLE);
 		return;
 	}
 	add_timer_func_list(save_timer, "mod_store_save_timer");
