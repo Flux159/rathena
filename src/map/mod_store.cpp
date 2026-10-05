@@ -23,7 +23,7 @@ namespace {
 
 constexpr const char* TABLE = "mod_store";
 constexpr t_tick SAVE_INTERVAL = 60 * 1000;
-constexpr size_t MAX_PATH = 255;
+constexpr size_t MAX_PATH_LENGTH = 255;
 constexpr size_t MAX_MOD = 64;
 
 struct s_doc_key {
@@ -68,8 +68,8 @@ bool valid_path(const std::string& path, bool allow_root, std::string& error) {
 		error = "a path is required";
 		return false;
 	}
-	if (path.size() > MAX_PATH) {
-		error = "the path is longer than " + std::to_string(MAX_PATH) + " characters";
+	if (path.size() > MAX_PATH_LENGTH) {
+		error = "the path is longer than " + std::to_string(MAX_PATH_LENGTH) + " characters";
 		return false;
 	}
 	int32 depth = 1;
@@ -105,7 +105,7 @@ bool valid_path(const std::string& path, bool allow_root, std::string& error) {
 
 bool load(const s_doc_key& key, s_doc& doc) {
 	SqlStmt stmt{ *mmysql_handle };
-	char path[MAX_PATH + 1];
+	char path[MAX_PATH_LENGTH + 1];
 	char kind[2];
 	int64 number = 0;
 	std::vector<char> text(std::max<size_t>(value_limit(), 1) + 1);
