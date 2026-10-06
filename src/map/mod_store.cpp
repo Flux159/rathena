@@ -255,6 +255,10 @@ const char* scope_name(e_scope scope) {
 
 std::string mod_of_npc(int32 npc_id) {
 	npc_data* nd = map_id2nd(npc_id);
+	// A duplicate made for an instance is parsed from "INSTANCING", not from
+	// the mod's file, so it belongs to whatever its original belongs to.
+	for (int32 hops = 0; nd != nullptr && nd->src_id != 0 && hops < 4; ++hops)
+		nd = map_id2nd(nd->src_id);
 	if (nd == nullptr || nd->path == nullptr)
 		return "";
 	// Mods' scripts load from npc/mods/<mod>/... (the app's mod build). A file
