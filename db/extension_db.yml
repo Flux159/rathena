@@ -126,6 +126,18 @@ Body:
         Max: 10000
         Description: Highest rate a script may set, in percent.
 
+  - Id: attendance_repeat
+    Name: Attendance rewards start over after the last day
+    Description: |
+      Once a player has claimed every day of the running attendance period
+      (db/attendance.yml), the next day's claim starts again at day 1, so
+      one long period gives its rewards in a repeating cycle. The counter
+      goes back to 0 when the player logs in, opens the Attendance Check
+      window or claims, and only on a day nothing was claimed yet.
+      Off is stock rAthena: after the last day nothing more is given until
+      a new period starts.
+    Enabled: false
+
 Footer:
   Imports:
     - Path: db/import/extension_db.yml
