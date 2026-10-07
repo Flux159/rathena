@@ -42,6 +42,7 @@
 #include "date.hpp" // is_day_of_*()
 #include "duel.hpp"
 #include "elemental.hpp"
+#include "extensions.hpp"
 #include "guild.hpp"
 #include "homunculus.hpp"
 #include "instance.hpp"
@@ -15640,6 +15641,25 @@ static inline bool pc_attendance_rewarded_today( map_session_data* sd ){
 	return pc_readreg2( sd, ATTENDANCE_DATE_VAR ) >= date_get(DT_YYYYMMDD);
 }
 
+/**
+ * Extension attendance_repeat: once every day of the period has been claimed,
+ * the next day starts the rewards again at day 1.
+ * Stock rAthena gives nothing more until a new period starts.
+ */
+static void pc_attendance_repeat( map_session_data* sd, std::shared_ptr<s_attendance_period> period ){
+	if( !extension_enabled( "attendance_repeat" ) ){
+		return;
+	}
+
+	if( pc_attendance_rewarded_today( sd ) ){
+		return;
+	}
+
+	if( pc_readreg2( sd, ATTENDANCE_COUNT_VAR ) >= static_cast<int64>( period->rewards.size() ) ){
+		pc_setreg2( sd, ATTENDANCE_COUNT_VAR, 0 );
+	}
+}
+
 int32 pc_attendance_counter( map_session_data* sd ){
 	std::shared_ptr<s_attendance_period> period = pc_attendance_period();
 
@@ -15658,6 +15678,9 @@ int32 pc_attendance_counter( map_session_data* sd ){
 
 		return 0;
 	}
+
+	pc_attendance_repeat( sd, period );
+	counter = static_cast<int32>(pc_readreg2( sd, ATTENDANCE_COUNT_VAR ));
 
 	return 10 * counter + ( ( pc_attendance_rewarded_today(sd) ) ? 1 : 0 );
 }
@@ -15678,15 +15701,17 @@ void pc_attendance_claim_reward( map_session_data* sd ){
 		return;
 	}
 
-	int32 attendance_counter = static_cast<int32>(pc_readreg2( sd, ATTENDANCE_COUNT_VAR ));
-
-	attendance_counter += 1;
-
 	std::shared_ptr<s_attendance_period> period = pc_attendance_period();
 
 	if( period == nullptr ){
 		return;
 	}
+
+	pc_attendance_repeat( sd, period );
+
+	int32 attendance_counter = static_cast<int32>(pc_readreg2( sd, ATTENDANCE_COUNT_VAR ));
+
+	attendance_counter += 1;
 
 	if( period->rewards.size() < attendance_counter ){
 		return;
