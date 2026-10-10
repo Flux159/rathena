@@ -13,5 +13,7 @@ SkillShadowLeap::SkillShadowLeap() : SkillImpl(NJ_SHADOWJUMP) {
 void SkillShadowLeap::castendPos2(block_list* src, int32 x, int32 y, uint16 skill_lv, t_tick tick, int32& flag) const {
 	if( map_getcell(src->m,x,y,CELL_CHKREACH) && skill_check_unit_movepos(5, src, x, y, 1, 0) ) //You don't move on GVG grounds.
 		clif_blown(src);
+	else if (src->prev != nullptr) // Not warped away: undo the move the client made on ZC_NOTIFY_GROUNDSKILL
+		clif_fixpos(*src);
 	status_change_end(src, SC_HIDING);
 }
