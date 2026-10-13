@@ -152,6 +152,16 @@ Body:
       Off is stock rAthena: setattendancereward warns and does nothing.
     Enabled: false
 
+  - Id: identified_equipment
+    Name: Equipment is obtained identified
+    Description: |
+      Weapons, armour, pet armour and shadow gear are created identified,
+      so a Magnifier is never needed. This covers everything that asks
+      itemdb_isidentified: monster drops, Steal, item groups and boxes,
+      quest rewards and script-created items.
+      Off is stock rAthena: those item types are created unidentified.
+    Enabled: false
+
 Footer:
   Imports:
     - Path: db/import/extension_db.yml

@@ -93,3 +93,4 @@ server restarts (the app's **Apply**).
 | `map_mob_count_rate` | Enables `setmapmobcountrate`, which scales the monster count of every spawn line on one map |
 | `attendance_repeat` | Attendance rewards start over at day 1 after the last day of the period |
 | `attendance_script_rewards` | Enables `setattendancereward`, which changes one day's reward of the running attendance period |
+| `identified_equipment` | Weapons, armour, pet armour and shadow gear are created identified, from drops, Steal, boxes, quests and scripts |
