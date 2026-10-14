@@ -1,42 +1,46 @@
 # Working in this repository
 
-This is **Flux159/rathena**, the rAthena fork that [Ragnarok Offline](https://github.com/Flux159/ragnarokoffline.app) builds its game servers from. It is not upstream rAthena.
+This is **akreao/rathena**, a fork of rAthena. You are on (or should be on) its **`rag-wrapper`** branch: the server side of [rag-wrapper](https://github.com/akreao/rag-wrapper), a Linux desktop app that builds rAthena from this branch in Docker and runs it, with MariaDB, for the real Ragnarok Online client on a LAN. It is not upstream rAthena, and it is not Ragnarok Offline.
 
-**On `master` right now?** That's upstream rAthena plus this file. The fork's code is on `ragnarokoffline`: run `git switch ragnarokoffline` before you change anything.
+**Not on `rag-wrapper` right now?** Run `git switch rag-wrapper` before you change anything for rag-wrapper. The fork's other branches (`ragnarokoffline` and its feature branches) belong to a different project; leave them alone.
 
-## Pull requests go to `ragnarokoffline`, not `master`
+## Pull requests go to `rag-wrapper`
 
 | Branch | What it is | Open PRs against it? |
 |---|---|---|
-| `ragnarokoffline` | The fork's own branch. The app pins commits on it (`config/VENDOR_PINS` in the app repo). | **Yes. Every PR goes here.** |
+| `rag-wrapper` | rag-wrapper's server branch: upstream rAthena plus rag-wrapper's server changes. The app builds a pinned commit of it. | **Yes. Every rag-wrapper PR goes here.** |
 | `master` | A mirror of upstream rAthena's `master`. | **No.** |
+| `ragnarokoffline` | Another project's branch, unrelated to rag-wrapper. | **No.** |
 
-GitHub may suggest `master` as the base, because that is the repository's default branch. Change it to `ragnarokoffline` before you open the PR. A PR against `master` drags in every upstream commit that `ragnarokoffline` hasn't merged yet: hundreds of unrelated commits and files.
+`rag-wrapper` is the repository's default branch, so clones and new PRs start there. If GitHub ever suggests `master` as the base, change it to `rag-wrapper` before you open the PR.
 
 How to work:
-- Branch from `ragnarokoffline`: `git fetch origin && git switch -c my-change origin/ragnarokoffline`.
-- Keep a PR to one change. Personal tooling, editor settings and unrelated deletions belong in their own PR, or nowhere.
-- `ragnarokoffline` only moves forward. Releases pin commits on it, so it refuses force-pushes and is never rebased. Newer upstream comes in as a merge of `master` into it, in its own PR.
-- To bring your branch up to date, merge or rebase onto `origin/ragnarokoffline`, never onto `master`.
+- Branch from `rag-wrapper`: `git fetch origin && git switch -c my-change origin/rag-wrapper`.
+- Keep a PR to one change.
+- `rag-wrapper` only moves forward: no force-pushes, no rebasing. The app pins commits on it, and a rewritten commit breaks that pin.
+- Newer upstream comes in only when it's needed, for a specific upstream fix or feature, not on a schedule. Bring it in as a merge of `master` into `rag-wrapper`, in its own PR, then move the app's pin and retest with the client.
+- To bring your branch up to date, merge or rebase onto `origin/rag-wrapper`, never onto `master`.
 
-## What belongs here
+## How the app uses this branch
 
-Fixes to rAthena itself, and the fork's extension points:
-- **Lua hooks** (`src/map/skill_lua.cpp`, `.hpp`): `skill(...)` and `item(...)` hooks with a priority chain, `c:cast`, drain, heal and status actions. Mods' `lua/` folders use these.
-- **Server extensions** (`db/extension_db.yml`): fork behaviour a mod can switch on, with typed values. `@extensions` lists them in game. **Read [doc/extensions.md](https://github.com/Flux159/rathena/blob/ragnarokoffline/doc/extensions.md) before changing stock behaviour:** a change that should be optional belongs behind an extension (off by default), not in a core edit.
-- Script commands and events mods rely on, e.g. `makeitemowned`, `OnPCDropItemEvent`, and the one-time login tokens.
+The app's Dockerfile (`docker/rathena/Dockerfile` in akreao/rag-wrapper) clones this repository at the commit pinned in the app's `.env.example` (`RATHENA_COMMIT`) and runs `./configure --enable-packetver=$PACKETVER && make server`. It copies `conf/`, `db/`, `npc/` and `sql-files/` into the image, and its `entrypoint.sh` writes the server configs from environment variables at start-up.
 
-App-specific additions (the population engine, the stylist, crash tracing) are not here. They are patches in the app repo (`third-party/`, `scripts/apply-server-mods.sh`), applied on top of this branch at build time. Anything you change here must still let those patches apply.
+So:
+- **Merging here changes nothing for players until the app's pin moves** to the new commit, in a PR to rag-wrapper. Mention the commit to pin in your PR.
+- Settings the app should control belong in a config option, which `entrypoint.sh` can set, rather than a hard-coded value.
+- On first start the app's `db-init` service imports `sql-files/main.sql` (and the other base schema files) into an empty database. On later starts it applies every `sql-files/upgrades/*.sql` it hasn't run yet and records each one, so an upgrade file is how a schema change reaches existing installs. Never edit an upgrade file after it is merged: installs that already ran it won't run it again.
+- Passwords are stored as MD5 (`use_MD5_passwords: yes`), and the app's web portal writes accounts to the same `login` table. Don't change the account schema without a matching change in the portal.
+
+The app's own decisions are in `docs/decisions.md` in akreao/rag-wrapper. Read it before changing behaviour the app relies on.
 
 ## Conventions
 
 - Follow upstream rAthena conventions: coding style, the YAML DB layout, the pre-renewal/renewal split (`db/pre-re`, `db/re`, `src/config/renewal.hpp`), @command patterns.
-- **A schema change** goes in `sql-files/main.sql` *and* a new `sql-files/upgrades/upgrade_YYYYMMDD.sql`. The app's supervisor also applies its own idempotent migration at start-up; see `ensure_*` in the app's `stack/src/`.
-- **Prefer an extension or a Lua hook** to changing stock behaviour unconditionally. Keep any core edit small, so upstream merges stay easy.
+- **A schema change** goes in `sql-files/main.sql` *and* a new `sql-files/upgrades/upgrade_YYYYMMDD.sql`.
+- Keep core edits small and prefer a config option to an unconditional change, so upstream merges stay easy.
 
 ## Checking a change
 
-- Build: `./configure && make server`, or CMake (`cmake -B build && cmake --build build`). Add `--enable-prere` for pre-renewal.
+- Build: `./configure && make server`, or CMake (`cmake -B build && cmake --build build`). Add `--enable-prere` for pre-renewal and `--enable-packetver=20220406` to match the app's default client.
 - A quick compile check of one file: `c++ -std=c++20 -fsyntax-only -Isrc -I3rdparty -I3rdparty/rapidyaml/src -I3rdparty/rapidyaml/ext/c4core/src -I3rdparty/libconfig -I3rdparty/lua -I3rdparty/httplib -I3rdparty/json/include -I3rdparty/yaml-cpp/include -I3rdparty/mysql/include -I3rdparty/pcre/include -I3rdparty/zlib/include <file>`.
-- CI builds gcc, clang, CMake, MSBuild, the modes and packet versions, and loads the NPCs and YAML DBs. The two macOS Homebrew build jobs are known to fail on this fork, for reasons unrelated to the change being tested.
-- To test inside the app, point its `config/VENDOR_PINS` at your commit. The app's `docs/FORKS.md` covers the whole flow.
+- To test inside the app, set `RATHENA_COMMIT` in the app's `.env` to your commit and run `docker compose up -d --build`.
