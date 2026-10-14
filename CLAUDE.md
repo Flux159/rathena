@@ -18,7 +18,7 @@ How to work:
 - Branch from `rag-wrapper`: `git fetch origin && git switch -c my-change origin/rag-wrapper`.
 - Keep a PR to one change.
 - `rag-wrapper` only moves forward: no force-pushes, no rebasing. The app pins commits on it, and a rewritten commit breaks that pin.
-- Newer upstream comes in as a merge of `master` into `rag-wrapper`, in its own PR.
+- Newer upstream comes in only when it's needed, for a specific upstream fix or feature, not on a schedule. Bring it in as a merge of `master` into `rag-wrapper`, in its own PR, then move the app's pin and retest with the client.
 - To bring your branch up to date, merge or rebase onto `origin/rag-wrapper`, never onto `master`.
 
 ## How the app uses this branch
