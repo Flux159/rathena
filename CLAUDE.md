@@ -12,7 +12,7 @@ This is **akreao/rathena**, a fork of rAthena. You are on (or should be on) its 
 | `master` | A mirror of upstream rAthena's `master`. | **No.** |
 | `ragnarokoffline` | Another project's branch, unrelated to rag-wrapper. | **No.** |
 
-GitHub suggests `master` as the base, because it is the repository's default branch. Change it to `rag-wrapper` before you open the PR.
+`rag-wrapper` is the repository's default branch, so clones and new PRs start there. If GitHub ever suggests `master` as the base, change it to `rag-wrapper` before you open the PR.
 
 How to work:
 - Branch from `rag-wrapper`: `git fetch origin && git switch -c my-change origin/rag-wrapper`.
