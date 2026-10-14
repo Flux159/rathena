@@ -28,7 +28,7 @@ The app's Dockerfile (`docker/rathena/Dockerfile` in akreao/rag-wrapper) clones 
 So:
 - **Merging here changes nothing for players until the app's pin moves** to the new commit, in a PR to rag-wrapper. Mention the commit to pin in your PR.
 - Settings the app should control belong in a config option, which `entrypoint.sh` can set, rather than a hard-coded value.
-- On first start the app's `db-init` service imports `sql-files/main.sql` (and the other base schema files) into an empty database. It does not run `sql-files/upgrades/`, so an existing install needs its own migration from the app.
+- On first start the app's `db-init` service imports `sql-files/main.sql` (and the other base schema files) into an empty database. On later starts it applies every `sql-files/upgrades/*.sql` it hasn't run yet and records each one, so an upgrade file is how a schema change reaches existing installs. Never edit an upgrade file after it is merged: installs that already ran it won't run it again.
 - Passwords are stored as MD5 (`use_MD5_passwords: yes`), and the app's web portal writes accounts to the same `login` table. Don't change the account schema without a matching change in the portal.
 
 The app's own decisions are in `docs/decisions.md` in akreao/rag-wrapper. Read it before changing behaviour the app relies on.
