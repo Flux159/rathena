@@ -292,7 +292,7 @@ F26: Restrict("Pre-RE",5,11);
 	 Disp("Payon Forest",1,11); Pick("pay_fild");
 F27: setarray @c[0],208,227,190,206,240,206,190,143,307,252,239,213,185,188,193,194,187,218,210,183,195,149,198,164;
 	 Disp("Prontera Field",0,11); Pick("prt_fild",1);
-F28: Restrict("Pre-RE",2,7,9,10,11,13);
+F28: Restrict("Pre-RE",2,7,9,13);
 	 setarray @c[2],192,162,235,166,202,206,202,208,225,202,202,214,263,196,217,201,87,121,277,181,221,185,175,200,174,197;
 	 Disp("Rachel Field",1,13); Pick("ra_fild");
 F29: if(.Satan_Morocc){
@@ -858,14 +858,14 @@ OnNaviGenerate:
 		naviregisterwarp("Warper > Rachel Field 5", "ra_fild05", 225, 202);
 		naviregisterwarp("Warper > Rachel Field 6", "ra_fild06", 202, 214);
 		naviregisterwarp("Warper > Rachel Field 8", "ra_fild08", 217, 201);
+		naviregisterwarp("Warper > Rachel Field 10", "ra_fild10", 277, 181);
+		naviregisterwarp("Warper > Rachel Field 11", "ra_fild11", 221, 185);
 		naviregisterwarp("Warper > Rachel Field 12", "ra_fild12", 175, 200);
 
 		if (!checkre(0)) {
 			naviregisterwarp("Warper > Rachel Field 2", "ra_fild02", 235, 166);
 			naviregisterwarp("Warper > Rachel Field 7", "ra_fild07", 263, 196);
 			naviregisterwarp("Warper > Rachel Field 9", "ra_fild09", 87, 121);
-			naviregisterwarp("Warper > Rachel Field 10", "ra_fild10", 277, 181);
-			naviregisterwarp("Warper > Rachel Field 11", "ra_fild11", 221, 185);
 			naviregisterwarp("Warper > Rachel Field 13", "ra_fild13", 174, 197);
 		}
 	}
