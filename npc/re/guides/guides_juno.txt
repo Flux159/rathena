@@ -38,8 +38,8 @@ yuno,59,212,4	script	Juno Guide#yuno01::GuideJuno	700,{
 					next;
 					break;
 				case 3:
-					callsub L_Mark, F_Navi("Airport","yuno,16,261","^DAA520");
-					viewpoint 1,16,261,2,0xDAA520;
+					callsub L_Mark, F_Navi("Airport","yuno,53,214","^DAA520");
+					viewpoint 1,53,214,2,0xDAA520;
 					next;
 					break;
 				case 4:

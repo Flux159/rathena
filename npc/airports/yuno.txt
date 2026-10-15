@@ -90,7 +90,7 @@ y_airport,145,63,5	script	Domestic Boarding	91,{
 	mes "Airship's boarding area.";
 	next;
 	if (select("Yes:No") == 1) {
-		warp "yuno",59,244;
+		warp "airplane",244,58; // the client's Juno map no longer has an airship dock
 		end;
 	}
 	mes "[Boarding Staff]";
@@ -110,7 +110,7 @@ y_airport,140,63,5	script	International Boarding	91,{
 	mes "you to the boarding area.";
 	next;
 	if (select("Yes:No") == 1) {
-		warp "yuno",47,244;
+		warp "airplane_01",244,58; // the client's Juno map no longer has an airship dock
 		end;
 	}
 	mes "[Boarding Staff]";

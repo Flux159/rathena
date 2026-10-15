@@ -34,9 +34,9 @@ OnUnhide:
 
 OnTouch_:
 	switch ($@airplanelocation) {
-	case 0: warp "yuno",92,260; end;
-	case 1: warp "einbroch",92,278; end;
-	case 2: warp "lighthalzen",302,75; end;
+	case 0: warp "y_airport",143,54; end; // the client's Juno, Einbroch and Lighthalzen maps no longer have airship docks
+	case 1: warp "airport",138,51; end;
+	case 2: warp "lhz_airport",143,53; end;
 	case 3: warp "hugel",181,146; end;
 	}
 }
@@ -664,7 +664,7 @@ OnTouch_:
 		else
 			warp "izlude",200,56;
 		end;
-	case 2: warp "yuno",12,261; end;
+	case 2: warp "y_airport",143,54; end; // the client's Juno map no longer has an airship dock
 	}
 
 OnInit:
