@@ -45,7 +45,7 @@ ecl_tdun04,37,37,4	duplicate(ach_treasure#touch)	#wp120121	HIDDEN_WARP_NPC,5,5
 bra_dun02,171,121,4	duplicate(ach_treasure#touch)	#wp120117	HIDDEN_WARP_NPC,5,5
 
 // Byalan Dungeon
-iz_dun05,64,223,4	duplicate(ach_treasure#touch)	#wp120141	HIDDEN_WARP_NPC,5,5
+iz_dun05,64,223,4	duplicate(ach_treasure#touch)	#wp120131	HIDDEN_WARP_NPC,5,5
 
 // Clock Tower
 c_tower4,37,158,4	duplicate(ach_treasure#touch)	#wp120112	HIDDEN_WARP_NPC,5,5
@@ -91,7 +91,7 @@ orcsdun02,31,72,4	duplicate(ach_treasure#touch)	#wp120138	HIDDEN_WARP_NPC,5,5
 pay_dun04,120,124,4	duplicate(ach_treasure#touch)	#wp120139	HIDDEN_WARP_NPC,5,5
 
 // Prontera Culvert
-prt_sewb4,19,183,4	duplicate(ach_treasure#touch)	#wp120131	HIDDEN_WARP_NPC,5,5
+prt_sewb4,19,183,4	duplicate(ach_treasure#touch)	#wp120141	HIDDEN_WARP_NPC,5,5
 
 // Pyramid
 moc_pryd06,102,121,4	duplicate(ach_treasure#touch)	#wp120137	HIDDEN_WARP_NPC,5,5
@@ -306,7 +306,7 @@ ecl_tdun04,37,37,4	duplicate(ach_treasure#click)	#tr120121	4_TREASURE_BOX
 bra_dun02,171,121,4	duplicate(ach_treasure#click)	#tr120117	4_TREASURE_BOX
 
 // Byalan Dungeon
-iz_dun05,64,223,4	duplicate(ach_treasure#click)	#tr120141	4_TREASURE_BOX
+iz_dun05,64,223,4	duplicate(ach_treasure#click)	#tr120131	4_TREASURE_BOX
 
 // Clock Tower
 c_tower4,37,158,4	duplicate(ach_treasure#click)	#tr120112	4_TREASURE_BOX
@@ -352,7 +352,7 @@ orcsdun02,31,72,4	duplicate(ach_treasure#click)	#tr120138	4_TREASURE_BOX
 pay_dun04,120,124,4	duplicate(ach_treasure#click)	#tr120139	4_TREASURE_BOX
 
 // Prontera Culvert
-prt_sewb4,19,183,4	duplicate(ach_treasure#click)	#tr120131	4_TREASURE_BOX
+prt_sewb4,19,183,4	duplicate(ach_treasure#click)	#tr120141	4_TREASURE_BOX
 
 // Pyramid
 moc_pryd06,102,121,4	duplicate(ach_treasure#click)	#tr120137	4_TREASURE_BOX

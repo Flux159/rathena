@@ -1865,7 +1865,7 @@ Body:
   - Id: 200006
     Group: Job_Change
     Name: First step of job change!
-    Condition: " Class >= JOB_SWORDMAN && Class <= JOB_THIEF "
+    Condition: " Class >= JOB_SWORDMAN_HIGH && Class <= JOB_THIEF_HIGH "
     Rewards:
       Script: " specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; "
     Score: 20
@@ -2094,6 +2094,7 @@ Body:
   - Id: 220006
     Group: Marry
     Name: Married with who..?
+    Condition: " ARG0 == 1 "
     Rewards:
       TitleId: 1022
     Score: 20
@@ -2117,7 +2118,7 @@ Body:
     Targets:
       - Id: 0
         Count: 10000
-    Condition: " ARG0 >= 10000 "
+    Condition: " ARG0 > 0 "
     Score: 10
   - Id: 220010
     Group: Spend_Zeny
@@ -2125,7 +2126,7 @@ Body:
     Targets:
       - Id: 0
         Count: 100000
-    Condition: " ARG0 >= 100000 "
+    Condition: " ARG0 > 0 "
     Score: 15
   - Id: 220011
     Group: Spend_Zeny
@@ -2133,7 +2134,7 @@ Body:
     Targets:
       - Id: 0
         Count: 500000
-    Condition: " ARG0 >= 500000 "
+    Condition: " ARG0 > 0 "
     Score: 20
   - Id: 220012
     Group: Spend_Zeny
@@ -2141,7 +2142,7 @@ Body:
     Targets:
       - Id: 0
         Count: 1000000
-    Condition: " ARG0 >= 1000000 "
+    Condition: " ARG0 > 0 "
     Score: 30
   - Id: 220013
     Group: Spend_Zeny
@@ -2149,7 +2150,7 @@ Body:
     Targets:
       - Id: 0
         Count: 5000000
-    Condition: " ARG0 >= 5000000 "
+    Condition: " ARG0 > 0 "
     Score: 50
   - Id: 220014
     Group: Enchant_Success

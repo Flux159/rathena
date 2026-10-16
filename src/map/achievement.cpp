@@ -987,8 +987,10 @@ static bool achievement_update_objectives(map_session_data *sd, std::shared_ptr<
 				return false;
 
 			for (const auto &it : ad->targets) {
-				if (current_count[it.first] < it.second->count)
-					current_count[it.first] += update_count[it.first];
+				if (current_count[it.first] < it.second->count) {
+					const int64 total = static_cast<int64>(current_count[it.first]) + update_count[it.first];
+					current_count[it.first] = static_cast<int32>(std::min<int64>(total, it.second->count));
+				}
 			}
 
 			if (!achievement_check_condition(ad->condition, sd)) // Parameters weren't met

@@ -36,6 +36,7 @@
 #include "clan.hpp"
 #include "clif.hpp"
 #include "elemental.hpp"
+#include "extensions.hpp"
 #include "guild.hpp"
 #include "homunculus.hpp"
 #include "instance.hpp"
@@ -21971,6 +21972,7 @@ void clif_ui_open( map_session_data& sd, enum out_ui_type ui_type, int32 data ){
 	switch( ui_type ){
 		case OUT_UI_STYLIST:
 			sd.state.stylist_open = true;
+			sd.state.stylist_payment = STYLIST_PAY_ZENY; // Extension stylist_script_costs: a choice is made per visit
 			break;
 		case OUT_UI_ENCHANTGRADE:
 #if PACKETVER_MAIN_NUM >= 20200916 || PACKETVER_RE_NUM >= 20200724
@@ -22861,6 +22863,59 @@ void clif_stylist_response( map_session_data* sd, bool failed ){
 #endif
 }
 
+/// The job whose look a stylist Body2 option puts on: option 0 is the job's own outfit,
+/// option 1 its alternative outfit. -1 if the job has no alternative outfit.
+static int32 clif_stylist_body_style( map_session_data* sd, int32 option ){
+	std::shared_ptr<s_job_info> job = job_db.find( sd->status.class_ );
+
+	if( job == nullptr || job->alternate_outfits.empty() ){
+		return -1;
+	}
+
+	switch( option ){
+		case 0:
+			return sd->status.class_;
+		case 1:
+			return job->alternate_outfits.front();
+		default:
+			return -1;
+	}
+}
+
+/// Gives the player one bought stylist option: changes the look, or mails the headgear.
+/// value: the look's value, or the headgear's item ID; for LOOK_BODY2 the job ID from clif_stylist_body_style
+static void clif_stylist_apply( map_session_data* sd, _look look, int32 value ){
+	switch( look ){
+		case LOOK_HAIR:
+		case LOOK_HAIR_COLOR:
+		case LOOK_CLOTHES_COLOR:
+		case LOOK_BODY2:
+			pc_changelook( sd, look, value );
+			break;
+		case LOOK_HEAD_BOTTOM:
+		case LOOK_HEAD_MID:
+		case LOOK_HEAD_TOP: {
+			struct mail_message msg = {};
+
+			msg.dest_id = sd->status.char_id;
+			safestrncpy( msg.send_name, "Styling Shop", NAME_LENGTH );
+			safestrncpy( msg.title, "<MSG>2949</MSG>", MAIL_TITLE_LENGTH );
+			safestrncpy( msg.body, "<MSG>2950</MSG>", MAIL_BODY_LENGTH );
+
+			msg.item[0].nameid = value;
+			msg.item[0].identify = 1;
+			msg.item[0].amount = 1;
+
+			msg.status = MAIL_NEW;
+			msg.type = MAIL_INBOX_NORMAL;
+			msg.timestamp = time( nullptr );
+
+			intif_Mail_send( 0, &msg );
+
+			} break;
+	}
+}
+
 bool clif_parse_stylist_buy_sub( map_session_data* sd, _look look, int16 index ){
 	std::shared_ptr<s_stylist_list> list = stylist_db.find( look );
 
@@ -22872,6 +22927,18 @@ bool clif_parse_stylist_buy_sub( map_session_data* sd, _look look, int16 index )
 
 	if( entry == nullptr ){
 		return false;
+	}
+
+	int32 value = entry->value;
+
+	// stylist.yml's Body2 values are options (0 standard, 1 alternative outfit),
+	// but LOOK_BODY2 takes a job ID. Check it before anything is paid.
+	if( look == LOOK_BODY2 ){
+		value = clif_stylist_body_style( sd, value );
+
+		if( value < 0 ){
+			return false;
+		}
 	}
 
 	std::shared_ptr<s_stylist_costs> costs;
@@ -22925,38 +22992,134 @@ bool clif_parse_stylist_buy_sub( map_session_data* sd, _look look, int16 index )
 		return false;
 	}
 
-	switch( look ){
-		case LOOK_HAIR:
-		case LOOK_HAIR_COLOR:
-		case LOOK_CLOTHES_COLOR:
-		case LOOK_BODY2:
-			pc_changelook( sd, look, entry->value );
-			break;
-		case LOOK_HEAD_BOTTOM:
-		case LOOK_HEAD_MID:
-		case LOOK_HEAD_TOP: {
-			struct mail_message msg = {};
+	clif_stylist_apply( sd, look, value );
 
-			msg.dest_id = sd->status.char_id;
-			safestrncpy( msg.send_name, "Styling Shop", NAME_LENGTH );
-			safestrncpy( msg.title, "<MSG>2949</MSG>", MAIL_TITLE_LENGTH );
-			safestrncpy( msg.body, "<MSG>2950</MSG>", MAIL_BODY_LENGTH );
+	return true;
+}
 
-			msg.item[0].nameid = entry->value;
-			msg.item[0].identify = 1;
-			msg.item[0].amount = 1;
+/**
+ * Extension stylist_script_costs: buys every part of one stylist order, or none of them.
+ * A look's cost is the one a script set with setstylistcost, else stylist.yml's.
+ * A script-set cost is paid in Zeny, or with its coupon when the player chose coupons
+ * (setstylistpayment) and the look has one; stylist.yml's costs are paid as stock rAthena does.
+ * Unlike stock clif_parse_stylist_buy_sub, a stylist.yml cost with only a RequiredItemBox takes
+ * that box (stock searches for RequiredItem, which is 0 then, and refuses).
+ * @param order: Look and window index of each part, in the order stock rAthena buys them
+ * @return false if the order was refused; nothing was charged or changed then
+ */
+#if PACKETVER >= 20151104
+static bool clif_parse_stylist_buy_order( map_session_data* sd, const std::vector<std::pair<_look, int16>>& order ){
+	std::vector<std::pair<_look, int32>> parts; // Look -> value clif_stylist_apply gives
+	std::unordered_map<t_itemid, int32> items; // Item ID -> how many the order takes
+	uint64 price = 0;
 
-			msg.status = MAIL_NEW;
-			msg.type = MAIL_INBOX_NORMAL;
-			msg.timestamp = time( nullptr );
+	// How many of an item the player has that the order does not take yet
+	auto spare = [sd, &items]( t_itemid nameid ){
+		int32 count = 0;
 
-			intif_Mail_send( 0, &msg );
+		for( int32 i = 0; i < MAX_INVENTORY; i++ ){
+			if( sd->inventory.u.items_inventory[i].nameid == nameid ){
+				count += sd->inventory.u.items_inventory[i].amount;
+			}
+		}
 
-			} break;
+		return count - items[nameid];
+	};
+
+	for( const auto& [look, index] : order ){
+		std::shared_ptr<s_stylist_list> list = stylist_db.find( look );
+
+		if( list == nullptr ){
+			return false;
+		}
+
+		std::shared_ptr<s_stylist_entry> entry = util::umap_find( list->entries, index );
+
+		if( entry == nullptr ){
+			return false;
+		}
+
+		int32 value = entry->value;
+
+		// stylist.yml's Body2 values are options, LOOK_BODY2 takes a job ID (as in clif_parse_stylist_buy_sub)
+		if( look == LOOK_BODY2 ){
+			value = clif_stylist_body_style( sd, value );
+
+			if( value < 0 ){
+				return false;
+			}
+		}
+
+		std::shared_ptr<s_stylist_costs> costs = stylist_script_cost( look );
+		bool script_cost = costs != nullptr;
+
+		if( costs == nullptr ){
+			if( ( sd->class_ & MAPID_FIRSTMASK ) == MAPID_SUMMONER ){
+				costs = entry->doram;
+			}else{
+				costs = entry->human;
+			}
+		}
+
+		if( costs == nullptr ){
+			return false;
+		}
+
+		uint32 zeny = costs->price;
+		t_itemid item = costs->requiredItem;
+		t_itemid box = costs->requiredItemBox;
+
+		// A script-set cost is Zeny or a coupon, not both
+		if( script_cost ){
+			if( sd->state.stylist_payment == STYLIST_PAY_COUPON && ( item != 0 || box != 0 ) ){
+				zeny = 0;
+			}else{
+				item = 0;
+				box = 0;
+			}
+		}
+
+		if( item != 0 && spare( item ) > 0 ){
+			items[item]++;
+		}else if( box != 0 && spare( box ) > 0 ){
+			items[box]++;
+		}else if( item != 0 || box != 0 ){
+			return false;
+		}
+
+		price += zeny;
+		parts.emplace_back( look, value );
+	}
+
+	if( price > static_cast<uint64>( sd->status.zeny ) ){
+		return false;
+	}
+
+	// Everything was counted above, so taking it cannot fall short. If it still does, the order
+	// stops there: what was already taken stays taken, so say so in the log.
+	for( const auto& [nameid, amount] : items ){
+		for( int32 i = 0; i < amount; i++ ){
+			int16 inventoryIndex = pc_search_inventory( sd, nameid );
+
+			if( inventoryIndex < 0 || pc_delitem( sd, inventoryIndex, 1, 0, 0, LOG_TYPE_OTHER ) != 0 ){
+				ShowError( "clif_parse_stylist_buy_order: Could not take item %u from %s (%d) after counting it; the stylist order stopped part-way.\n", nameid, sd->status.name, sd->status.char_id );
+				return false;
+			}
+		}
+	}
+
+	if( price > 0 && pc_payzeny( sd, static_cast<int32>( price ), LOG_TYPE_OTHER ) != 0 ){
+		ShowError( "clif_parse_stylist_buy_order: Could not take %" PRIu64 " Zeny from %s (%d) after counting it; the stylist order stopped part-way.\n", price, sd->status.name, sd->status.char_id );
+		return false;
+	}
+
+	for( const auto& [look, value] : parts ){
+		clif_stylist_apply( sd, look, value );
 	}
 
 	return true;
 }
+#endif
 
 void clif_parse_stylist_buy( int32 fd, map_session_data* sd ){
 #if PACKETVER >= 20151104
@@ -22965,6 +23128,50 @@ void clif_parse_stylist_buy( int32 fd, map_session_data* sd ){
 #else
 	const PACKET_CZ_REQ_STYLE_CHANGE* p = reinterpret_cast<PACKET_CZ_REQ_STYLE_CHANGE*>( RFIFOP( fd, 0 ) );
 #endif
+	if( extension_enabled( "stylist_script_costs" ) ){
+		std::vector<std::pair<_look, int16>> order;
+
+		if( p->HeadPalette != 0 ){
+			order.emplace_back( LOOK_HAIR_COLOR, p->HeadPalette );
+		}
+
+		if( p->HeadStyle != 0 ){
+			order.emplace_back( LOOK_HAIR, p->HeadStyle );
+		}
+
+		if( p->BodyPalette != 0 ){
+			order.emplace_back( LOOK_CLOTHES_COLOR, p->BodyPalette );
+		}
+
+		if( p->TopAccessory != 0 ){
+			order.emplace_back( LOOK_HEAD_TOP, p->TopAccessory );
+		}
+
+		if( p->MidAccessory != 0 ){
+			order.emplace_back( LOOK_HEAD_MID, p->MidAccessory );
+		}
+
+		if( p->BottomAccessory != 0 ){
+			order.emplace_back( LOOK_HEAD_BOTTOM, p->BottomAccessory );
+		}
+
+#if PACKETVER >= 20231220
+		if( p->BodyStyle != 0 ){
+			// Unsupported, as in stock rAthena
+			clif_stylist_response( sd, true );
+			return;
+		}
+#elif PACKETVER >= 20180516
+		// Jobs without an alternative outfit are refused in clif_parse_stylist_buy_order
+		if( p->BodyStyle != 0 ){
+			order.emplace_back( LOOK_BODY2, p->BodyStyle );
+		}
+#endif
+
+		clif_stylist_response( sd, !clif_parse_stylist_buy_order( sd, order ) );
+		return;
+	}
+
 	if( p->HeadPalette != 0 && !clif_parse_stylist_buy_sub( sd, LOOK_HAIR_COLOR, p->HeadPalette ) ){
 		clif_stylist_response( sd, true );
 		return;
@@ -23002,7 +23209,8 @@ void clif_parse_stylist_buy( int32 fd, map_session_data* sd ){
 		return;
 	}
 #elif PACKETVER >= 20180516
-	if( p->BodyStyle != 0 && ( sd->class_ & JOBL_THIRD ) != 0 && ( sd->class_ & JOBL_FOURTH ) == 0 && !clif_parse_stylist_buy_sub( sd, LOOK_BODY2, p->BodyStyle ) ){
+	// Jobs without an alternative outfit are refused in clif_parse_stylist_buy_sub
+	if( p->BodyStyle != 0 && !clif_parse_stylist_buy_sub( sd, LOOK_BODY2, p->BodyStyle ) ){
 		clif_stylist_response( sd, true );
 		return;
 	}

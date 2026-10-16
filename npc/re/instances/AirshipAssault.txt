@@ -22,14 +22,6 @@ dali02,136,79,3	script	Adventurer Leon#air1	4_M_DST_GRAND,{
 }
 
 dali02,142,81,3	script	Dimensional Device#air1	PORTAL,{
-	if (checkquest(15050,PLAYTIME) == 2) {
-		erasequest 15050;// Memorial Dungeon: Airship Assault
-		erasequest 15051;
-	}
-	else if (checkquest(15051,PLAYTIME) == 2) {// Memorial Dungeon: Airship Assault
-		mes "^ff0000Memorial Dungeon cannot be reentered within 23 hours after your last entrance.^000000";
-		close;
-	}
 	.@party_id = getcharid(1);
 	.@p_name$ = getpartyname(.@party_id);
 	.@md_name$ = "Assault on the Airship";
@@ -47,13 +39,51 @@ dali02,142,81,3	script	Dimensional Device#air1	PORTAL,{
 		close;
 	}
 	.@s = select( "Power Up the Device", "Use the Device", "Cancel" );
-	if (is_party_leader(.@party_id) == false) {
+	if (.@s == 3)
+		end;
+	if (.@s == 1) {
+		.@ferlock = select("Normal", "Hard") == 1 ? 3188 : 3181;
+		if (.@ferlock == 3188)
+			.@md_name$ = "Assault on the Airship (Normal)";
+	}
+	else {
+		.@instance_id = instance_id(IM_PARTY);
+		.@md_name$ = instance_live_info(ILI_NAME, .@instance_id);
+		if (.@md_name$ != "Assault on the Airship" && .@md_name$ != "Assault on the Airship (Normal)") {
+			mes "^ff0000The party leader has not used the device.^000000";
+			close;
+		}
+		.@ferlock = .@md_name$ == "Assault on the Airship (Normal)" ? 3188 : 3181;
+	}
+	if (getcharid(1) != .@party_id || is_party_leader(.@party_id) == false) {
 		mes "^ff0000This Memorial Dungeon is only for 1 person. Only the party leader can enter.^000000";
 		close;
 	}
+	.@now = gettimetick(2);
+	// Normal keeps its lockout in character variables rather than a quest timer:
+	// it has no official quest Id, and an invented one could collide with a
+	// later upstream or client quest. Same rules as Hard's 15050/15051: reset at
+	// 04:00, re-entry allowed for 5 minutes after the first entry.
+	if (.@ferlock == 3188) {
+		if (airship_normal_reset > .@now && airship_normal_reentry <= .@now) {
+			mes "^ff0000Memorial Dungeon cannot be reentered within 23 hours after your last entrance.^000000";
+			close;
+		}
+	}
+	else {
+		if (checkquest(15050,PLAYTIME) == 2) {
+			erasequest 15050;// Memorial Dungeon: Airship Assault
+			erasequest 15051;
+		}
+		else if (checkquest(15051,PLAYTIME) == 2) {
+			mes "^ff0000Memorial Dungeon cannot be reentered within 23 hours after your last entrance.^000000";
+			close;
+		}
+	}
 	switch(.@s) {
 	case 1:
-		if (instance_create(.@md_name$) < 0) {
+		.@instance_id = instance_create(.@md_name$);
+		if (.@instance_id < 0) {
 			mes "Party name: " + getpartyname( getcharid(1) );
 			mes "Character name: " + strcharinfo(0);
 			mes "^0000ff" + .@md_name$ + "^000000 - Creation failed!";
@@ -65,7 +95,14 @@ dali02,142,81,3	script	Dimensional Device#air1	PORTAL,{
 	case 2:
 		switch( instance_enter(.@md_name$) ) {
 		case IE_OK:
-			if (isbegin_quest(15050) == 0) {
+			if (.@ferlock == 3188 && airship_normal_reset <= .@now) {
+				.@time_today = gettime(DT_HOUR) * 3600 + gettime(DT_MINUTE) * 60 + gettime(DT_SECOND);
+				airship_normal_reset = .@now + 4 * 3600 - .@time_today;
+				if (.@time_today >= 4 * 3600)
+					airship_normal_reset += 86400;
+				airship_normal_reentry = .@now + 5 * 60;
+			}
+			else if (.@ferlock == 3181 && isbegin_quest(15050) == 0) {
 				setquest 15050;// Memorial Dungeon: Airship Assault
 				setquest 15051;// Memorial Dungeon: Airship Assault
 			}
@@ -1000,13 +1037,15 @@ OnMyMobDead:
 1@air2,104,52,0	script	callb#air2	HIDDEN_WARP_NPC,{
 	end;
 OnStart:
+	if ('airship_status != 8)
+		end;
 	'airship_status = 9;
 	for ( .@i = 1; .@i <= 8; .@i++ )
 		disablenpc instance_npcname("Gremlin#" + .@i + "air2");
 	disablenpc instance_npcname("Captain Ferlock#air2");
 	disablenpc instance_npcname("Iris#2air2");
 	enablenpc instance_npcname("callb#air2");
-	monster 'map_air2$,247,51,"Out of control Captain",3181,1, instance_npcname("callb#air2") + "::OnMyMobDead";// E1_FELOCK
+	monster 'map_air2$,247,51,"Out of control Captain",'airship_ferlock,1, instance_npcname("callb#air2") + "::OnMyMobDead";
 	end;
 OnMyMobDead:
 	if (mobcount( 'map_air2$, instance_npcname("callb#air2") + "::OnMyMobDead" ) < 1)
@@ -1285,6 +1324,7 @@ OnTimer3400:
 
 OnInstanceInit:
 	'airship_status = 0;
+	'airship_ferlock = instance_live_info(ILI_NAME) == "Assault on the Airship (Normal)" ? 3188 : 3181;
 
 	'map_air1$ = instance_mapname("1@air1");
 	'map_air2$ = instance_mapname("1@air2");

@@ -624,11 +624,11 @@ Body:
   - Id: 149
     Option: CLASS_DAMAGE_NORMAL_USER
     Script: |
-      bonus2 bSubClass,Class_Normal,getrandomoptinfo(ROA_VALUE);
+      bonus2 bWeaponSubClass,Class_Normal,getrandomoptinfo(ROA_VALUE);
   - Id: 150
     Option: CLASS_DAMAGE_BOSS_USER
     Script: |
-      bonus2 bSubClass,Class_Boss,getrandomoptinfo(ROA_VALUE);
+      bonus2 bWeaponSubClass,Class_Boss,getrandomoptinfo(ROA_VALUE);
   - Id: 151
     Option: CLASS_MDAMAGE_NORMAL
     Script: |
@@ -833,6 +833,14 @@ Body:
     Option: RACE_WEAPON_TOLERACE_DRAGON
     Script: |
       bonus3 bSubRace,RC_Dragon,getrandomoptinfo(ROA_VALUE),BF_WEAPON;
+  - Id: 204
+    Option: RANGE_WEAPON_ATTACK_DAMAGE_TARGET
+    Script: |
+      bonus bLongAtkRate,getrandomoptinfo(ROA_VALUE);
+  - Id: 205
+    Option: RANGE_WEAPON_ATTACK_DAMAGE_USER
+    Script: |
+      bonus bLongAtkDef,getrandomoptinfo(ROA_VALUE);
   - Id: 206
     Option: RACE_TOLERACE_PLAYER_HUMAN
     Script: |

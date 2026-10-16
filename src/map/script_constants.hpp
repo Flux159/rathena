@@ -823,6 +823,7 @@
 	export_constant2("bDefRatioAtkClass",SP_DEF_RATIO_ATK_CLASS);
 	export_constant2("bAddClass",SP_ADDCLASS);
 	export_constant2("bSubClass",SP_SUBCLASS);
+	export_constant2("bWeaponSubClass",SP_WEAPON_SUBCLASS);
 	export_constant2("bMagicAddClass",SP_MAGIC_ADDCLASS);
 	export_constant2("bWeaponComaClass",SP_WEAPON_COMA_CLASS);
 	export_constant2("bIgnoreMdefClassRate",SP_IGNORE_MDEF_CLASS_RATE);

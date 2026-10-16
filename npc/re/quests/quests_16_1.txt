@@ -9,6 +9,23 @@
 //= 2.0 Official Conversion. [Capuche]
 //============================================================
 
+// Each visit records one distinct fan or family; complete only after all seven.
+function	script	F_BanquetAchievement	{
+	if (!getbattleflag("feature.achievement"))
+		return;
+	.@id = getarg(0);
+	.@counter = getarg(1);
+	if (achievementexists(.@id))
+		return;
+	if (achievementinfo(.@id, .@counter) <= 0)
+		achievementupdate(.@id, .@counter, 1);
+	for (.@i = ACHIEVEINFO_COUNT1; .@i <= ACHIEVEINFO_COUNT7; .@i++)
+		if (achievementinfo(.@id, .@i) < 1)
+			return;
+	achievementcomplete(.@id);
+	return;
+}
+
 // Main Quest
 prontera,121,72,3	script	Royal Messenger#e16_pr	4_M_ZONDAOYAJI,5,5,{
 	if (checkweight(1301,5) == 0) {
@@ -4042,8 +4059,7 @@ prt_cas_q,20,139,3	script	Spica Nerius#ep16_room01	4_EP16_SPICA,{
 			next;
 			setquest 7684;// Visit the Nerius
 			completequest 7684;// Visit the Nerius
-			if (achievementinfo(130000, ACHIEVEINFO_COUNT2) == 0)
-				achievementupdate(130000, ACHIEVEINFO_COUNT2, 1);
+			callfunc("F_BanquetAchievement", 130000, ACHIEVEINFO_COUNT2);
 			break;
 		case 1:
 			completequest 7684;
@@ -4616,8 +4632,7 @@ prt_cas_q,14,184,5	script	Isenhonor Walther#ep16wal	4_M_1STPRIN1,{
 		completequest 14469;// Look around the Walther Family
 		setquest 14470;// In Search of the Guardian Knight
 		ep16_wal = 2;
-		if (achievementinfo(130000, ACHIEVEINFO_COUNT3) == 0)
-			achievementupdate(130000, ACHIEVEINFO_COUNT3, 1);
+		callfunc("F_BanquetAchievement", 130000, ACHIEVEINFO_COUNT3);
 		if (isbegin_quest(7682) == 1 && isbegin_quest(5402) == 2 && isbegin_quest(7683) == 2 && isbegin_quest(7684) == 2 && ep16_wal > 1 && ep16_wig > 1 && ep16_lug > 1 && ep16_gaobs > 1) {
 			completequest 7682;// Socializing Starts from an Eye Contact
 			setquest 7685;// What Is the Next Thing on the Schedule ?
@@ -5604,8 +5619,7 @@ prt_cas_q,19,85,4	script	Kronecker G. Heine#ep16_01	4_EP16_GRANZ,{
 				mes "Don't be overly curious of our family matter.";
 				mes "Phew... I guess I will see you again later.";
 				completequest 7683;
-				if (achievementinfo(130000, ACHIEVEINFO_COUNT1) == 0)
-					achievementupdate(130000, ACHIEVEINFO_COUNT1, 1);
+				callfunc("F_BanquetAchievement", 130000, ACHIEVEINFO_COUNT1);
 				next;
 				if (isbegin_quest(7682) == 1 && isbegin_quest(5402) == 2 && isbegin_quest(7683) == 2 && isbegin_quest(7684) == 2 && ep16_wal > 1 && ep16_wig > 1 && ep16_lug > 1 && ep16_gaobs > 1) {
 					completequest 7682;// Socializing Starts from an Eye Contact
@@ -7184,8 +7198,7 @@ prt_cas_q,96,186,3	script	Wolf Roegenburg#ep16lug	4_EP16_WOLF,{
 		mes "Yes. right.";
 		completequest 14495;// To Wolf
 		setquest 14496;// To Isaac
-		if (achievementinfo(130000, ACHIEVEINFO_COUNT7) == 0)
-			achievementupdate(130000, ACHIEVEINFO_COUNT7, 1);
+		callfunc("F_BanquetAchievement", 130000, ACHIEVEINFO_COUNT7);
 		ep16_lug = 2;
 		if (isbegin_quest(7682) == 1 && isbegin_quest(5402) == 2 && isbegin_quest(7683) == 2 && isbegin_quest(7684) == 2 && ep16_wal > 1 && ep16_wig > 1 && ep16_lug > 1 && ep16_gaobs > 1) {
 			completequest 7682;// Socializing Starts from an Eye Contact
@@ -8927,8 +8940,7 @@ prt_cas_q,93,74,4	script	Po Richard#EP161GAM	4_M_6THPRIN1,{
 		mes "Well, since it is not important, I guess we should let it pass. It's been a long time since I say this much. I am thirsty.";
 		next;
 		completequest 5402;// The Royal Richard
-		if (achievementinfo(130000, ACHIEVEINFO_COUNT5) == 0)
-			achievementupdate(130000, ACHIEVEINFO_COUNT5, 1);
+		callfunc("F_BanquetAchievement", 130000, ACHIEVEINFO_COUNT5);
 		if (isbegin_quest(7682) == 1 && isbegin_quest(5402) == 2 && isbegin_quest(7683) == 2 && isbegin_quest(7684) == 2 && ep16_wal > 1 && ep16_wig > 1 && ep16_lug > 1 && ep16_gaobs > 1) {
 			completequest 7682;// Socializing Starts from an Eye Contact
 			setquest 7685;// What Is the Next Thing on the Schedule ?
@@ -9351,8 +9363,7 @@ prt_cas_q,93,129,3	script	Queen#ep16_1	4_EP16_EGEO,{
 		mes "Please excuse me for not sharing more time with you due to some urgent duties.";
 		completequest 11400;// The Geoborgs
 		setquest 11401;// The Geoborgs
-		if (achievementinfo(130000, ACHIEVEINFO_COUNT6) == 0)
-			achievementupdate(130000, ACHIEVEINFO_COUNT6, 1);
+		callfunc("F_BanquetAchievement", 130000, ACHIEVEINFO_COUNT6);
 		ep16_gaobs = 2;
 		if (isbegin_quest(7682) == 1 && isbegin_quest(5402) == 2 && isbegin_quest(7683) == 2 && isbegin_quest(7684) == 2 && ep16_wal > 1 && ep16_wig > 1 && ep16_lug > 1 && ep16_gaobs > 1) {
 			completequest 7682;// Socializing Starts from an Eye Contact
@@ -9833,8 +9844,7 @@ prt_cas_q,146,121,4	script	Bachelor#ep16wig	1_M_ORIENT01,{
 	mes "I won't go before seeing the elegant and luminous presence of him!";
 	mes "I have come here from Payon to meet Jurgen!";
 	close2;
-	if (achievementinfo(110001, ACHIEVEINFO_COUNT5) == 0)
-		achievementupdate(110001, ACHIEVEINFO_COUNT5, 1);
+	callfunc("F_BanquetAchievement", 110001, ACHIEVEINFO_COUNT5);
 	end;
 }
 
@@ -9859,8 +9869,7 @@ prt_cas_q,148,117,7	script	Miss#ep16wig	4_F_02,{
 		npctalk "Katrin is just too nice.", "Bachelorette#ep16wig", bc_area;
 	}
 	close2;
-	if (achievementinfo(110001, ACHIEVEINFO_COUNT3) == 0)
-		achievementupdate(110001, ACHIEVEINFO_COUNT3, 1);
+	callfunc("F_BanquetAchievement", 110001, ACHIEVEINFO_COUNT3);
 	end;
 }
 
@@ -9884,8 +9893,7 @@ prt_cas_q,148,122,4	script	Womenfolk#ep16wig	1_F_03,{
 		npctalk "It is a relief that the heaven would forgive at least.", "Bachelorette#ep16wig", bc_area;
 	}
 	close2;
-	if (achievementinfo(110001, ACHIEVEINFO_COUNT2) == 0)
-		achievementupdate(110001, ACHIEVEINFO_COUNT2, 1);
+	callfunc("F_BanquetAchievement", 110001, ACHIEVEINFO_COUNT2);
 	end;
 }
 
@@ -9910,8 +9918,7 @@ prt_cas_q,150,122,4	script	Gyusoo#ep16wig	1_F_LIBRARYGIRL,{
 		npctalk "If you are in the 23rd place, you may not be able to see him today.", "Bachelorette#ep16wig", bc_area;
 	}
 	close2;
-	if (achievementinfo(110001, ACHIEVEINFO_COUNT1) == 0)
-		achievementupdate(110001, ACHIEVEINFO_COUNT1, 1);
+	callfunc("F_BanquetAchievement", 110001, ACHIEVEINFO_COUNT1);
 	end;
 }
 
@@ -9936,8 +9943,7 @@ prt_cas_q,150,117,7	script	Bachelorette#ep16wig	4_F_01,{
 		npctalk "Where did the person who was supervising the lineup go?";
 	}
 	close2;
-	if (achievementinfo(110001, ACHIEVEINFO_COUNT4) == 0)
-		achievementupdate(110001, ACHIEVEINFO_COUNT4, 1);
+	callfunc("F_BanquetAchievement", 110001, ACHIEVEINFO_COUNT4);
 	end;
 }
 
@@ -10479,8 +10485,7 @@ prt_cas_q,95,9,5	script	Jurgen Wigner#ep16wig	4_M_4THPRIN1,{
 			completequest 7682;// Socializing Starts from an Eye Contact
 			setquest 7685;// What Is the Next Thing on the Schedule ?
 		}
-		if (achievementinfo(130000, ACHIEVEINFO_COUNT4) == 0)
-			achievementupdate(130000, ACHIEVEINFO_COUNT4, 1);
+		callfunc("F_BanquetAchievement", 130000, ACHIEVEINFO_COUNT4);
 		cutin "16jur_nor",0;
 		mes "[Jurgen]";
 		mes "Our ^0000cdparents^000000 are over there. They'd like to talk to you.";
@@ -11912,8 +11917,7 @@ prt_cas_q,95,11,4	script	Womenfolk#ep16wig01	1_F_03,{
 	mes "[Womenfolk]";
 	mes "Jurgen, you are mine!";
 	close2;
-	if (achievementinfo(110001, ACHIEVEINFO_COUNT6) == 0)
-		achievementupdate(110001, ACHIEVEINFO_COUNT6, 1);
+	callfunc("F_BanquetAchievement", 110001, ACHIEVEINFO_COUNT6);
 	end;
 
 OnTimer600000:
@@ -11957,8 +11961,7 @@ prt_cas_q,98,23,1	script	Bachelor#ep16wig01	1_M_ORIENT01,{
 	mes "[Bachelor]";
 	mes "I couldn't shake hands with Jurgen! Oh, it's too hot!";
 	close2;
-	if (achievementinfo(110001, ACHIEVEINFO_COUNT7) == 0)
-		achievementupdate(110001, ACHIEVEINFO_COUNT7, 1);
+	callfunc("F_BanquetAchievement", 110001, ACHIEVEINFO_COUNT7);
 	end;
 
 OnTimer480000:

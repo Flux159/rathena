@@ -1138,7 +1138,8 @@ int32 battle_calc_cardfix(int32 attack_type, block_list *src, block_list *target
 					race_fix += it.rate;
 				}
 				cardfix = cardfix * (100 - race_fix) / 100;
-				cardfix = cardfix * (100 - tsd->indexed_bonus.subclass[sstatus->class_] - tsd->indexed_bonus.subclass[CLASS_ALL]) / 100;
+				cardfix = cardfix * (100 - tsd->indexed_bonus.subclass[sstatus->class_] - tsd->indexed_bonus.subclass[CLASS_ALL] -
+					tsd->indexed_bonus.weapon_subclass[sstatus->class_] - tsd->indexed_bonus.weapon_subclass[CLASS_ALL]) / 100;
 				for (const auto &it : tsd->add_def) {
 					if (it.id == s_class) {
 						cardfix = cardfix * (100 - it.val) / 100;

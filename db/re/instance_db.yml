@@ -583,3 +583,13 @@ Body:
       Map: 1@exsh
       X: 90
       Y: 35
+  # Ragnarok Offline: instances added by our fork use Ids from 10000 up, so an
+  # upstream merge that appends the next free Id cannot collide with them.
+  - Id: 10000
+    Name: Assault on the Airship (Normal)
+    Enter:
+      Map: 1@air1
+      X: 244
+      Y: 73
+    AdditionalMaps:
+      1@air2: true

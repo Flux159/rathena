@@ -1223,41 +1223,41 @@ Body:
   - Id: 128017
     Group: Battle
     Name: Stood up and overcame despair
-    #Targets:
-    #  - Id: 0
-    #    Mob: MM_MOROCC_ADT
+    Targets:
+      - Id: 0
+        Mob: MM_MOROCC_ADT
     Score: 10
   - Id: 128018
     Group: Battle
     Name: Ember of Hope
-    #Targets:
-    #  - Id: 0
-    #    Mob: MM_MOROCC_ADT
-    #    Count: 10
+    Targets:
+      - Id: 0
+        Mob: MM_MOROCC_ADT
+        Count: 10
     Score: 10
   - Id: 128019
     Group: Battle
     Name: Pouring Aurora
-    #Targets:
-    #  - Id: 0
-    #    Mob: MM_MOROCC_ADT
-    #    Count: 25
+    Targets:
+      - Id: 0
+        Mob: MM_MOROCC_ADT
+        Count: 25
     Score: 20
   - Id: 128020
     Group: Battle
     Name: Who is desperate? I am hopeless!
-    #Targets:
-    #  - Id: 0
-    #    Mob: MM_MOROCC_ADT
-    #    Count: 50
+    Targets:
+      - Id: 0
+        Mob: MM_MOROCC_ADT
+        Count: 50
     Score: 30
   - Id: 128021
     Group: Battle
     Name: I know god will save the world
-    #Targets:
-    #  - Id: 0
-    #    Mob: MM_MOROCC_ADT
-    #    Count: 100
+    Targets:
+      - Id: 0
+        Mob: MM_MOROCC_ADT
+        Count: 100
     Score: 50
   - Id: 128022
     Group: Battle
@@ -1291,10 +1291,10 @@ Body:
     Score: 10
   - Id: 128026
     Group: Battle
-    Name: Warm earth
+    Name: Pleasant breeze
     Targets:
       - Id: 0
-        Mob: FACEWORM_QUEEN_G
+        Mob: FACEWORM_QUEEN_Y
     Score: 10
   - Id: 128027
     Group: Battle
@@ -1305,10 +1305,10 @@ Body:
     Score: 10
   - Id: 128028
     Group: Battle
-    Name: Pleasant breeze
+    Name: Warm earth
     Targets:
       - Id: 0
-        Mob: FACEWORM_QUEEN_Y
+        Mob: FACEWORM_QUEEN_G
     Score: 10
   - Id: 128029
     Group: Battle
@@ -1389,9 +1389,9 @@ Body:
   - Id: 128039
     Group: Battle
     Name: Show Jailbreak to the weak captain
-    #Targets:
-    #  - Id: 0
-    #    Mob: E2_FELOCK
+    Targets:
+      - Id: 0
+        Mob: E2_FELOCK
     Score: 10
   - Id: 128040
     Group: Battle
@@ -1399,13 +1399,14 @@ Body:
     Targets:
       - Id: 0
         Mob: E1_FELOCK
+        Count: 10
     Score: 20
   - Id: 128041
     Group: Battle
     Name: Turmoil on board
     Targets:
       - Id: 0
-        Mob: E1_FELOCK
+        Mob: E2_FELOCK
         Count: 10
     Score: 20
   - Id: 128042
@@ -1419,10 +1420,10 @@ Body:
   - Id: 128043
     Group: Battle
     Name: Revolt of Riot
-    #Targets:
-    #  - Id: 0
-    #    Mob: E2_FELOCK
-    #    Count: 50
+    Targets:
+      - Id: 0
+        Mob: E2_FELOCK
+        Count: 50
     Score: 50
   - Id: 128044
     Group: Battle
@@ -1871,7 +1872,7 @@ Body:
   - Id: 200006
     Group: Job_Change
     Name: First step of job change!
-    Condition: " Class >= JOB_SWORDMAN && Class <= JOB_THIEF "
+    Condition: " Class >= JOB_SWORDMAN_HIGH && Class <= JOB_THIEF_HIGH "
     Rewards:
       Script: " specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; "
     Score: 20
@@ -1992,7 +1993,7 @@ Body:
     Name: Magic Insanity
     Condition: " readparam(bInt) >= 125 "
     Rewards:
-      Script: " specialeffect2 EF_HASTEUP; bonus_script \"{ bonus2 bHPLossRate,100,10000; bonus bBaseAtk,20; bonus bAspdRate,25; }\",60,0,0,EFST_STEAMPACK; "
+      Script: " specialeffect2 EF_HASTEUP; sc_start SC_MAGICCANDY,60000,0; "
     Score: 20
   - Id: 200025
     Group: Goal_Status
@@ -2108,6 +2109,7 @@ Body:
   - Id: 220006
     Group: Marry
     Name: Married with who..?
+    Condition: " ARG0 == 1 "
     Rewards:
       TitleId: 1022
     Score: 20
@@ -2131,39 +2133,39 @@ Body:
     Targets:
       - Id: 0
         Count: 10000
-    Condition: " ARG0 >= 10000 "
+    Condition: " ARG0 > 0 "
     Score: 10
   - Id: 220010
     Group: Spend_Zeny
     Name: Activating the market economy (2)
     Targets:
       - Id: 0
-        Count: 100000
-    Condition: " ARG0 >= 100000 "
+        Count: 1000000
+    Condition: " ARG0 > 0 "
     Score: 15
   - Id: 220011
     Group: Spend_Zeny
     Name: Activating the market economy (3)
     Targets:
       - Id: 0
-        Count: 500000
-    Condition: " ARG0 >= 500000 "
+        Count: 5000000
+    Condition: " ARG0 > 0 "
     Score: 20
   - Id: 220012
     Group: Spend_Zeny
     Name: Activating the market economy (4)
     Targets:
       - Id: 0
-        Count: 1000000
-    Condition: " ARG0 >= 1000000 "
+        Count: 100000000
+    Condition: " ARG0 > 0 "
     Score: 30
   - Id: 220013
     Group: Spend_Zeny
     Name: Activating the market economy (5)
     Targets:
       - Id: 0
-        Count: 5000000
-    Condition: " ARG0 >= 5000000 "
+        Count: 500000000
+    Condition: " ARG0 > 0 "
     Score: 50
   - Id: 220014
     Group: Enchant_Success

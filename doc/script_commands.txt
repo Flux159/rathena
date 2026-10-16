@@ -8710,6 +8710,66 @@ This feature requires packet version 2015-11-04 or newer.
 
 ---------------------------------------
 
+*setstylistcost <look>,<zeny>{,<item id>{,<item box id>}};
+*getstylistcost(<look>{,<type>})
+*setstylistpayment <mode>{,<char id>};
+*getstylistpayment({<char id>})
+
+setstylistcost sets the cost of every option of one look in the stylist window
+(openstylist, @stylist), for humans and Doram alike, in place of the costs in
+db/stylist.yml. Which options the window sells still comes from
+db/stylist.yml. <look> is one of:
+
+	LOOK_HAIR, LOOK_HAIR_COLOR, LOOK_CLOTHES_COLOR, LOOK_BODY2,
+	LOOK_HEAD_TOP, LOOK_HEAD_MID, LOOK_HEAD_BOTTOM
+
+The player pays either the Zeny or the item (a coupon), as setstylistpayment
+says; a look without an item is paid in Zeny either way. 0 means none. The
+item box is taken instead of the item when the player has no item. An
+unknown item ID, a negative value, a price over MAX_ZENY or another look is
+refused with a warning and the look keeps its cost. Returns 1 if the cost was
+changed, 0 if not. Costs last until the scripts are loaded again (server start
+or @reloadscript), so set them in OnInit.
+
+While the extension is on, an order with several changes (hair style and hair
+colour, ...) is bought as a whole: if the player lacks the Zeny or an item for
+any part, nothing is charged or changed and the window shows the refusal.
+Stock rAthena buys the parts one by one and stops at the first that fails.
+
+getstylistcost returns what setstylistcost set for a look: the Zeny (<type> 0,
+the default), the item ID (<type> 1) or the item box ID (<type> 2), or -1 when
+no script set a cost for it (db/stylist.yml's costs apply).
+
+setstylistpayment sets how the attached player (or the given character) pays
+for the looks setstylistcost set a cost for: 0 in Zeny, 1 with coupons. With
+coupons, a look that has an item takes the item and one without takes its
+Zeny; if the player has neither the item nor the item box, the whole order is
+refused (the window shows the refusal), with no fallback to Zeny. Opening
+the stylist window sets it back to 0, so set it after the window is open and
+before the purchase; a client window can do that through a command
+the mod binds with bindatcmd. Returns 1 if it was set, 0 if not.
+getstylistpayment returns the player's current mode. Looks priced only by
+db/stylist.yml are paid as stock rAthena does, whatever the mode.
+
+setstylistcost and setstylistpayment are a fork extension: they do nothing,
+and warn, unless the 'stylist_script_costs' extension is enabled in
+db/import/extension_db.yml.
+
+Example:
+
+	-	script	my_stylist_costs	-1,{
+	OnInit:
+		setstylistcost LOOK_HAIR,100000,7622;	// 100,000 Zeny or a Hairstyle Coupon
+		setstylistcost LOOK_HAIR_COLOR,50000;	// always 50,000 Zeny
+		bindatcmd "my_stylist_pay",strnpcinfo(3)+"::OnPay",0,99;
+		end;
+	OnPay:	// @my_stylist_pay coupon
+		setstylistpayment (.@atcmd_parameters$[0] == "coupon");
+		end;
+	}
+
+---------------------------------------
+
 *laphine_synthesis({<item id>})
 *laphine_synthesis({<"item name">})
 

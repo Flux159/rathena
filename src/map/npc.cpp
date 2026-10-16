@@ -393,6 +393,73 @@ uint64 StylistDatabase::parseBodyNode( const ryml::NodeRef& node ){
 
 StylistDatabase stylist_db;
 
+/// Extension stylist_script_costs: look -> the cost a script set for every option of it
+static std::unordered_map<uint16, std::shared_ptr<s_stylist_costs>> stylist_script_costs;
+
+/**
+ * Extension stylist_script_costs: set the cost of every option of one look in the stylist window,
+ * for humans and Doram alike, in place of stylist.yml's costs. The option list stays stylist.yml's.
+ * The player pays either the Zeny or the coupon, as chosen with setstylistpayment.
+ * The cost lasts until the scripts are loaded again (server start, @reloadscript), so set it in OnInit.
+ * @param look: LOOK_HAIR, LOOK_HAIR_COLOR, LOOK_CLOTHES_COLOR, LOOK_BODY2 or LOOK_HEAD_TOP/MID/BOTTOM
+ * @param price: Zeny when paying in Zeny, 0 for free
+ * @param item: Coupon when paying with coupons, 0 for none (the look is then paid in Zeny)
+ * @param box: Item to give up instead when the player has no <item>, 0 for none
+ * @return false if nothing was changed; the reason is in the log
+ */
+bool stylist_script_cost_set( uint16 look, uint32 price, t_itemid item, t_itemid box ){
+	switch( look ){
+		case LOOK_HAIR:
+		case LOOK_HAIR_COLOR:
+		case LOOK_CLOTHES_COLOR:
+		case LOOK_BODY2:
+		case LOOK_HEAD_TOP:
+		case LOOK_HEAD_MID:
+		case LOOK_HEAD_BOTTOM:
+			break;
+		default:
+			ShowWarning( "stylist_script_cost_set: Look %hu is not sold in the stylist window, its cost is unchanged.\n", look );
+			return false;
+	}
+
+	if( price > MAX_ZENY ){
+		ShowWarning( "stylist_script_cost_set: Price %u for look %hu is over MAX_ZENY, its cost is unchanged.\n", price, look );
+		return false;
+	}
+
+	if( item != 0 && !item_db.exists( item ) ){
+		ShowWarning( "stylist_script_cost_set: Unknown item ID %u for look %hu, its cost is unchanged.\n", item, look );
+		return false;
+	}
+
+	if( box != 0 && !item_db.exists( box ) ){
+		ShowWarning( "stylist_script_cost_set: Unknown item box ID %u for look %hu, its cost is unchanged.\n", box, look );
+		return false;
+	}
+
+	std::shared_ptr<s_stylist_costs> costs = std::make_shared<s_stylist_costs>();
+
+	costs->price = price;
+	costs->requiredItem = item;
+	costs->requiredItemBox = box;
+
+	stylist_script_costs[look] = costs;
+
+	return true;
+}
+
+/**
+ * Extension stylist_script_costs: the cost a script set for one look.
+ * @return nullptr if no script set one; stylist.yml's costs apply then
+ */
+std::shared_ptr<s_stylist_costs> stylist_script_cost( uint16 look ){
+	return util::umap_find( stylist_script_costs, look );
+}
+
+void stylist_script_cost_clear(){
+	stylist_script_costs.clear();
+}
+
 const std::string BarterDatabase::getDefaultLocation(){
 	return "npc/barters.yml";
 }
@@ -6243,6 +6310,7 @@ int32 npc_reload(void) {
 	npc_loadsrcfiles();
 
 	stylist_db.reload();
+	stylist_script_cost_clear(); // OnInit sets them again below
 	barter_db.reload();
 
 	//Re-read the NPC Script Events cache.
@@ -6391,6 +6459,7 @@ void do_final_npc(void) {
 	NPCMarketDB->destroy(NPCMarketDB, npc_market_free);
 #endif
 	stylist_db.clear();
+	stylist_script_cost_clear();
 	barter_db.clear();
 	ers_destroy(timer_event_ers);
 	ers_destroy(npc_sc_display_ers);

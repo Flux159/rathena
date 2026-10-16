@@ -489,6 +489,7 @@ public:
 		bool cashshop_open;
 		bool sale_open;
 		bool stylist_open;
+		uint8 stylist_payment; // Extension stylist_script_costs: e_stylist_payment the player chose
 		bool barter_open;
 		bool barter_extended_open;
 		bool enchantgrade_open; // Whether the enchantgrade window is open or not
@@ -609,6 +610,7 @@ public:
 		int32 subdefele[ELE_MAX];
 		int32 subrace[RC_MAX];
 		int32 subclass[CLASS_MAX];
+		int32 weapon_subclass[CLASS_MAX];
 		int32 subrace2[RC2_MAX];
 		int32 subsize[SZ_MAX];
 		int16 coma_class[CLASS_MAX];

@@ -85250,8 +85250,62 @@ Body:
 #    AegisName: E2_ACIDUS_
 #  - Id: 3187
 #    AegisName: E2_G_S_NYDHOG
-#  - Id: 3188
-#    AegisName: E2_FELOCK
+  - Id: 3188
+    AegisName: E2_FELOCK
+    Name: Captain Ferlock
+    Level: 130
+    Hp: 1500000
+    BaseExp: 3088
+    JobExp: 2392
+    Attack: 871
+    Attack2: 695
+    Defense: 101
+    MagicDefense: 90
+    Str: 109
+    Agi: 78
+    Vit: 50
+    Int: 55
+    Dex: 108
+    Luk: 55
+    AttackRange: 10
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Large
+    Race: Dragon
+    Element: Dark
+    ElementLevel: 2
+    WalkSpeed: 170
+    AttackDelay: 168
+    AttackMotion: 1008
+    ClientAttackMotion: 864
+    DamageMotion: 300
+    Ai: 01
+    Class: Boss
+    Modes:
+      Mvp: true
+    MvpDrops:
+      - Item: Yggdrasilberry
+        Rate: 5000
+      - Item: Seed_Of_Yggdrasil
+        Rate: 5000
+    Drops:
+      - Item: Felock_Armor
+        Rate: 100
+      - Item: Felock_Cape
+        Rate: 100
+      - Item: Felock_Boots
+        Rate: 100
+      - Item: Felock_Cap
+        Rate: 10
+      - Item: Str_Dish07
+        Rate: 3000
+      - Item: Agi_Dish07
+        Rate: 3000
+      - Item: Int_Dish07
+        Rate: 3000
+      - Item: Felock_Card
+        Rate: 1
+        StealProtected: true
 #  - Id: 3189
 #    AegisName: WOLF_MOON
   - Id: 3190

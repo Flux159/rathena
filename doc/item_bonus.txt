@@ -274,6 +274,7 @@ bonus3 bSubRace,r,x,bf;    		+x% damage reduction against race r with trigger cr
 bonus2 bAddClass,c,x;     		+x% physical damage against class c
 bonus2 bMagicAddClass,c,x;		+x% magical damage against class c
 bonus2 bSubClass,c,x;     		+x% damage reduction against class c
+bonus2 bWeaponSubClass,c,x;		+x% physical damage reduction against class c
 
 bonus2 bAddSize,s,x;      		+x% physical damage against size s
 bonus2 bMagicAddSize,s,x; 		+x% magical damage against size s

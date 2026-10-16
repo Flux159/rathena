@@ -4571,6 +4571,11 @@ void pc_bonus2(map_session_data *sd,int32 type,int32 type2,int32 val)
 		if (sd->state.lr_flag != LR_FLAG_ARROW)
 			sd->indexed_bonus.subclass[type2]+=val;
 		break;
+	case SP_WEAPON_SUBCLASS: // bonus2 bWeaponSubClass,c,x;
+		PC_BONUS_CHK_CLASS(type2, SP_WEAPON_SUBCLASS);
+		if (sd->state.lr_flag != LR_FLAG_ARROW)
+			sd->indexed_bonus.weapon_subclass[type2] += val;
+		break;
 	case SP_ADDEFF: // bonus2 bAddEff,eff,n;
 		PC_BONUS_CHK_SC(type2,SP_ADDEFF);
 		pc_bonus_addeff(sd->addeff, (sc_type)type2, sd->state.lr_flag != LR_FLAG_ARROW ? val : 0, sd->state.lr_flag == LR_FLAG_ARROW ? val : 0, 0, 0);
