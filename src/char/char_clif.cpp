@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -663,6 +664,38 @@ bool chclif_parse_char_delete2_req( int32 fd, char_session_data& sd ){
 }
 
 /**
+ * Compare a typed birthdate to the account's by its digits only, so the
+ * clients that send what the player typed (0x0068, 0x01fb) accept YYMMDD
+ * and YYYYMMDD, with or without separators, not only YY-MM-DD.
+ * @param birthdate Account birthdate, YYYY-MM-DD
+ * @param delcode What the player typed
+ * @return true if delcode's digits are the birthdate's, with or without the century
+ **/
+static bool chclif_delchar_birthdate_digits( const char* birthdate, const char* delcode ){
+	std::string stored, typed;
+
+	for( const char* c = birthdate; *c != '\0'; c++ ){
+		if( ISDIGIT( *c ) ){
+			stored += *c;
+		}
+	}
+
+	for( const char* c = delcode; *c != '\0'; c++ ){
+		if( ISDIGIT( *c ) ){
+			typed += *c;
+		}else if( !ISSPACE( *c ) && *c != '-' && *c != '/' && *c != '.' ){
+			return false;
+		}
+	}
+
+	if( stored.length() != 8 ){
+		return false;
+	}
+
+	return typed == stored || typed == stored.substr( 2 );
+}
+
+/**
  * Check char deletion code
  * @param sd
  * @param delcode E-mail or birthdate
@@ -683,6 +716,7 @@ bool chclif_delchar_check(struct char_session_data *sd, char *delcode, uint8 fla
 	// Birthdate (YYMMDD)
 	if (flag&CHAR_DEL_BIRTHDATE && (
 		!strcmp(sd->birthdate+2, delcode) || // +2 to cut off the century
+		chclif_delchar_birthdate_digits( sd->birthdate, delcode ) ||
 		(
 			!strcmp("",sd->birthdate) && // it is default birthdate and
 			!strcmp("",delcode) // user sent an empty birthdate
