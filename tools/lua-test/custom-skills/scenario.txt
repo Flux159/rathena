@@ -1,0 +1,509 @@
+//===== custom-skills: the test scenario ====================================
+//= Runs when "Tester" logs in. Every line starting S| is read by the test.
+-	script	gcr_scenario	-1,{
+OnPCLoginEvent:
+	if (strcharinfo(0) != "Tester")
+		end;
+	if (ltest_relog) {
+		// 17, after the relog: TST_KEEP came back, TST_GONE did not.
+		ltest_relog = 0;
+		.@aid = getcharid(3);
+		sleep2 1500;	// kept statuses come back once the map is loaded
+		skill "TST_PROBE3", 10, 3;
+		.@flee = readparam(bFlee);
+		detachrid;
+		unitskilluseid .@aid, "TST_PROBE3", 9, .@aid;	// what came back
+		unitskilluseid .@aid, "TST_PROBE3", 10, .@aid;	// TST_KEEP off
+		sleep 500;
+		attachrid(.@aid);
+		debugmes "S|probe4_kept_flee " + (.@flee - readparam(bFlee));
+		debugmes "S|end";
+		end;
+	}
+	.@aid = getcharid(3);
+	.@cid = getcharid(0);
+	sleep2 2500;	// the refund NPC, and the client's skill-ups
+	debugmes "S|begin";
+	debugmes "S|darkillusion_lv " + getskilllv("GC_DARKILLUSION");
+	debugmes "S|hallucinationwalk_lv " + getskilllv("GC_HALLUCINATIONWALK");
+	debugmes "S|skillpoint " + SkillPoint;
+	debugmes "S|contact_poison_lv " + getskilllv("GCR_CONTACT_POISON");
+	debugmes "S|phantom_menace_lv " + getskilllv("GC_PHANTOMMENACE");
+	debugmes "S|flee2_before " + readparam(bFlee2);
+	debugmes "S|hit_before " + readparam(bHit);
+	skill "GCR_CONTACT_POISON", 5, 0;
+	skill "GCR_EXECUTIONER", 5, 0;
+	skill "GCR_SHADOW_INSTINCT", 5, 0;
+	skill "GCR_VENOM_BURST", 5, 0;
+	skill "GCR_TOXIC_CLOUD", 5, 0;
+	debugmes "S|venom_burst_lv " + getskilllv("GCR_VENOM_BURST");
+	debugmes "S|flee2_after " + readparam(bFlee2);
+	debugmes "S|chain hiding " + getskilllv("TF_HIDING") + " cloaking " + getskilllv("AS_CLOAKING") + " exceed " + getskilllv("GC_CLOAKINGEXCEED") + " instinct " + getskilllv("GCR_SHADOW_INSTINCT") + " executioner " + getskilllv("GCR_EXECUTIONER");
+	debugmes "S|heal_lv " + getskilllv("AL_HEAL");
+	getitem 1250, 1;	// Jur: Sonic Blow wants a katar
+	equip 1250;
+	percentheal 100, 100;
+	.@red = countitem(501);
+	getmapxy(.@m$, .@x, .@y, BL_PC);
+	debugmes "S|pos " + .@m$ + " " + .@x + " " + .@y;
+	detachrid;
+
+	// 1. Contact Poison: normal attacks poison the dummy.
+	monster .@m$, .@x + 1, .@y, "--en--", 25990, 1;
+	.@dummy = $@mobid[0];
+	debugmes "S|step contact_poison";
+	unitattack .@aid, .@dummy, 1;
+	sleep 8000;
+	unitstopattack .@aid;
+	sleep 1500;
+
+	// 2. Venom Burst uses up the stacks.
+	debugmes "S|step venom_burst";
+	unitskilluseid .@aid, "GCR_VENOM_BURST", 5, .@dummy;
+	sleep 2500;
+
+	// 3. Cross Impact: refused outside the window; a Sonic Blow opens it.
+	debugmes "S|step cross_impact";
+	unitskilluseid .@aid, "GC_CROSSIMPACT", 5, .@dummy;
+	sleep 1500;
+	unitskilluseid .@aid, "AS_SONICBLOW", 10, .@dummy;
+	// Pre-renewal's Sonic Blow holds the caster still for 2 s, plus the
+	// default walk delay (300 ms); Cross Impact needs to be able to move.
+	sleep 2600;
+	.@sp = readparam(SP, .@cid);
+	unitskilluseid .@aid, "GC_CROSSIMPACT", 5, .@dummy;
+	sleep 2500;
+	debugmes "S|crossimpact_sp " + (.@sp - readparam(SP, .@cid));
+
+	// 4. Toxic Cloud on the dummy.
+	debugmes "S|step toxic_cloud";
+	unitskillusepos .@aid, "GCR_TOXIC_CLOUD", 5, .@x + 1, .@y;
+	sleep 7500;
+
+	// 5. Executioner: kill a weakling.
+	debugmes "S|step executioner";
+	monster .@m$, .@x - 1, .@y, "--en--", 25991, 1;
+	.@weak = $@mobid[0];
+	unitattack .@aid, .@weak, 1;
+	sleep 12000;
+	unitstopattack .@aid;
+	attachrid(.@aid);
+	debugmes "S|red_potions " + (countitem(501) - .@red);
+	detachrid;
+
+	// 6. Perfect dodge: a biter next to the player.
+	debugmes "S|step perfect_dodge";
+	monster .@m$, .@x, .@y + 1, "--en--", 25992, 1;
+	.@biter = $@mobid[0];
+	sleep 6000;
+	debugmes "S|crit_momentum " + readparam(bCritical, .@cid);
+	unitkill .@biter;
+	sleep 1000;
+
+	// 7. Shadow Pact: a passive's tick puts a stats status on the player.
+	debugmes "S|step shadow_pact";
+	attachrid(.@aid);
+	skill "GCR_SHADOW_PACT", 3, 0;
+	detachrid;
+	sleep 3000;
+	debugmes "S|hit_pact " + readparam(bHit, .@cid);
+
+	// 8. Cloaking Exceed lasts 50% longer with Shadow Instinct 5.
+	debugmes "S|step cloaking";
+	attachrid(.@aid);
+	sc_start SC_CLOAKINGEXCEED, 10000, 5;
+	sc_end SC_CLOAKINGEXCEED;
+	sc_start SC_BLESSING, 10000, 10;
+	debugmes "S|blessing_left " + getstatus(SC_BLESSING, 5);
+	detachrid;
+	sleep 500;
+
+	// 9. Shadow Dance: a Self skill with a SplashArea hits around the
+	// caster; each enemy it hits adds a stack of Momentum (+3 CRIT).
+	debugmes "S|step shadow_dance";
+	sleep 3000;	// the Momentum from the dodges has run out
+	attachrid(.@aid);
+	skill "GCR_SHADOW_DANCE", 5, 0;
+	getmapxy(.@m$, .@px, .@py, BL_PC);
+	detachrid;
+	monster .@m$, .@px - 1, .@py + 1, "--en--", 25990, 1;
+	.@near = $@mobid[0];
+	monster .@m$, .@px, .@py - 4, "--en--", 25990, 1;
+	.@far = $@mobid[0];
+	debugmes "S|dance_caster " + .@px + " " + .@py;
+	setarray .@ids, .@dummy, .@near, .@far;
+	for (.@i = 0; .@i < 3; .@i++) {
+		getunitdata .@ids[.@i], .@d;
+		debugmes "S|dance_mob " + .@ids[.@i] + " " + .@d[UMOB_X] + " " + .@d[UMOB_Y];
+	}
+	sleep 500;
+	.@crit0 = readparam(bCritical, .@cid);
+	unitskilluseid .@aid, "GCR_SHADOW_DANCE", 5, .@aid;
+	sleep 1500;
+	debugmes "S|dance_crit " + (readparam(bCritical, .@cid) - .@crit0);
+	unitkill .@near;
+	unitkill .@far;
+	sleep 1000;
+
+	// 10. The kinds of custom skill the example has none of (the harness's
+	// own TST_ skills): an Attack with a SplashArea, a Ground skill without a
+	// Unit, and Self and Support skills that start their Status.
+	debugmes "S|step kinds";
+	attachrid(.@aid);
+	skill "TST_SPLASH_STRIKE", 1, 1;
+	skill "TST_GROUND_BURST", 1, 1;
+	skill "TST_SELF_BUFF", 1, 1;
+	skill "TST_SUPPORT_BUFF", 1, 1;
+	getmapxy(.@m$, .@px, .@py, BL_PC);
+	detachrid;
+	monster .@m$, .@px + 3, .@py + 2, "--en--", 25990, 1;
+	.@k1 = $@mobid[0];
+	monster .@m$, .@px + 4, .@py + 2, "--en--", 25990, 1;
+	.@k2 = $@mobid[0];
+	monster .@m$, .@px + 3, .@py + 5, "--en--", 25990, 1;
+	.@k3 = $@mobid[0];
+	setarray .@ks, .@k1, .@k2, .@k3;
+	for (.@i = 0; .@i < 3; .@i++) {
+		getunitdata .@ks[.@i], .@d;
+		debugmes "S|kinds_mob " + .@ks[.@i] + " " + .@d[UMOB_X] + " " + .@d[UMOB_Y];
+	}
+	debugmes "S|kinds_center " + .@k1;
+	sleep 500;
+	unitskilluseid .@aid, "TST_SPLASH_STRIKE", 1, .@k1;
+	sleep 1500;
+	debugmes "S|kinds_ground";
+	getunitdata .@k1, .@d;
+	unitskillusepos .@aid, "TST_GROUND_BURST", 1, .@d[UMOB_X], .@d[UMOB_Y];
+	sleep 1500;
+	unitskilluseid .@aid, "TST_SELF_BUFF", 1, .@aid;
+	sleep 1200;
+	.@f0 = readparam(bFlee, .@cid);
+	unitskilluseid .@aid, "TST_SUPPORT_BUFF", 1, .@aid;
+	sleep 1200;
+	attachrid(.@aid);
+	debugmes "S|kinds_status " + (getstatus(SC_INCREASEAGI) > 0) + " " + (getstatus(SC_ANGELUS) > 0);
+	// A mod status's stats hook (TST_FLEE, +20 FLEE) holds while another
+	// status changes AGI, and so FLEE, under it.
+	.@f1 = readparam(bFlee);
+	sc_start SC_CONCENTRATE, 5000, 10;
+	.@f2 = readparam(bFlee);
+	sc_end SC_CONCENTRATE;
+	.@f3 = readparam(bFlee);
+	debugmes "S|stats_hold " + .@f0 + " " + .@f1 + " " + .@f2 + " " + .@f3;
+	detachrid;
+	unitkill .@k1;
+	unitkill .@k2;
+	unitkill .@k3;
+	sleep 1000;
+
+	// 11. Queries, actions and hooks the example doesn't use, through the
+	// probe skill TST_PROBE (its level picks the test) and the zz-probe mod.
+	// A probe has no cast time, so it runs inside unitskilluseid: what it did
+	// can be read right after, before natural regeneration changes anything.
+	debugmes "S|step probe";
+	unitkill .@dummy;
+	attachrid(.@aid);
+	.@hit0 = readparam(bHit);
+	.@mhp0 = readparam(MaxHp);
+	skill "TST_STATS_PASSIVE", 1, 3;
+	debugmes "S|probe_stats " + (readparam(bHit) - .@hit0) + " " + readparam(bAspd) + " " + (readparam(MaxHp) - .@mhp0);
+	skill "TST_PROBE", 10, 3;
+	percentheal 100, 100;
+	.@red0 = countitem(501);
+	getmapxy(.@m$, .@px, .@py, BL_PC);
+	detachrid;
+	monster .@m$, .@px + 3, .@py, "--en--", 25994, 1;
+	.@push = $@mobid[0];
+	monster .@m$, .@px + 1, .@py + 1, "--en--", 25990, 1;
+	.@d1 = $@mobid[0];
+	monster .@m$, .@px - 6, .@py, "--en--", 25990, 1;
+	.@d2 = $@mobid[0];
+	sleep 1000;
+	.@hp0 = readparam(Hp, .@cid);
+	.@sp0 = readparam(Sp, .@cid);
+	unitskilluseid .@aid, "TST_PROBE", 1, .@aid;
+	getunitdata .@push, .@d;
+	debugmes "S|probe_push " + (.@d[UMOB_X] - .@px);
+	attachrid(.@aid);
+	debugmes "S|probe_spend " + (.@hp0 - Hp) + " " + (.@sp0 - Sp);
+	debugmes "S|probe_potions " + (countitem(501) - .@red0);
+	debugmes "S|probe_falcon " + checkfalcon();
+	debugmes "S|probe_coldbolt " + getskilllv("MG_COLDBOLT");
+	detachrid;
+	sleep 1500;
+	unitskilluseid .@aid, "TST_PROBE", 2, .@aid;
+	sleep 1500;
+	getmapxy(.@m$, .@px, .@py, BL_PC, "Tester");
+	unitskilluseid .@aid, "TST_PROBE", 3, .@aid;
+	getmapxy(.@m$, .@qx, .@qy, BL_PC, "Tester");
+	debugmes "S|probe_slide " + (.@qx - .@px) + " " + (.@qy - .@py);
+	sleep 1500;
+	unitskilluseid .@aid, "TST_PROBE", 4, .@aid;
+	sleep 1500;
+	attachrid(.@aid);
+	debugmes "S|probe_haste " + readparam(bAspd);
+	detachrid;
+
+	// A status's cost, can_cast and critical, for every skill its holder
+	// uses; a skill's before_cast, hits and critical.
+	getunitdata .@d1, .@d;
+	monster .@m$, .@d[UMOB_X] + 1, .@d[UMOB_Y], "--en--", 25990, 1;
+	.@d4 = $@mobid[0];
+	sleep 500;
+	.@sp = readparam(Sp, .@cid);
+	unitskilluseid .@aid, "TST_SPLASH_STRIKE", 1, .@d1;
+	debugmes "S|probe_discount " + (.@sp - readparam(Sp, .@cid));
+	sleep 1500;
+	unitkill .@d4;
+	attachrid(.@aid);
+	sc_end SC_INCREASEAGI;
+	detachrid;
+	unitskilluseid .@aid, "TST_SELF_BUFF", 1, .@aid;
+	attachrid(.@aid);
+	debugmes "S|probe_locked " + getstatus(SC_INCREASEAGI);
+	detachrid;
+	sleep 1000;
+	// The test client walks nowhere by itself: the target is put next to
+	// the player.
+	getmapxy(.@m$, .@ax, .@ay, BL_PC, "Tester");
+	monster .@m$, .@ax + 1, .@ay, "--en--", 25990, 1;
+	.@d3 = $@mobid[0];
+	unitattack .@aid, .@d3, 1;
+	sleep 2500;
+	unitstopattack .@aid;
+	unitkill .@d3;
+	attachrid(.@aid);
+	debugmes "S|probe_endure " + (getstatus(SC_ENDURE) > 0);
+	detachrid;
+	sleep 1000;
+
+	// c:attack's power; on_kill's whole blow; a monster's status keeps it alive.
+	getmapxy(.@m$, .@px, .@py, BL_PC, "Tester");
+	monster .@m$, .@px - 1, .@py - 1, "--en--", 25991, 1;
+	.@w1 = $@mobid[0];
+	sleep 500;
+	getunitdata .@d1, .@d;
+	.@dhp = .@d[UMOB_HP];
+	unitskilluseid .@aid, "TST_PROBE", 5, .@aid;
+	sleep 1500;	// a skill's damage lands after its attack motion
+	getunitdata .@d1, .@d;
+	debugmes "S|probe_power " + (.@dhp - .@d[UMOB_HP]);
+	sleep 1500;
+	monster .@m$, .@px - 1, .@py - 1, "--en--", 25991, 1;
+	.@w2 = $@mobid[0];
+	sleep 500;
+	unitskilluseid .@aid, "TST_PROBE", 6, .@aid;
+	sleep 1500;
+	unitskilluseid .@aid, "TST_PROBE", 7, .@aid;
+	sleep 1500;
+	getunitdata .@w2, .@d;
+	debugmes "S|probe_second_life " + .@d[UMOB_HP];
+	unitkill .@w2;
+	sleep 1000;
+
+	// A heal hook that acts.
+	unitskilluseid .@aid, "AL_HEAL", 3, .@aid;
+	sleep 1500;
+
+	// on_use: the client uses a Red Potion.
+	attachrid(.@aid);
+	getinventorylist;
+	for (.@i = 0; .@i < @inventorylist_count; .@i++)
+		if (@inventorylist_id[.@i] == 501)
+			.@idx = @inventorylist_idx[.@i];
+	debugmes "S|client use " + .@idx;
+	detachrid;
+	sleep 2000;
+
+	// craft and on_craft: the client forges a Sword.
+	attachrid(.@aid);
+	skill "BS_SWORD", 1, 3;
+	getitem 998, 2;
+	produce 1;
+	debugmes "S|client produce 1101";
+	detachrid;
+	sleep 2500;
+	attachrid(.@aid);
+	debugmes "S|probe_sword " + countitem(1101);
+	detachrid;
+	getunitdata .@push, .@d;
+	.@tx = .@d[UMOB_X];
+	.@ty = .@d[UMOB_Y];
+	unitskilluseid .@aid, "TST_PROBE", 8, .@aid;
+	getunitdata .@push, .@d;
+	debugmes "S|probe_teleport " + (.@d[UMOB_X] != .@tx || .@d[UMOB_Y] != .@ty);
+	sleep 1000;
+
+	// before_cast returning false: paid for, no effect. A neutral summon.
+	unitskilluseid .@aid, "TST_PROBE", 9, .@aid;
+	sleep 1000;
+	attachrid(.@aid);
+	skill "TST_SUPPORT_BUFF", 1, 3;
+	sc_end SC_ANGELUS;
+	percentheal 0, 100;
+	.@sp = Sp;
+	detachrid;
+	unitskilluseid .@aid, "TST_SUPPORT_BUFF", 1, .@aid;
+	attachrid(.@aid);
+	debugmes "S|probe_veto " + getstatus(SC_ANGELUS) + " " + (.@sp - Sp);
+	debugmes "S|probe_soulstrike_lv " + getskilllv("MG_SOULSTRIKE");
+	detachrid;
+	sleep 1000;
+	unitskilluseid .@aid, "MG_SOULSTRIKE", 3, .@d1;
+	sleep 1500;
+	attachrid(.@aid);
+	skill "GC_COUNTERSLASH", 1, 3;
+	sc_start SC_WEAPONBLOCK_ON, 30000, 1;	// what Counter Slash needs
+	percentheal 100, 100;
+	detachrid;
+	sleep 1500;
+	unitskilluseid .@aid, "GC_COUNTERSLASH", 1, .@aid;
+	sleep 1500;
+	unitskilluseid .@aid, "TST_PROBE", 10, .@aid;
+	sleep 1000;
+	unitkill .@push;
+	unitkill .@d1;
+	unitkill .@d2;
+	sleep 1000;
+
+	// 12. TST_PROBE3: battle_config, the element, size and DEF tables, a
+	// cooldown a hook starts and reads, and a cost hook that sees where the
+	// use goes. These skills have no cast time: each runs inside
+	// unitskilluseid, so its SP can be read right after, at full SP.
+	debugmes "S|step probe3";
+	attachrid(.@aid);
+	skill "TST_PROBE3", 10, 3;
+	skill "TST_COST_STRIKE", 1, 3;
+	skill "TST_GROUND_BURST", 1, 3;
+	debugmes "S|probe3_maxparam " + getbattleflag("max_parameter");
+	getmapxy(.@m$, .@px, .@py, BL_PC);
+	detachrid;
+	monster .@m$, .@px + 2, .@py, "--en--", 25990, 1;
+	.@d1 = $@mobid[0];
+	sleep 1000;
+	unitskilluseid .@aid, "TST_PROBE3", 1, .@aid;
+	sleep 300;
+	attachrid(.@aid);
+	percentheal 100, 100;
+	.@sp0 = Sp;
+	detachrid;
+	unitskilluseid .@aid, "AL_HEAL", 3, .@aid;
+	debugmes "S|probe3_heal_blocked " + (.@sp0 - readparam(Sp, .@cid));
+	sleep 1000;
+	unitskilluseid .@aid, "TST_PROBE3", 2, .@aid;
+	sleep 300;
+	unitskilluseid .@aid, "TST_PROBE3", 3, .@aid;
+	attachrid(.@aid);
+	percentheal 100, 100;
+	.@sp0 = Sp;
+	detachrid;
+	unitskilluseid .@aid, "AL_HEAL", 3, .@aid;
+	debugmes "S|probe3_heal_after " + (.@sp0 - readparam(Sp, .@cid));
+	sleep 1500;
+	attachrid(.@aid);
+	percentheal 100, 100;
+	.@sp0 = Sp;
+	detachrid;
+	unitskilluseid .@aid, "TST_COST_STRIKE", 1, .@d1;
+	debugmes "S|probe3_cost " + (.@sp0 - readparam(Sp, .@cid));
+	sleep 1500;
+	// Away from the dummy: the ground test above counts this skill's hits.
+	unitskillusepos .@aid, "TST_GROUND_BURST", 1, .@px - 3, .@py - 1;
+	debugmes "S|probe3_cell " + (.@px - 3) + " " + (.@py - 1);
+	sleep 1000;
+	unitkill .@d1;
+	sleep 500;
+
+	// 13. What a ground skill leaves hits at the power of the c:cast or
+	// c:place_unit that placed it, and range hooks change how far a skill
+	// reaches: TST_RANGE_STRIKE's Range is 3, its own hook adds 1 and
+	// TST_LONG_REACH 4 more.
+	debugmes "S|step probe4";
+	attachrid(.@aid);
+	skill "TST_RANGE_STRIKE", 1, 3;
+	percentheal 100, 100;
+	getmapxy(.@m$, .@px, .@py, BL_PC);
+	detachrid;
+	// On the row the later steps walk too: cells a unit can stand on.
+	monster .@m$, .@px + 2, .@py, "--en--", 25990, 1;
+	.@g1 = $@mobid[0];
+	monster .@m$, .@px + 4, .@py, "--en--", 25990, 1;
+	.@g2 = $@mobid[0];
+	monster .@m$, .@px + 6, .@py, "--en--", 25990, 1;
+	.@g3 = $@mobid[0];
+	sleep 500;
+	unitskilluseid .@aid, "TST_PROBE3", 4, .@aid;
+	sleep 3000;	// the units hit every 300 ms for 2 s
+	unitkill .@g1;
+	unitkill .@g2;
+	unitkill .@g3;
+	monster .@m$, .@px + 7, .@py, "--en--", 25990, 1;
+	.@far = $@mobid[0];
+	sleep 500;
+	unitskilluseid .@aid, "TST_PROBE3", 5, .@aid;	// the range: 4
+	getunitdata .@far, .@d;
+	.@hp0 = .@d[UMOB_HP];
+	unitskilluseid .@aid, "TST_RANGE_STRIKE", 1, .@far;	// 7 cells: too far
+	sleep 1000;
+	getunitdata .@far, .@d;
+	.@short = .@hp0 - .@d[UMOB_HP];
+	unitskilluseid .@aid, "TST_PROBE3", 6, .@aid;	// TST_LONG_REACH on
+	sleep 300;
+	unitskilluseid .@aid, "TST_PROBE3", 7, .@aid;	// the range: 8
+	.@hp0 = .@d[UMOB_HP];
+	unitskilluseid .@aid, "TST_RANGE_STRIKE", 1, .@far;
+	sleep 1000;
+	getunitdata .@far, .@d;
+	getmapxy(.@m$, .@qx, .@qy, BL_PC, "Tester");
+	debugmes "S|probe4_reach " + .@short + " " + (.@hp0 - .@d[UMOB_HP]) + " " + (.@qx - .@px) + " " + (.@qy - .@py);
+	unitkill .@far;
+	sleep 500;
+
+	// 14. A boss holds at most 3 stacks of Toxin.
+	debugmes "S|step boss";
+	monster .@m$, .@x + 4, .@y, "--en--", 25993, 1;
+	.@boss = $@mobid[0];
+	getunitdata .@boss, .@d;
+	debugmes "S|boss_at " + .@d[UMOB_X] + " " + .@d[UMOB_Y] + " hp " + .@d[UMOB_HP];
+
+	unitskillusepos .@aid, "GCR_TOXIC_CLOUD", 5, .@d[UMOB_X], .@d[UMOB_Y];
+	sleep 7500;
+	getunitdata .@boss, .@d;
+	debugmes "S|boss_hp " + .@d[UMOB_HP];
+
+
+	// 15. on_death: a passive keeps the player alive.
+	debugmes "S|step survive";
+	unitkill .@aid;
+	debugmes "S|hp_after_death " + readparam(Hp, .@cid);
+	sleep 1000;
+	// Still alive a second later (natural regen may have added some HP).
+	debugmes "S|alive_after_death " + (readparam(Hp, .@cid) > 0);
+
+	// 16. A skill reset gives back the skills still learned, and nothing
+	// for the ones taken away: the refund already did.
+	debugmes "S|step reset";
+	attachrid(.@aid);
+	getskilllist;
+	for (.@i = 0; .@i < @skilllist_count; .@i++)
+		if (@skilllist_flag[.@i] == 0 && @skilllist_id[.@i] != 1)
+			.@expected += @skilllist_lv[.@i];
+	.@before = SkillPoint;
+	resetskill;
+	debugmes "S|reset_gain " + (SkillPoint - .@before) + " " + .@expected;
+	detachrid;
+
+	// 17. A status with persist = true is kept over a logout: the client
+	// logs out and in again, and the login event goes on at the top.
+	debugmes "S|step persist";
+	attachrid(.@aid);
+	skill "TST_PROBE3", 10, 3;
+	detachrid;
+	unitskilluseid .@aid, "TST_PROBE3", 8, .@aid;	// TST_KEEP x3 for 40 s, TST_GONE
+	sleep 300;
+	unitskilluseid .@aid, "TST_PROBE3", 9, .@aid;	// what there is before
+	attachrid(.@aid);
+	ltest_relog = 1;
+	debugmes "S|client relog";
+	end;
+}

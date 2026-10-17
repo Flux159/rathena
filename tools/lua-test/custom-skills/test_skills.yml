@@ -1,0 +1,109 @@
+# The suite's own skills: the kinds of custom skill the example has none of,
+# and the probes zz-probe hooks. setup.sh appends them to the mod's
+# db/skill_db.yml in the test world.
+Header:
+  Type: SKILL_DB
+  Version: 4
+
+Body:
+  - Id: 3190
+    Name: TST_SPLASH_STRIKE
+    Description: Test Splash Strike
+    MaxLevel: 1
+    Type: Weapon
+    TargetType: Attack
+    Range: 9
+    Hit: Single
+    HitCount: 1
+    Element: Weapon
+    SplashArea: 1
+    DamageFlags:
+      SplashSplit: true
+    Requires:
+      SpCost: 10
+  - Id: 3191
+    Name: TST_GROUND_BURST
+    Description: Test Ground Burst
+    MaxLevel: 1
+    Type: Magic
+    TargetType: Ground
+    Range: 9
+    Hit: Single
+    HitCount: 1
+    Element: Fire
+    SplashArea: 1
+  - Id: 3192
+    Name: TST_SELF_BUFF
+    Description: Test Self Buff
+    MaxLevel: 1
+    TargetType: Self
+    Duration1: 30000
+    Status: IncreaseAgi
+  - Id: 3193
+    Name: TST_SUPPORT_BUFF
+    Description: Test Support Buff
+    MaxLevel: 1
+    TargetType: Support
+    Range: 9
+    Duration1: 30000
+    Status: Angelus
+    Requires:
+      SpCost: 7
+  # A probe the scenario casts at a level that picks the test (zz-probe).
+  - Id: 3195
+    Name: TST_PROBE
+    Description: Test Probe
+    MaxLevel: 10
+    TargetType: Self
+  # A passive with the hooks the example's passives don't use (stats, craft,
+  # on_craft, on_use).
+  - Id: 3196
+    Name: TST_STATS_PASSIVE
+    Description: Test Stats Passive
+    MaxLevel: 1
+  # A second probe: battle_config, the element, size and DEF tables, cooldowns.
+  - Id: 3197
+    Name: TST_PROBE3
+    Description: Test Probe 3
+    MaxLevel: 10
+    TargetType: Self
+  # A strike whose cost hook reads its target.
+  - Id: 3194
+    Name: TST_COST_STRIKE
+    Description: Test Cost Strike
+    MaxLevel: 1
+    Type: Weapon
+    TargetType: Attack
+    Range: 9
+    Hit: Single
+    HitCount: 1
+    Requires:
+      SpCost: 50
+  # A ground skill whose unit hits what stands on its one cell every 300 ms:
+  # the power of what placed it (c:cast, c:place_unit) reaches those hits.
+  - Id: 3189
+    Name: TST_GROUND_TICK
+    Description: Test Ground Tick
+    MaxLevel: 1
+    Type: Weapon
+    TargetType: Ground
+    Range: 9
+    Hit: Single
+    HitCount: 1
+    Element: Neutral
+    Duration1: 2000
+    Unit:
+      Id: Dummyskill
+      Layout: 0
+      Interval: 300
+      Target: Enemy
+  # A strike with a short Range that range hooks lengthen.
+  - Id: 3188
+    Name: TST_RANGE_STRIKE
+    Description: Test Range Strike
+    MaxLevel: 1
+    Type: Weapon
+    TargetType: Attack
+    Range: 3
+    Hit: Single
+    HitCount: 1

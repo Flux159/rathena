@@ -1,0 +1,49 @@
+# Monsters that hit back, for the skills that answer blows. setup.sh appends
+# them to the sampler's db/mob_db.yml, after the custom-skills suite's.
+Header:
+  Type: MOB_DB
+  Version: 5
+
+Body:
+  # One that always lands its blows, for a few hundred.
+  - Id: 25995
+    AegisName: TEST_HITTER
+    Name: Test Hitter
+    Level: 150
+    Hp: 99999999
+    Attack: 300
+    Attack2: 300
+    Dex: 250
+    AttackRange: 1
+    SkillRange: 1
+    ChaseRange: 1
+    Size: Medium
+    Race: Formless
+    Element: Neutral
+    ElementLevel: 1
+    WalkSpeed: 200
+    AttackDelay: 1000
+    AttackMotion: 300
+    DamageMotion: 200
+    Ai: 10
+  # And one that hits ten times as hard.
+  - Id: 25996
+    AegisName: TEST_BRUTE
+    Name: Test Brute
+    Level: 150
+    Hp: 99999999
+    Attack: 3000
+    Attack2: 3000
+    Dex: 250
+    AttackRange: 1
+    SkillRange: 1
+    ChaseRange: 1
+    Size: Medium
+    Race: Formless
+    Element: Neutral
+    ElementLevel: 1
+    WalkSpeed: 200
+    AttackDelay: 1000
+    AttackMotion: 300
+    DamageMotion: 200
+    Ai: 10

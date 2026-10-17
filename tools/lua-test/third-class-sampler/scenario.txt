@@ -1,0 +1,612 @@
+//===== third-class-sampler: the test scenario =============================
+//= Runs when "Tester" logs in. Lines starting S| are read by the test; the
+//= watcher mod (zz-watch) logs W| lines. Each class starts from a clean
+//= slate: L_Reset takes the last class's skills, statuses and ground skills
+//= away and walks the tester home. Sleeps cover each skill's cast time and
+//= after-cast delay for the tester's DEX 90 and INT 60.
+-	script	sampler_scenario	-1,{
+OnPCLoginEvent:
+	if (strcharinfo(0) != "Tester")
+		end;
+	.@aid = getcharid(3);
+	.@cid = getcharid(0);
+	sleep2 2000;
+	debugmes "S|begin";
+	skill "TST_EYE", 1, 3;
+	skill "TST_PROBE2", 10, 3;
+	getmapxy(.@m$, .@x, .@y, BL_PC);
+	debugmes "S|pos " + .@m$ + " " + .@x + " " + .@y;
+	detachrid;
+	unitskilluseid .@aid, "TST_PROBE2", 8, .@aid;	// remember where home is
+	sleep 300;
+
+	// ---- Guillotine Cross -------------------------------------------------
+	debugmes "S|step gx";
+	attachrid(.@aid);
+	getitem 1250, 1;
+	equip 1250;
+	.@pd0 = readparam(bFlee2);
+	skill "GC_HALLUCINATIONWALK", 5, 3;
+	debugmes "S|gx_pd " + .@pd0 + " " + readparam(bFlee2);
+	.@aspd0 = readparam(bAspd);
+	skill "GC_DARKILLUSION", 5, 3;
+	percentheal 100, 100;
+	detachrid;
+	monster .@m$, .@x + 1, .@y, "--en--", 25990, 1;
+	.@d1 = $@mobid[0];
+	unitattack .@aid, .@d1, 1;
+	sleep 3500;
+	attachrid(.@aid);
+	debugmes "S|gx_aspd " + .@aspd0 + " " + readparam(bAspd);
+	detachrid;
+	unitstopattack .@aid;
+	sleep 500;
+
+	// Toxin from Envenom, Green Potion takes it off the player.
+	attachrid(.@aid);
+	skill "GC_RESEARCHNEWPOISON", 10, 3;
+	skill "TF_POISON", 10, 3;
+	detachrid;
+	unitskilluseid .@aid, "TF_POISON", 10, .@d1;
+	sleep 1500;
+	unitskilluseid .@aid, "TST_PROBE2", 1, .@aid;
+	sleep 1200;
+	attachrid(.@aid);
+	getitem 506, 1;
+	getinventorylist;
+	for (.@i = 0; .@i < @inventorylist_count; .@i++)
+		if (@inventorylist_id[.@i] == 506)
+			.@idx = @inventorylist_idx[.@i];
+	debugmes "S|client use " + .@idx;
+	detachrid;
+	sleep 2000;
+
+	// Create Deadly Poison under the shared cap; the watcher forces a
+	// failure, and the sampler gives the HP back.
+	unitskilluseid .@aid, "TST_PROBE2", 4, .@aid;
+	attachrid(.@aid);
+	skill "ASC_CDP", 1, 3;
+	getitem 937, 1; getitem 952, 1; getitem 939, 1; getitem 7033, 1;
+	getitem 972, 1; getitem 657, 1; getitem 713, 1;
+	percentheal 100, 100;
+	.@hp0 = Hp;
+	produce 22;
+	debugmes "S|client produce 678";
+	// The failure's HP loss lasts until the sampler's next tick: watch for it.
+	.@low = Hp;
+	for (.@t = 0; .@t < 30; .@t++) {
+		sleep2 100;
+		if (Hp < .@low)
+			.@low = Hp;
+	}
+	debugmes "S|gx_cdp_dip " + .@hp0 + " " + .@low;
+	detachrid;
+	sleep 1500;
+	attachrid(.@aid);
+	debugmes "S|gx_cdp_back " + .@hp0 + " " + Hp + " " + countitem(678);
+	detachrid;
+	unitkill .@d1;
+	sleep 500;
+
+	// ---- Shadow Chaser ----------------------------------------------------
+	callsub L_Reset, .@aid;
+	debugmes "S|step sc";
+	attachrid(.@aid);
+	jobchange Job_Shadow_Chaser;
+	skill "SC_REPRODUCE", 5, 3;
+	skill "SC_FEINTBOMB", 5, 3;
+	skill "SC_TRIANGLESHOT", 5, 3;
+	skill "AC_DOUBLE", 10, 3;
+	getitem 6122, 5; getitem 6123, 5;
+	percentheal 100, 100;
+	detachrid;
+	// Reproduce: Elder Willow casts Fire Bolt 3.
+	monster .@m$, .@x + 3, .@y, "--en--", 1033, 1;
+	.@w = $@mobid[0];
+	unitskilluseid .@aid, "SC_REPRODUCE", 5, .@w;
+	sleep 800;
+	attachrid(.@aid);
+	debugmes "S|sc_reproduce " + getskilllv("MG_FIREBOLT");
+	detachrid;
+	unitkill .@w;
+	sleep 1000;
+	// Feint Bomb: the player hides, and a biter next to them turns on the
+	// decoy (the test reads the decoy's HP from the watcher). Hiding ends on
+	// any damage, so the player perfect-dodges the biter meanwhile: a blow
+	// already on its way when the player hides would end it.
+	attachrid(.@aid);
+	bonus_script "{ bonus bFlee2,1000; }", 6;
+	detachrid;
+	monster .@m$, .@x + 1, .@y + 1, "--en--", 25992, 1;
+	.@b = $@mobid[0];
+	sleep 1500;
+	unitskilluseid .@aid, "SC_FEINTBOMB", 5, .@aid;
+	sleep 1200;
+	attachrid(.@aid);
+	debugmes "S|sc_hidden " + (getstatus(SC_HIDING) > 0);
+	detachrid;
+	sleep 2500;
+	unitkill .@b;
+	sleep 500;
+	// Triangle Shot: Double Strafe hits two more dummies.
+	attachrid(.@aid);
+	getitem 1701, 1; getitem 1750, 100;
+	equip 1701; equip 1750;
+	detachrid;
+	monster .@m$, .@x + 4, .@y, "--en--", 25990, 1;
+	.@t1 = $@mobid[0];
+	monster .@m$, .@x + 5, .@y + 1, "--en--", 25990, 1;
+	.@t2 = $@mobid[0];
+	monster .@m$, .@x + 5, .@y - 1, "--en--", 25990, 1;
+	.@t3 = $@mobid[0];
+	sleep 500;
+	unitskilluseid .@aid, "SC_TRIANGLESHOT", 5, .@aid;
+	sleep 1000;
+	unitskilluseid .@aid, "AC_DOUBLE", 10, .@t1;
+	sleep 1500;
+	getunitdata .@t2, .@d; .@h2 = .@d[UMOB_HP];
+	getunitdata .@t3, .@d; .@h3 = .@d[UMOB_HP];
+	debugmes "S|sc_triangle " + (99999999 - .@h2) + " " + (99999999 - .@h3);
+	unitkill .@t1; unitkill .@t2; unitkill .@t3;
+	sleep 500;
+
+	// ---- Arch Bishop ------------------------------------------------------
+	callsub L_Reset, .@aid;
+	debugmes "S|step ab";
+	attachrid(.@aid);
+	jobchange Job_Arch_Bishop;
+	skill "AB_ADORAMUS", 5, 3;
+	skill "AL_HEAL", 10, 3;
+	skill "AB_SECRAMENT", 5, 3;
+	skill "AL_BLESSING", 10, 3;
+	getitem 717, 10;
+	percentheal 100, 100;
+	detachrid;
+	monster .@m$, .@x + 3, .@y, "--en--", 25990, 1;
+	.@d1 = $@mobid[0];
+	sleep 500;
+	// No Grace yet: Adoramus is refused.
+	unitskilluseid .@aid, "AB_ADORAMUS", 5, .@d1;
+	sleep 1500;
+	getunitdata .@d1, .@d;
+	debugmes "S|ab_refused " + (99999999 - .@d[UMOB_HP]);
+	// Heal builds Grace; Adoramus spends it.
+	unitskilluseid .@aid, "AL_HEAL", 10, .@aid;
+	sleep 1500;
+	unitskilluseid .@aid, "AL_HEAL", 10, .@aid;
+	sleep 1500;
+	unitskilluseid .@aid, "AB_ADORAMUS", 5, .@d1;
+	sleep 2500;
+	getunitdata .@d1, .@d;
+	debugmes "S|ab_adoramus " + (99999999 - .@d[UMOB_HP]);
+	// Sacrament: three casts from one cell, then a step.
+	unitskilluseid .@aid, "AL_BLESSING", 10, .@aid;
+	sleep 1500;
+	unitskilluseid .@aid, "AL_BLESSING", 10, .@aid;
+	sleep 1500;
+	unitskilluseid .@aid, "AL_BLESSING", 10, .@aid;
+	sleep 1200;
+	debugmes "S|ab_focus_before_step";
+	unitskilluseid .@aid, "TST_PROBE2", 5, .@aid;	// a step north
+	sleep 2200;
+	debugmes "S|ab_focus_after_step";
+	unitkill .@d1;
+	sleep 500;
+
+	// ---- Royal Guard ------------------------------------------------------
+	callsub L_Reset, .@aid;
+	debugmes "S|step rg";
+	attachrid(.@aid);
+	jobchange Job_Royal_Guard;
+	skill "LG_PRESTIGE", 5, 3;
+	skill "LG_INSPIRATION", 5, 3;
+	skill "LG_RAYOFGENESIS", 5, 3;
+	skill "CR_GRANDCROSS", 10, 3;
+	skill "PA_SACRIFICE", 5, 3;
+	percentheal 100, 100;
+	detachrid;
+	// Prestige: the hitter's blows land 15% lighter.
+	unitskilluseid .@aid, "LG_PRESTIGE", 5, .@aid;
+	sleep 3000;
+	debugmes "S|rg_prestige_on";
+	monster .@m$, .@x + 1, .@y, "--en--", 25995, 1;
+	.@b = $@mobid[0];
+	sleep 3500;
+	unitkill .@b;
+	debugmes "S|rg_prestige_off";
+	sleep 500;
+	// Inspiration: the Sacrifice hit that kills gives its 9% of max HP back.
+	unitskilluseid .@aid, "LG_INSPIRATION", 5, .@aid;
+	sleep 3800;
+	unitskilluseid .@aid, "PA_SACRIFICE", 5, .@aid;
+	sleep 800;
+	attachrid(.@aid);
+	percentheal 100, 100;
+	.@hp0 = Hp;
+	detachrid;
+	monster .@m$, .@x + 1, .@y, "--en--", 25991, 1;
+	.@k = $@mobid[0];
+	unitattack .@aid, .@k, 1;
+	sleep 4000;
+	unitstopattack .@aid;
+	attachrid(.@aid);
+	debugmes "S|rg_inspiration " + .@hp0 + " " + Hp + " " + MaxHp;
+	sc_end SC_SACRIFICE;
+	detachrid;
+	if (unitexists(.@k))
+		unitkill .@k;
+	sleep 500;
+	// Ray of Genesis: Grand Cross costs no HP, does not hurt the caster, and
+	// leaves the holy field (the test counts its hits in the watcher's log).
+	monster .@m$, .@x + 2, .@y, "--en--", 25990, 1;
+	.@d1 = $@mobid[0];
+	unitskilluseid .@aid, "LG_RAYOFGENESIS", 5, .@aid;
+	sleep 3200;
+	attachrid(.@aid);
+	percentheal 100, 100;
+	.@hp0 = Hp;
+	detachrid;
+	unitskilluseid .@aid, "CR_GRANDCROSS", 10, .@aid;
+	sleep 2500;
+	attachrid(.@aid);
+	debugmes "S|rg_gc_hp " + .@hp0 + " " + Hp;
+	detachrid;
+	sleep 3000;
+	debugmes "S|rg_field_done";
+	unitkill .@d1;
+	sleep 500;
+
+	// ---- Sura -------------------------------------------------------------
+	callsub L_Reset, .@aid;
+	debugmes "S|step sura";
+	attachrid(.@aid);
+	jobchange Job_Sura;
+	skill "SR_GENTLETOUCH_ENERGYGAIN", 5, 3;
+	skill "SR_KNUCKLEARROW", 5, 3;
+	skill "MO_BODYRELOCATION", 1, 3;
+	if (getequipisequiped(EQI_HAND_R))
+		unequip EQI_HAND_R;
+	percentheal 100, 100;
+	detachrid;
+	// Energy Gain: blows gather spheres (the watcher logs them).
+	monster .@m$, .@x + 1, .@y, "--en--", 25990, 1;
+	.@d1 = $@mobid[0];
+	unitattack .@aid, .@d1, 1;
+	sleep 6000;
+	unitstopattack .@aid;
+	unitkill .@d1;
+	sleep 500;
+	// Knuckle Arrow: Snap past two dummies on the way.
+	unitskilluseid .@aid, "TST_PROBE2", 3, .@aid;
+	monster .@m$, .@x + 2, .@y, "--en--", 25990, 1;
+	.@k1 = $@mobid[0];
+	monster .@m$, .@x + 4, .@y, "--en--", 25990, 1;
+	.@k2 = $@mobid[0];
+	sleep 800;
+	unitskillusepos .@aid, "MO_BODYRELOCATION", 1, .@x + 6, .@y;
+	sleep 1500;
+	getunitdata .@k1, .@d; .@h1 = .@d[UMOB_HP];
+	getunitdata .@k2, .@d; .@h2 = .@d[UMOB_HP];
+	getmapxy(.@mm$, .@sx, .@sy, BL_PC, "Tester");
+	debugmes "S|sura_snap " + (99999999 - .@h1) + " " + (99999999 - .@h2) + " " + (.@sx - .@x);
+	unitkill .@k1; unitkill .@k2;
+	sleep 500;
+
+	// ---- Mechanic ---------------------------------------------------------
+	callsub L_Reset, .@aid;
+	debugmes "S|step mech";
+	attachrid(.@aid);
+	jobchange Job_Mechanic;
+	skill "BS_REPAIRWEAPON", 1, 3;
+	skill "NC_TRAININGAXE", 10, 3;
+	getitem 1301, 1;
+	equip 1301;
+	getitem 984, 1;
+	.@atk0 = readparam(bBaseAtk);
+	.@ori0 = countitem(984);
+	percentheal 100, 100;
+	detachrid;
+	// Masterwork: an Oridecon for the ATK of 4 refines.
+	unitskilluseid .@aid, "BS_REPAIRWEAPON", 1, .@aid;
+	sleep 4000;
+	attachrid(.@aid);
+	debugmes "S|mech_masterwork " + .@atk0 + " " + readparam(bBaseAtk) + " " + (.@ori0 - countitem(984));
+	detachrid;
+	// Axe Training: blows on one dummy cleave the one beside it too.
+	monster .@m$, .@x + 1, .@y, "--en--", 25990, 1;
+	.@a1 = $@mobid[0];
+	monster .@m$, .@x + 1, .@y + 1, "--en--", 25990, 1;
+	.@a2 = $@mobid[0];
+	sleep 500;
+	unitattack .@aid, .@a1, 1;
+	sleep 6000;
+	unitstopattack .@aid;
+	getunitdata .@a2, .@d;
+	debugmes "S|mech_cleave " + (99999999 - .@d[UMOB_HP]);
+	unitkill .@a1; unitkill .@a2;
+	sleep 500;
+
+	// ---- Warlock ----------------------------------------------------------
+	callsub L_Reset, .@aid;
+	debugmes "S|step wl";
+	attachrid(.@aid);
+	jobchange Job_Warlock;
+	skill "WL_READING_SB", 1, 3;
+	skill "WL_RELEASE", 2, 3;
+	skill "MG_FIREBOLT", 5, 3;
+	if (getequipisequiped(EQI_HAND_R))
+		unequip EQI_HAND_R;
+	percentheal 100, 100;
+	detachrid;
+	monster .@m$, .@x + 3, .@y, "--en--", 25990, 1;
+	.@d1 = $@mobid[0];
+	sleep 500;
+	// Reading Spellbook, then a Fire Bolt: paid for, and stored.
+	unitskilluseid .@aid, "WL_READING_SB", 1, .@aid;
+	sleep 3500;
+	.@sp0 = readparam(Sp, .@cid);
+	unitskilluseid .@aid, "MG_FIREBOLT", 5, .@d1;
+	sleep 3000;
+	getunitdata .@d1, .@d;
+	debugmes "S|wl_stored " + (99999999 - .@d[UMOB_HP]) + " " + (.@sp0 - readparam(Sp, .@cid));
+	// Release: the stored bolt goes off at once.
+	unitskilluseid .@aid, "WL_RELEASE", 2, .@d1;
+	sleep 2000;
+	getunitdata .@d1, .@d;
+	debugmes "S|wl_released " + (99999999 - .@d[UMOB_HP]);
+	unitkill .@d1;
+	sleep 500;
+
+	// ---- Sorcerer ---------------------------------------------------------
+	callsub L_Reset, .@aid;
+	debugmes "S|step sorc";
+	attachrid(.@aid);
+	jobchange Job_Sorcerer;
+	skill "SO_SPELLFIST", 5, 3;
+	skill "MG_FIREBOLT", 5, 3;
+	sc_start4 SC_AUTOSPELL, 120000, 10, 19, 3, 0;	// Auto Spell holding Fire Bolt 3
+	getitem 1201, 1;
+	equip 1201;
+	percentheal 100, 100;
+	detachrid;
+	monster .@m$, .@x + 1, .@y, "--en--", 25990, 1;
+	.@d1 = $@mobid[0];
+	sleep 500;
+	// Spell Fist: 4 charges, each melee blow releases a Fire Bolt 3.
+	unitskilluseid .@aid, "SO_SPELLFIST", 5, .@aid;
+	sleep 1500;
+	unitattack .@aid, .@d1, 1;
+	sleep 4000;
+	unitstopattack .@aid;
+	debugmes "S|sorc_done";
+	unitkill .@d1;
+	sleep 500;
+
+	// ---- Genetic ----------------------------------------------------------
+	callsub L_Reset, .@aid;
+	debugmes "S|step gen";
+	attachrid(.@aid);
+	jobchange Job_Genetic;
+	skill "CR_ACIDDEMONSTRATION", 10, 3;
+	getitem 7135, 10; getitem 7136, 10;
+	.@eb0 = countitem(713);
+	percentheal 100, 100;
+	detachrid;
+	monster .@m$, .@x + 3, .@y, "--en--", 25990, 1;
+	.@g1 = $@mobid[0];
+	monster .@m$, .@x + 4, .@y, "--en--", 25990, 1;
+	.@g2 = $@mobid[0];
+	sleep 500;
+	// Acid Demonstration splashes a fifth of its damage next door, and
+	// sometimes gives a bottle back.
+	for (.@i = 0; .@i < 4; .@i++) {
+		unitskilluseid .@aid, "CR_ACIDDEMONSTRATION", 10, .@g1;
+		sleep 2000;
+	}
+	getunitdata .@g2, .@d;
+	attachrid(.@aid);
+	debugmes "S|gen_splash " + (99999999 - .@d[UMOB_HP]) + " " + (countitem(713) - .@eb0);
+	detachrid;
+	unitkill .@g1; unitkill .@g2;
+	sleep 500;
+
+	// ---- Rune Knight ------------------------------------------------------
+	callsub L_Reset, .@aid;
+	debugmes "S|step rk";
+	attachrid(.@aid);
+	jobchange Job_Rune_Knight;
+	skill "RK_REFRESH", 1, 3;
+	skill "RK_STONEHARDSKIN", 1, 3;
+	skill "RK_PHANTOMTHRUST", 5, 3;
+	skill "RK_WINDCUTTER", 5, 3;
+	skill "KN_TWOHANDQUICKEN", 10, 3;
+	skill "SM_BASH", 10, 3;
+	percentheal 100, 100;
+	// No rate defence: poison always starts, unless something says no.
+	sc_start SC_POISON, 60000, 1, 10000, SCSTART_NORATEDEF;
+	debugmes "S|rk_poison_before " + (getstatus(SC_POISON) > 0);
+	detachrid;
+	// Refresh: the poison goes, and a new one does not start.
+	unitskilluseid .@aid, "RK_REFRESH", 1, .@aid;
+	sleep 1500;
+	attachrid(.@aid);
+	.@p1 = getstatus(SC_POISON);
+	sc_start SC_POISON, 60000, 1, 10000, SCSTART_NORATEDEF;
+	debugmes "S|rk_refresh " + (.@p1 > 0) + " " + (getstatus(SC_POISON) > 0);
+	detachrid;
+	// Stone Hard Skin: the brute's blows go on the shield until it breaks,
+	// and the dummy beside the player is knocked away when it does.
+	unitskilluseid .@aid, "RK_STONEHARDSKIN", 1, .@aid;
+	sleep 2500;
+	debugmes "S|rk_skin_on";
+	monster .@m$, .@x - 1, .@y, "--en--", 25990, 1;
+	.@q = $@mobid[0];
+	monster .@m$, .@x + 1, .@y, "--en--", 25996, 1;
+	.@b = $@mobid[0];
+	sleep 2600;
+	unitkill .@b;
+	debugmes "S|rk_skin_off";
+	getunitdata .@q, .@d;
+	debugmes "S|rk_skin_knock " + (.@d[UMOB_X] - .@x) + " " + (.@d[UMOB_Y] - .@y);
+	unitkill .@q;
+	sleep 500;
+	// Phantom Thrust with a spear: the weakling beside the target comes too.
+	attachrid(.@aid);
+	percentheal 100, 100;
+	getitem 1401, 1;
+	equip 1401;
+	detachrid;
+	monster .@m$, .@x + 4, .@y, "--en--", 25991, 1;
+	.@p = $@mobid[0];
+	monster .@m$, .@x + 5, .@y + 1, "--en--", 25991, 1;
+	.@q = $@mobid[0];
+	sleep 500;
+	unitskilluseid .@aid, "RK_PHANTOMTHRUST", 5, .@p;
+	sleep 1500;
+	getunitdata .@q, .@d;
+	debugmes "S|rk_pull " + (.@d[UMOB_X] - .@x) + " " + (.@d[UMOB_Y] - .@y);
+	unitkill .@p; unitkill .@q;
+	sleep 500;
+	// Wind Cutter in Berserk, with a two-handed sword: Bash is refused, Wind
+	// Cutter goes off and starts Two-Hand Quicken.
+	attachrid(.@aid);
+	getitem 1116, 1;
+	equip 1116;
+	sc_start SC_BERSERK, 30000, 1;
+	sc_end SC_TWOHANDQUICKEN;
+	debugmes "S|rk_berserk " + (getstatus(SC_BERSERK) > 0);
+	percentheal 0, 100;
+	detachrid;
+	sleep 1500;
+	monster .@m$, .@x + 1, .@y, "--en--", 25990, 1;
+	.@d1 = $@mobid[0];
+	sleep 300;
+	.@sp0 = readparam(Sp, .@cid);
+	unitskilluseid .@aid, "SM_BASH", 10, .@d1;
+	sleep 1500;
+	.@sp1 = readparam(Sp, .@cid);
+	unitskilluseid .@aid, "RK_WINDCUTTER", 5, .@aid;
+	sleep 1000;
+	attachrid(.@aid);
+	debugmes "S|rk_windcutter " + (.@sp0 - .@sp1) + " " + (getstatus(SC_TWOHANDQUICKEN) > 0);
+	sc_end SC_BERSERK;
+	detachrid;
+	unitkill .@d1;
+	sleep 500;
+
+	// ---- Ranger -----------------------------------------------------------
+	callsub L_Reset, .@aid;
+	debugmes "S|step ra";
+	attachrid(.@aid);
+	jobchange Job_Ranger;
+	skill "RA_FEARBREEZE", 5, 3;
+	skill "RA_CAMOUFLAGE", 5, 3;
+	skill "RA_DETONATOR", 1, 3;
+	skill "AC_DOUBLE", 10, 3;
+	skill "SN_SHARPSHOOTING", 5, 3;
+	skill "HT_CLAYMORETRAP", 5, 3;
+	getitem 1701, 1; getitem 1750, 100; getitem 1065, 10;
+	equip 1701; equip 1750;
+	percentheal 100, 100;
+	detachrid;
+	monster .@m$, .@x + 4, .@y, "--en--", 25990, 1;
+	.@d1 = $@mobid[0];
+	sleep 500;
+	// Fear Breeze: Double Strafe fires 3 more arrows, and uses them.
+	unitskilluseid .@aid, "RA_FEARBREEZE", 5, .@aid;
+	sleep 2500;
+	attachrid(.@aid);
+	.@ar0 = countitem(1750);
+	detachrid;
+	unitskilluseid .@aid, "AC_DOUBLE", 10, .@d1;
+	sleep 1500;
+	attachrid(.@aid);
+	debugmes "S|ra_arrows " + (.@ar0 - countitem(1750));
+	detachrid;
+	// Camouflage: Sharp Shooting out of it crits.
+	unitskilluseid .@aid, "RA_CAMOUFLAGE", 5, .@aid;
+	sleep 1500;
+	unitskilluseid .@aid, "SN_SHARPSHOOTING", 5, .@d1;
+	sleep 2000;
+	debugmes "S|ra_sharp_done";
+	unitkill .@d1;
+	// Detonator: two Claymores, two cells from two dummies, go off at once.
+	// (A trap cannot be set within a cell of a monster, nor beyond 3 cells;
+	// the cells north of the tester are walls.)
+	monster .@m$, .@x + 4, .@y, "--en--", 25990, 1;
+	.@e1 = $@mobid[0];
+	monster .@m$, .@x + 4, .@y - 3, "--en--", 25990, 1;
+	.@e2 = $@mobid[0];
+	sleep 500;
+	unitskillusepos .@aid, "HT_CLAYMORETRAP", 5, .@x + 2, .@y;
+	sleep 1600;
+	unitskillusepos .@aid, "HT_CLAYMORETRAP", 5, .@x + 2, .@y - 3;
+	sleep 1500;
+	debugmes "S|ra_traps_set";
+	unitskilluseid .@aid, "RA_DETONATOR", 1, .@aid;
+	sleep 1500;
+	getunitdata .@e1, .@d; .@h1 = .@d[UMOB_HP];
+	getunitdata .@e2, .@d; .@h2 = .@d[UMOB_HP];
+	debugmes "S|ra_detonator " + (99999999 - .@h1) + " " + (99999999 - .@h2);
+	unitkill .@e1; unitkill .@e2;
+	sleep 500;
+
+	// ---- Minstrel ---------------------------------------------------------
+	callsub L_Reset, .@aid;
+	debugmes "S|step mw";
+	attachrid(.@aid);
+	jobchange Job_Minstrel;
+	skill "WM_REVERBERATION", 5, 3;
+	skill "CG_ARROWVULCAN", 10, 3;
+	getitem 1901, 1; getitem 1750, 100;
+	equip 1901; equip 1750;
+	percentheal 100, 100;
+	detachrid;
+	monster .@m$, .@x + 4, .@y, "--en--", 25990, 1;
+	.@v1 = $@mobid[0];
+	monster .@m$, .@x + 5, .@y + 1, "--en--", 25990, 1;
+	.@v2 = $@mobid[0];
+	monster .@m$, .@x + 8, .@y + 4, "--en--", 25990, 1;
+	.@v3 = $@mobid[0];
+	sleep 500;
+	// Reverberation: a resonance field; Arrow Vulcan at a target inside it
+	// echoes to the others inside (v2), not to those outside (v3).
+	unitskillusepos .@aid, "WM_REVERBERATION", 5, .@x + 4, .@y;
+	sleep 1500;
+	unitskilluseid .@aid, "CG_ARROWVULCAN", 10, .@v1;
+	sleep 2500;
+	getunitdata .@v2, .@d; .@h2 = .@d[UMOB_HP];
+	getunitdata .@v3, .@d; .@h3 = .@d[UMOB_HP];
+	debugmes "S|mw_echo " + (99999999 - .@h2) + " " + (99999999 - .@h3);
+	unitkill .@v1; unitkill .@v2; unitkill .@v3;
+	sleep 1000;
+
+	debugmes "S|end";
+	end;
+
+// Takes the last class's skills, statuses and ground skills away, heals,
+// and walks the tester home.
+L_Reset:
+	.@aid = getarg(0);
+	setarray .@skills$,
+		"GC_HALLUCINATIONWALK", "GC_DARKILLUSION", "GC_RESEARCHNEWPOISON", "TF_POISON", "ASC_CDP",
+		"SC_REPRODUCE", "SC_FEINTBOMB", "SC_TRIANGLESHOT", "AC_DOUBLE",
+		"AB_ADORAMUS", "AL_HEAL", "AB_SECRAMENT", "AL_BLESSING",
+		"LG_PRESTIGE", "LG_INSPIRATION", "LG_RAYOFGENESIS", "CR_GRANDCROSS", "PA_SACRIFICE",
+		"SR_GENTLETOUCH_ENERGYGAIN", "SR_KNUCKLEARROW", "MO_BODYRELOCATION",
+		"BS_REPAIRWEAPON", "NC_TRAININGAXE", "WL_READING_SB", "WL_RELEASE", "SO_SPELLFIST",
+		"CR_ACIDDEMONSTRATION", "RK_REFRESH", "RK_STONEHARDSKIN", "RK_PHANTOMTHRUST",
+		"RK_WINDCUTTER", "KN_TWOHANDQUICKEN", "SM_BASH",
+		"RA_FEARBREEZE", "RA_CAMOUFLAGE", "RA_DETONATOR", "SN_SHARPSHOOTING", "HT_CLAYMORETRAP";
+	attachrid(.@aid);
+	for (.@i = 0; .@i < getarraysize(.@skills$); .@i++)
+		skill .@skills$[.@i], 0, 3;
+	sc_end SC_ALL;
+	percentheal 100, 100;
+	detachrid;
+	unitskilluseid .@aid, "TST_PROBE2", 2, .@aid;	// no mod statuses, no ground skills
+	sleep 300;
+	unitskilluseid .@aid, "TST_PROBE2", 6, .@aid;	// home
+	sleep 700;
+	return;
+}

@@ -5475,6 +5475,7 @@ static struct Damage battle_calc_weapon_attack(block_list *src, block_list *targ
 		wd.type = DMG_CRITICAL;
 #endif
 	}
+	skill_lua_critical(wd, src, target, skill_id, skill_lv);
 
 	std::bitset<NK_MAX> nk = battle_skill_get_damage_properties(skill_id, wd.miscflag);
 
@@ -6801,6 +6802,7 @@ struct Damage battle_calc_attack(int32 attack_type,block_list *bl,block_list *ta
 			memset(&d,0,sizeof(d));
 			break;
 		}
+	skill_lua_damage(attack_type, bl, target, skill_id, skill_lv, d, flag);
 	if( d.damage + d.damage2 < 1 )
 	{	//Miss/Absorbed
 		//Weapon attacks should go through to cause additional effects.

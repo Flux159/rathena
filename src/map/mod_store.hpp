@@ -55,6 +55,11 @@ void final();
 /// player leaves the map server.
 void logout(map_session_data& sd);
 
+/// What keeps a player's data in their documents writes it there when the
+/// player leaves: `fn` runs at the start of logout(), before the documents
+/// are saved (the Lua layer's statuses with persist = true).
+void on_logout(void (*fn)(map_session_data& sd));
+
 /// "global", "account" or "char".
 bool parse_scope(const char* name, e_scope& out);
 const char* scope_name(e_scope scope);

@@ -1,0 +1,11 @@
+# A random option the crafting test gives a forged weapon (pre-renewal has
+# none of its own).
+Header:
+  Type: RANDOM_OPTION_DB
+  Version: 1
+
+Body:
+  - Id: 1
+    Option: VAR_MAXHPAMOUNT
+    Script: |
+      bonus bMaxHP,getrandomoptinfo(ROA_VALUE);

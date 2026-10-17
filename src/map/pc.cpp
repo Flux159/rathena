@@ -6590,6 +6590,7 @@ int32 pc_useitem(map_session_data *sd,int32 n)
 		script_detach_rid( previous_st );
 	}
 
+	skill_lua_use_item( sd, item );
 	run_script( script, 0, sd->id, fake_nd->id );
 
 	if( sd->st != nullptr ){

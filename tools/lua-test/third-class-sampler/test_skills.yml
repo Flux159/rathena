@@ -1,0 +1,16 @@
+# zz-watch's own skills. setup.sh appends them to the sampler's
+# db/skill_db.yml in the test world.
+Header:
+  Type: SKILL_DB
+  Version: 4
+
+Body:
+  - Id: 3199
+    Name: TST_EYE
+    Description: Test Eye
+    MaxLevel: 1
+  - Id: 3198
+    Name: TST_PROBE2
+    Description: Test Probe 2
+    MaxLevel: 10
+    TargetType: Self

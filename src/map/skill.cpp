@@ -399,6 +399,7 @@ int32 skill_get_range2(const block_list* bl, uint16 skill_id, uint16 skill_lv, b
 		}
 	}
 
+	range = skill_lua_range(bl, skill_id, skill_lv, range);
 	if( !range && bl->type != BL_PC )
 		return 9; // Enable non players to use self skills on others. [Skotlex]
 	return range;
@@ -2792,6 +2793,7 @@ int64 skill_attack (int32 attack_type, block_list* src, block_list *dsrc, block_
 		return 0;
 #endif
 
+	skill_lua_dealt_by lua_dealt_by(dsrc);
 	dmg = battle_calc_attack(attack_type,src,bl,skill_id,skill_lv,flag&0xFFF);
 
 	//If the damage source is a unit, the damage is not delayed
@@ -5278,6 +5280,7 @@ TIMER_FUNC(skill_castend_id){
 			skill_castend_nodamage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
 		else
 			skill_castend_damage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
+		skill_lua_on_cast(src, target, target->x, target->y, ud->skill_id, ud->skill_lv);
 
 		if( sd && sd->skill_keep_using.tid == INVALID_TIMER && sd->skill_keep_using.skill_id > 0 && sd->skill_keep_using.skill_id == ud->skill_id && !skill_isNotOk(ud->skill_id, *sd) && skill_check_condition_castbegin(*sd, ud->skill_id, ud->skill_lv) ){
 			sd->skill_keep_using.tid = add_timer( sd->ud.canact_tick + 100, skill_keep_using, sd->id, 0 );
@@ -5481,6 +5484,7 @@ TIMER_FUNC(skill_castend_pos){
 			unit_set_walkdelay(src, tick, battle_config.default_walk_delay + skill_get_walkdelay(ud->skill_id, ud->skill_lv), 1);
 		FreeBlockLock freeLock;
 		skill_castend_pos2(src,ud->skillx,ud->skilly,ud->skill_id,ud->skill_lv,tick,0);
+		skill_lua_on_cast(src, nullptr, ud->skillx, ud->skilly, ud->skill_id, ud->skill_lv);
 
 		if (ud->skill_id != RA_CAMOUFLAGE)
 			status_change_end(src, SC_CAMOUFLAGE); // Applies to the first skill if active
@@ -8513,7 +8517,7 @@ bool skill_check_condition_castbegin( map_session_data& sd, uint16 skill_id, uin
 		}
 	}
 	// perform skill-specific checks (and actions)
-	switch( skill_id ) {
+	switch( skill_lua_stock_checks( skill_id ) ? skill_id : 0 ) {
 		case RG_GRAFFITI:
 			if (map_foreachinmap(skill_graffitiremover,sd.m,BL_SKILL,0)) { // If a previous Graffiti exists skill fails to cast.
 				clif_skill_fail( sd, skill_id );
@@ -9510,6 +9514,9 @@ bool skill_check_condition_castbegin( map_session_data& sd, uint16 skill_id, uin
 		}
 	}
 
+	if( !skill_lua_can_cast( sd, skill_id, skill_lv ) )
+		return false;
+
 	return true;
 }
 
@@ -9576,7 +9583,7 @@ bool skill_check_condition_castend( map_session_data& sd, uint16 skill_id, uint1
 	}
 
 	// perform skill-specific checks (and actions)
-	switch( skill_id ) {
+	switch( skill_lua_stock_checks( skill_id ) ? skill_id : 0 ) {
 		case PR_BENEDICTIO:
 			skill_check_pc_partner(&sd, skill_id, &skill_lv, 1, 1);
 			break;
@@ -10314,6 +10321,8 @@ struct s_skill_condition skill_get_requirement(map_session_data* sd, uint16 skil
 		if (req_opt & SKILL_REQ_APRATECOST)
 			req.ap_rate = 0;
 	}
+
+	skill_lua_requirement(*sd, skill_id, skill_lv, req);
 
 	return req;
 }
@@ -13504,6 +13513,7 @@ bool skill_produce_mix(map_session_data *sd, uint16 skill_id, t_itemid nameid, i
 			make_per = (make_per * 70) / 100;
 	}
 
+	make_per = skill_lua_craft_rate(sd, skill_id, nameid, make_per);
 	if (make_per < 1) make_per = 1;
 
 	if (qty > 1 || rnd()%10000 < make_per){ //Success, or crafting multiple items.
@@ -13660,6 +13670,7 @@ bool skill_produce_mix(map_session_data *sd, uint16 skill_id, t_itemid nameid, i
 				return true;
 			}
 		} else if (tmp_item.amount) { //Success
+			skill_lua_crafted(sd, skill_id, tmp_item);
 			if ((flag = pc_additem(sd,&tmp_item,tmp_item.amount,LOG_TYPE_PRODUCE))) {
 				clif_additem(sd,0,0,flag);
 				if( battle_config.skill_drop_items_full ){

@@ -4,6 +4,7 @@
 #ifndef SKILL_LUA_HPP
 #define SKILL_LUA_HPP
 
+#include <bitset>
 #include <memory>
 #include <vector>
 
@@ -125,9 +126,140 @@
  * register for the same item, and each runs in priority order, queuing
  * actions into the same pending hit. A unit without the item equipped --
  * mobs, homunculi, players who took it off -- does not fire the hook.
+ *
+ * Skills a mod adds, and skills it reworks:
+ *
+ *   skill("TC_SHADOW_STRIKE", {
+ *     custom   = true,                        -- a skill of the mod's own (no server class)
+ *     ratio    = function(c, stock) ... end,  -- its damage, as for any skill
+ *     on_cast  = function(c) ... end,         -- once per use, after its effect
+ *     can_cast = function(c) return c.caster:has_status("TC_WINDOW"), "Not now" end,
+ *     cost     = function(c, cost) cost.sp = cost.sp // 2 end,
+ *   })
+ *
+ * custom = true gives a skill that has no class of its own one that does what
+ * its skill_db entry says: an Attack skill hits its target (SplashArea makes
+ * it an area), a Self or Support skill starts its Status (a Self skill with a
+ * SplashArea that deals damage hits around the caster), a Ground skill places
+ * its Unit, or hits the area when it has none. replace = true does the same
+ * for a skill that has a class, dropping the stock behaviour (a reused ID).
+ * stock_checks = false skips the checks skill.cpp makes for that skill alone
+ * before it may be used (Spell Fist only while casting a bolt); its skill_db
+ * requirements still apply.
+ * on_cast runs for any skill a unit uses (c.x, c.y: where); can_cast refuses
+ * a player's use by returning false (and a message); cost changes sp, hp, ap,
+ * zeny, spiritball, ammo_qty and items ({ item = "AEGIS", amount = n }) of
+ * what the skill needs (ammo_qty: the check only; the server uses up the
+ * skill's own AmmoAmount). cost must not change anything else: the server
+ * asks several times per use. When it asks at the end of a cast, the use's
+ * target is known (c.target, or c.x and c.y for a ground skill); its first
+ * check, before the cast, has neither. range returns how far the skill
+ * reaches for c.caster (`range` in: its Range with Vulture's Eye and the
+ * like); unit:skill_range(skill, lv) reads it. A player's client learns
+ * ranges with its skill list, which a mod status with a range hook sends
+ * again when it starts and ends.
+ *
+ * Hooks that fire for every player who has learned the skill, whatever the
+ * player is doing (a passive's effect; c.skill_lv is the learned level):
+ *
+ *   bonus        = function(c) c:bonus("bCritical", 2 * c.skill_lv) end,
+ *   on_attack    = function(c) ... end,  -- the learner attacked (hit or not)
+ *   on_hit_taken = function(c) ... end,  -- the learner was attacked
+ *   damage_dealt = function(c, damage) return damage end,  -- final damage out
+ *   damage_taken = function(c, damage) return damage end,  -- final damage in
+ *   on_kill      = function(c) ... end,  -- the learner killed c.target
+ *   on_death     = function(c) c:survive() end,  -- the learner is dying
+ *   on_skill     = function(c) ... end,  -- the learner used c.used_skill
+ *   tick         = function(c) ... end,  -- every second, while online and alive
+ *
+ * bonus runs whenever the player's stats are calculated and takes item bonuses
+ * by name: c:bonus("bStr", 5), c:bonus2("bSkillAtk", "AS_SONICBLOW", 20) and
+ * so on up to bonus5, as in doc/item_bonus.txt; c:grant_skill(name, level)
+ * lends a skill the way a card does. In hooks about an attack, c.attack_skill,
+ * c.attack_skill_id and c.attack_skill_lv are the attack's skill (0 for a
+ * normal attack), c.ranged, c.missed and c.perfect_dodge what happened.
+ *
+ * Statuses a mod adds -- buffs, debuffs, marks, counters -- with stacks:
+ *
+ *   status("TC_TOXIN", {
+ *     icon = "EFST_TOXIN", duration = 10000, max_stacks = 10,
+ *     max_stacks_boss = 3, max_stacks_player = 3, per_source = true,
+ *     decay = { every = 3000, stacks = 1 },
+ *     damage_taken = function(c, damage)       -- c.unit has the status
+ *       if not c.source or c.caster.id ~= c.source.id then return nil end
+ *       return damage * (100 + 3 * c.stacks) // 100
+ *     end,
+ *   })
+ *
+ * A status is put on and taken off by the actions c:apply_status(name,
+ * { stacks = 1, duration = ms, source = unit }, who) and c:remove_status(name,
+ * who, stacks, source). Its hooks: bonus (players), stats (any unit: a table
+ * of def, mdef, hit, flee, flee2, cri, speed, batk, atk, matk_min, matk_max to
+ * change), damage_dealt, damage_taken, on_attack, on_hit_taken, on_start,
+ * on_end (c.reason: "expired", "decayed", "removed" or "death") and tick
+ * (every second). They see c.unit, c.source (who applied it; nil once that
+ * unit is gone), c.stacks and c.remaining (ms; -1 for no end). persist =
+ * true keeps a player's over a logout and a restart, with its stacks and
+ * time left, in the char store of the mod that defined it (_statuses); it
+ * goes on when they are back, without on_start. status() with a server status's name
+ * (SC_HIDING) takes on_start and on_end only: on_start may return a new
+ * duration in ms, or false to refuse the status.
+ *
+ * Units gain unit:skill_lv(name), unit:status_stacks(name, source),
+ * unit:party(range) and unit:in_skill_area(skill, owner); has_status() also
+ * knows a mod's statuses. Every hook sees c.pvp, c.gvg and c.bg. Further
+ * actions: c:cut_delay(ms, who), c:cut_cooldown(skill, ms, who),
+ * c:give_item(item, amount, who), c:hurt(hp, who). Everything a hook asks
+ * for happens after the hook has run; for on_kill, on_death and a status's
+ * on_start and on_end, a moment later.
+ *
+ * The rest of the toolkit, for reworking whole classes:
+ *
+ *  - More hooks on a skill: before_cast (once per use, before its effect;
+ *    c.caster still stands where it cast from; false stops the effect, the
+ *    use still paid for), hits (how many hits, the stock count in and out),
+ *    critical (true or false for a weapon hit).
+ *    A heal hook and an on_steal hook may act.
+ *  - More passive hooks: stats (as a status's), craft (the chance, out of
+ *    10000, to make c.item_id with c.craft_skill; c.base is the server's own),
+ *    on_craft (the item made, a table whose amount and options the hook may
+ *    change) and on_use (c.item: a consumable being used, with its creator).
+ *  - A mod's status also takes on_kill, on_death (c:survive() keeps any unit
+ *    alive), on_skill, cost, can_cast, range, critical, craft, on_craft and
+ *    on_use: for every skill its holder uses (c.used_skill) and everything
+ *    it does.
+ *  - A server status takes chance (out of 10000, before resistance), and
+ *    status("*", { ... }) hooks every server status at once; their hooks see
+ *    c.status_name, c.debuff and c.by_skill.
+ *  - item(name, { on_use = ... }) for a consumable.
+ *  - Queries: now(), skill_info(skill, lv), units_around(where, radius,
+ *    filter), units_in_line(from, to, width, filter), ground_units_around(
+ *    where, radius, filter), battle_config(name), and the server's tables:
+ *    element_rate(element, unit or element, level), size_rate(weapon_type,
+ *    size), def_rate(def); unit fields (char_id, weapon_type, spheres,
+ *    amotion, aspd, master_id, riding, copied_skill, element_level, ...) and
+ *    methods status_info, statuses, ground_units, equipment, count_item,
+ *    find_item, mob_skills, devotees, homunculus, master, cooldown_left,
+ *    skill_range.
+ *  - Actions: status (now with vals and the chance out of 10000, as
+ *    documented), end_status, status_val, cast (opts by, x, y, power; the
+ *    power reaches what the cast places on the ground), attack, spheres,
+ *    slide, knockback, interrupt, summon (opts neutral), set_target,
+ *    take_item, copy_skill, itemskill, spend, place_unit (opts duration, by,
+ *    power), end_unit, expire, produce_menu, mount, teleport, cooldown; heal
+ *    (opts force) defaults to the caster, as documented; give_item (opts
+ *    floor).
+ *  - Context: c.blocked and c.autocast on attacks; c.hits, c.damage_left
+ *    (a damage hook's second result sets the left hand's part) and c.targets
+ *    on damage; c.damage, c.overkill and c.element on on_kill and on_death.
+ *
+ * docs/MODDING.md in the app is the reference for every one of these.
  */
 
 struct block_list;
+class map_session_data;
+struct Damage;
+struct s_skill_condition;
 
 enum e_skill_lua_action : uint8 {
 	SKILL_LUA_DRAIN = 0,
@@ -135,18 +267,61 @@ enum e_skill_lua_action : uint8 {
 	SKILL_LUA_STATUS,
 	SKILL_LUA_POLYMORPH,
 	SKILL_LUA_CAST,
+	SKILL_LUA_APPLY_STATUS,   ///< a mod's status on
+	SKILL_LUA_REMOVE_STATUS,  ///< a mod's status off
+	SKILL_LUA_CUT_DELAY,      ///< shorten the unit's after-cast delay
+	SKILL_LUA_CUT_COOLDOWN,   ///< shorten a player's cooldown of one skill
+	SKILL_LUA_GIVE_ITEM,      ///< an item for a player
+	SKILL_LUA_DAMAGE,         ///< HP lost, without defence or element
+	SKILL_LUA_END_STATUS,     ///< a server status ends
+	SKILL_LUA_STATUS_VAL,     ///< a value of a running server status changes
+	SKILL_LUA_ATTACK,         ///< one hit of a skill, nothing paid
+	SKILL_LUA_SPHERES,        ///< spirit spheres gained or lost
+	SKILL_LUA_SLIDE,          ///< moved to a cell at once
+	SKILL_LUA_KNOCKBACK,      ///< pushed away from a cell
+	SKILL_LUA_INTERRUPT,      ///< a cast cancelled
+	SKILL_LUA_SUMMON,         ///< monsters that serve the summoner, or on nobody's side
+	SKILL_LUA_SET_TARGET,     ///< a monster turns on a unit
+	SKILL_LUA_TAKE_ITEM,      ///< items taken from a player
+	SKILL_LUA_COPY_SKILL,     ///< a skill copied into Plagiarism's or Reproduce's slot
+	SKILL_LUA_ITEMSKILL,      ///< one use of a skill for a player, as a scroll gives
+	SKILL_LUA_SPEND,          ///< HP and SP paid, without a hit
+	SKILL_LUA_PLACE_UNIT,     ///< a ground skill placed
+	SKILL_LUA_END_UNIT,       ///< a ground skill removed
+	SKILL_LUA_EXPIRE,         ///< a summoned monster leaves after a while
+	SKILL_LUA_PRODUCE_MENU,   ///< the crafting window opens
+	SKILL_LUA_MOUNT,          ///< a mount, falcon or cart on or off
+	SKILL_LUA_TELEPORT,       ///< to a random cell of the map, as Teleport does
+	SKILL_LUA_COOLDOWN,       ///< a skill's cooldown started, as a use would
 };
 
 /// One thing an on_hit hook asked for. Units are kept by id, never by
 /// pointer: by the time it is applied, the target may have died.
 struct s_skill_lua_action {
 	e_skill_lua_action kind;
-	int32 unit_id;      ///< who it happens to
-	int32 type;         ///< SKILL_LUA_STATUS: the sc_type; SKILL_LUA_CAST: the skill id
-	int32 rate;         ///< SKILL_LUA_STATUS: chance out of 10000
-	int32 val1;         ///< SKILL_LUA_STATUS; SKILL_LUA_CAST: the skill level
-	int64 duration;     ///< SKILL_LUA_STATUS, in milliseconds
-	int64 hp, sp;       ///< SKILL_LUA_HEAL
+	int32 unit_id = 0;  ///< who it happens to
+	int32 type = 0;     ///< STATUS, END_STATUS, STATUS_VAL: the sc_type; CAST, ATTACK, CUT_COOLDOWN, COOLDOWN, COPY_SKILL, ITEMSKILL, PLACE_UNIT: the skill id; *_STATUS: the mod status; GIVE_ITEM, TAKE_ITEM: the item id; SUMMON: the monster id; END_UNIT: the group id; MOUNT: what (e_skill_lua_mount)
+	int32 rate = 0;     ///< STATUS: chance out of 10000; STATUS_VAL: which value (1..4)
+	int32 val1 = 0;     ///< STATUS: val1; CAST, ATTACK, COPY_SKILL, ITEMSKILL, PLACE_UNIT: the skill level; *_STATUS: stacks (-1: all); GIVE_ITEM, TAKE_ITEM, SUMMON: amount; SPHERES: how many (negative: lost); KNOCKBACK: cells; STATUS_VAL: the value; PRODUCE_MENU: the recipes' item level
+	int64 duration = 0; ///< STATUS, APPLY_STATUS, CUT_DELAY, CUT_COOLDOWN, COOLDOWN, SUMMON, PLACE_UNIT, EXPIRE, SPHERES, in milliseconds
+	int64 hp = 0, sp = 0;  ///< HEAL, SPEND; DAMAGE: hp
+	int32 source_id = 0;  ///< APPLY_STATUS: who applied it; REMOVE_STATUS: only theirs, unless 0
+	int32 val2 = 0, val3 = 0, val4 = 0;  ///< STATUS
+	int32 by_id = 0;    ///< CAST, ATTACK, PLACE_UNIT, SUMMON, SET_TARGET: who does it, or the unit turned on; 0: the hit's caster
+	int16 x = -1, y = -1;  ///< a cell: CAST at it, SLIDE to it, KNOCKBACK away from it, PLACE_UNIT, SUMMON
+	int32 power = 100;  ///< CAST, ATTACK: % of the damage dealt
+	int32 flag = 0;     ///< HEAL: 1 heals through Berserk; GIVE_ITEM: 1 drops it at the player's feet; COPY_SKILL: 2 Reproduce; MOUNT: 1 on; SPHERES: the most to have
+};
+
+/// What c:mount() puts on or takes off.
+enum e_skill_lua_mount : uint8 {
+	SKILL_LUA_MOUNT_PECO = 0,
+	SKILL_LUA_MOUNT_DRAGON,
+	SKILL_LUA_MOUNT_WARG,
+	SKILL_LUA_MOUNT_MADO,
+	SKILL_LUA_MOUNT_FALCON,
+	SKILL_LUA_MOUNT_CART,
+	SKILL_LUA_MOUNT_MAX
 };
 
 struct s_skill_lua_hit {
@@ -201,5 +376,92 @@ int32 skill_lua_job_level(uint16 skill_id, const block_list* bl, int32 stock);
 /// skill says otherwise. `base` is the amount before the skill's own bonus
 /// (Coluceo Heal's bonus per party member); the hook reads it as c.base.
 int32 skill_lua_heal(uint16 skill_id, uint16 skill_lv, const block_list* src, const block_list* target, int32 stock, int32 base);
+
+// The calls below are the whole of what the upstream files carry for mods'
+// custom skills and statuses: one line each, the logic is here.
+
+/// status_calc_pc_: bonuses from the bonus hooks of the skills `sd` has
+/// learned and of the mod statuses on it.
+void skill_lua_bonus(map_session_data* sd);
+
+/// status_calc_bl_main: the stats hooks of the skills a player has learned
+/// and of the mod statuses on `bl`. Only the fields it has just recalculated
+/// (`flag`, with what they depend on) are changed.
+template <size_t N>
+void skill_lua_stats(block_list& bl, const std::bitset<N>& flag);
+
+/// battle_calc_attack: mods' damage_dealt and damage_taken hooks, and the
+/// power of a c:cast, c:attack or c:place_unit. `count` is
+/// battle_calc_attack's own flag: for an area skill whose damage is split,
+/// how many targets share it.
+void skill_lua_damage(int32 attack_type, block_list* src, block_list* target, uint16 skill_id, uint16 skill_lv, Damage& d, int32 count);
+
+/// skill_attack, around its damage: the hit is dealt through `dsrc`, which
+/// for a ground skill's later hits is its unit. skill_lua_damage then knows
+/// the power the unit was placed with.
+class skill_lua_dealt_by {
+	block_list* previous_;
+
+public:
+	explicit skill_lua_dealt_by(block_list* dsrc);
+	~skill_lua_dealt_by();
+	skill_lua_dealt_by(const skill_lua_dealt_by&) = delete;
+	skill_lua_dealt_by& operator=(const skill_lua_dealt_by&) = delete;
+};
+
+/// skill_get_range2: how far `bl` reaches with the skill, `range` as the
+/// server has it; mods' range hooks may change it.
+int32 skill_lua_range(const block_list* bl, uint16 skill_id, uint16 skill_lv, int32 range);
+
+/// battle_calc_weapon_attack, once it has decided whether the attack is a
+/// critical: mods' critical hooks may change that.
+void skill_lua_critical(Damage& wd, block_list* src, block_list* target, uint16 skill_id, uint16 skill_lv);
+
+/// skill_castend_id and skill_castend_pos: a unit used a skill (after its
+/// effect). `target` is nullptr for a ground skill.
+void skill_lua_on_cast(block_list* src, block_list* target, int16 x, int16 y, uint16 skill_id, uint16 skill_lv);
+
+/// skill_check_condition_castbegin: false if a mod's can_cast hook refuses
+/// the use; the player has been told why.
+bool skill_lua_can_cast(map_session_data& sd, uint16 skill_id, uint16 skill_lv);
+
+/// skill_check_condition_castbegin and _castend: false when a mod turns off
+/// the server's skill-specific checks for the skill (stock_checks = false),
+/// such as Spell Fist's "only while casting a bolt".
+bool skill_lua_stock_checks(uint16 skill_id);
+
+/// skill_get_requirement: mods' cost hooks.
+void skill_lua_requirement(map_session_data& sd, uint16 skill_id, uint16 skill_lv, s_skill_condition& req);
+
+/// status_damage: `target` is about to die from `damage` (the whole blow),
+/// of which `hp_lost` was the HP it had left. Runs the killer's on_kill and
+/// the dying unit's on_death hooks. True when a hook kept the target alive;
+/// its HP is then 1.
+bool skill_lua_on_kill(block_list* src, block_list* target, uint16 skill_id, int64 damage, int64 hp_lost);
+
+/// status_change_start, before the server rolls `rate` (out of 10000)
+/// against the target's resistance: mods' chance hooks may change it.
+int32 skill_lua_status_rate(block_list* src, block_list* bl, int32 type, int32 rate, uint8 flag);
+
+/// status_change_start: a stock status is about to start. False refuses it;
+/// a hook may change `tick`, its duration. Not asked for a status loaded with
+/// the character (SCSTART_LOADED in `flag`).
+bool skill_lua_status_start(block_list* src, block_list* bl, int32 type, int32 val1, int32 val2, int32 val3, int32 val4, int32& tick, uint8 flag);
+
+/// status_change_end: a stock status has ended, with the values it had.
+void skill_lua_status_end(block_list* bl, int32 type, int32 val1, int32 val2, int32 val3, int32 val4);
+
+/// skill_produce_mix: the chance (out of 10000) that `sd` makes `nameid`
+/// with `skill_id`; mods' craft hooks may change it.
+int32 skill_lua_craft_rate(map_session_data* sd, uint16 skill_id, t_itemid nameid, int32 rate);
+
+/// skill_produce_mix: `sd` has made `made`, which is about to go into the
+/// bag. Mods' on_craft hooks may change how many and its random options.
+void skill_lua_crafted(map_session_data* sd, uint16 skill_id, item& made);
+
+/// pc_useitem: `sd` is using `used` (already taken out of the bag), right
+/// before its script runs. Runs the item's, the passives' and the statuses'
+/// on_use hooks; what they ask for happens right after the script.
+void skill_lua_use_item(map_session_data* sd, const item& used);
 
 #endif /* SKILL_LUA_HPP */

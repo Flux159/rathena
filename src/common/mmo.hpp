@@ -397,6 +397,16 @@ struct s_skill {
 	uint8 flag; // see enum e_skill_flag
 };
 
+// Ragnarok Offline: room for the skills mods add in db/import/skill_db.yml,
+// on top of upstream's count. MAX_SKILL's own line above stays upstream's,
+// so a bump of it there still merges cleanly.
+#ifndef MAX_SKILL_MODS
+	#define MAX_SKILL_MODS 1000
+#endif
+constexpr int32 MAX_SKILL_STOCK = MAX_SKILL;
+#undef MAX_SKILL
+#define MAX_SKILL (MAX_SKILL_STOCK + MAX_SKILL_MODS)
+
 struct script_reg_state {
 	uint32 type : 1; // because I'm a memory hoarder and having them in the same struct would be a 8-byte/instance waste while ints outnumber str on a 10000-to-1 ratio.
 	uint32 update : 1; // whether it needs to be sent to char server for insertion/update/delete

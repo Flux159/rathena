@@ -45,6 +45,7 @@ struct s_doc {
 
 std::map<s_doc_key, s_doc> docs;
 bool ready = false;
+std::vector<void (*)(map_session_data&)> logout_hooks;
 
 size_t entry_bytes(const std::string& path, const s_value& value) {
 	return path.size() + (value.is_string ? value.text.size() : sizeof(int64));
@@ -555,7 +556,14 @@ bool top(const s_target& t, const std::string& path, size_t count, std::vector<s
 	return true;
 }
 
+void on_logout(void (*fn)(map_session_data& sd)) {
+	if (std::find(logout_hooks.begin(), logout_hooks.end(), fn) == logout_hooks.end())
+		logout_hooks.push_back(fn);
+}
+
 void logout(map_session_data& sd) {
+	for (auto fn : logout_hooks)
+		fn(sd);
 	for (auto it = docs.begin(); it != docs.end();) {
 		const s_doc_key& key = it->first;
 		bool mine = (key.scope == SCOPE_CHAR && key.owner == sd.status.char_id)

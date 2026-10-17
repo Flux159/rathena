@@ -1,0 +1,78 @@
+Header:
+  Type: MOB_DB
+  Version: 5
+
+Body:
+  # A target that never dies and never fights back, and is not a boss.
+  - Id: 25990
+    AegisName: TEST_DUMMY
+    Name: Test Dummy
+    Level: 50
+    Hp: 99999999
+    Size: Medium
+    Race: Formless
+    Element: Neutral
+    ElementLevel: 1
+    WalkSpeed: 200
+    Ai: 06
+  # One that dies to a few blows.
+  - Id: 25991
+    AegisName: TEST_WEAKLING
+    Name: Test Weakling
+    Level: 50
+    Hp: 4000
+    Size: Medium
+    Race: Formless
+    Element: Neutral
+    ElementLevel: 1
+    WalkSpeed: 200
+    Ai: 06
+  # One that stands still and attacks for 1 whoever is next to it.
+  - Id: 25992
+    AegisName: TEST_BITER
+    Name: Test Biter
+    Level: 1
+    Hp: 99999999
+    Attack: 1
+    Attack2: 1
+    Dex: 99
+    AttackRange: 1
+    SkillRange: 1
+    ChaseRange: 1
+    Size: Medium
+    Race: Formless
+    Element: Neutral
+    ElementLevel: 1
+    WalkSpeed: 200
+    AttackDelay: 500
+    AttackMotion: 300
+    DamageMotion: 200
+    Ai: 10
+  # A boss: Toxin's max_stacks_boss.
+  - Id: 25993
+    AegisName: TEST_BOSS
+    Name: Test Boss
+    Level: 50
+    Hp: 99999999
+    Size: Medium
+    Race: Formless
+    Element: Neutral
+    ElementLevel: 1
+    WalkSpeed: 200
+    Ai: 06
+    Class: Boss
+  # One that can be pushed: knockback and slide. It stays where it is put,
+  # so it never wanders into another test's area.
+  - Id: 25994
+    AegisName: TEST_PUSHABLE
+    Name: Test Pushable
+    Level: 50
+    Hp: 99999999
+    Size: Medium
+    Race: Formless
+    Element: Neutral
+    ElementLevel: 1
+    WalkSpeed: 200
+    Ai: 01
+    Modes:
+      NoRandomWalk: true
