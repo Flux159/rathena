@@ -1,0 +1,459 @@
+# English names for kRO-only NPCs (Korean<TAB>English). Proper names are
+# transliterated; iRO's wording is used where iRO already names the family.
+VR 또료료	VR Ttoryoryo
+VR 레이지	VR Lazy
+VR 벨군드	VR Bellgund
+VR 보클린드	VR Voklind
+VR 조랴라	VR Joryara
+가론 킹	Garon King
+가미라바간드	Gamirabagand
+간호장교	Nursing Officer
+감독관	Supervisor
+감옥 간수	Prison Guard
+강한 프렌드	Strong Friend
+개르주 샌샤	Gaerju Sansha
+건달	Thug
+건시	Geonsi
+검사 2차 전직 상담원	Swordman 2nd Job Counselor
+검사 포딘	Swordman Fodin
+게르미온	Germion
+게오보르그 병사	Georborg Soldier
+게펜 의뢰 게시판	Geffen Request Board
+게펜 주민	Geffen Resident
+고고학자 아우레스	Archaeologist Aures
+고미아간드	Gomiagand
+고민에 빠진 포링	Troubled Poring
+고양이	Cat
+고양이손 상단	Cat Hand Merchant Group
+고양이손 새우상인	Cat Hand Shrimp Merchant
+고양이손 선물포장사	Cat Hand Gift Wrapper
+고장난 자판기	Broken Vending Machine
+골드버그	Goldberg
+골든메이스 클랜	Golden Mace Clan
+골든메이스클랜 접수인	Golden Mace Clan Receptionist
+공손하	Gong Sonha
+관광객	Tourist
+관리자	Manager
+관리자 에밀	Manager Emil
+관리자 토른	Manager Thorn
+광부 하르반	Miner Harvan
+광부연합 세스	Miners' Union Seth
+교단을 탈출한 신도	Escaped Cultist
+구경꾼	Onlooker
+구르지오 구르마니	Gurgio Gurmani
+구왈	Guwal
+국나란	Guk Naran
+국단지	Guk Danji
+국순수	Guk Sunsu
+궁수 선생님	Archer Teacher
+궁수리	Gungsu Ri
+궁수박	Gungsu Bak
+금수저 영애님은...	The Golden Spoon Lady...
+기계 장치	Mechanism
+기도의 방향 패스 담당원	Direction of Prayer Pass Clerk
+기묘한 자판기	Strange Vending Machine
+기침이 심한 환자	Patient with a Bad Cough
+기침하는 환자	Coughing Patient
+길드 지하 던전	Guild Underground Dungeon
+길드 창고 관리인	Guild Storage Manager
+깍뚜기 꼬마	Kkakttugi Kid
+나.혼.순	Na Hon Sun
+나뭇가지	Branch
+나비엘	Naviel
+나와 나	Me and Me
+나이가 지긋한 환자	Elderly Patient
+나인	Nine
+난처한 소녀	Troubled Girl
+날시오라미간드	Nalsioramigand
+냐르	Nyar
+냐르의 분신	Nyar's Double
+냥타임	Nyang Time
+넛	Nut
+네딤	Nedim
+농부 데일로츠	Farmer Deilots
+농부 하르반	Farmer Harvan
+누구나 쉽게 키워...	Anyone Can Raise...
+누비나	Nubina
+누워있는 환자	Bedridden Patient
+눔카사이가간드	Numkasaigagand
+닉카	Nikka
+닐렘	Nilem
+다우 카프레제	Dau Caprese
+다크 루히르	Dark Luhir
+다판	Dapan
+대장장이 산산	Blacksmith Sansan
+대호	Daeho
+데본 에어	Devon Aire
+데이지	Daisy
+데쿠로	Dekuro
+도구상인	Tool Dealer
+도리리로간드	Doririrogand
+도박사	Gambler
+도서 열람권 안내원	Library Pass Guide
+도시 상인연합 관리인	City Merchant Union Manager
+도전자 꼬마	Young Challenger
+도전자의 비석	Challenger's Monument
+동그랗게 말린 냐이즈	Curled-up Nyaiz
+드루이드	Druid
+드브리스	Debris
+등급강화사	Grade Enhancer
+디트마르	Dietmar
+라디온	Radion
+라라	Lala
+라라이라 위그너	Lalaira Wigner
+라즈리그스 모의 공성전	Lazrigs Mock Siege
+라키안	Lakian
+라펌 오란피어	Lafum Oranpier
+라포레	Laforet
+라피네 전령	Laphine Herald
+러글	Rugel
+레베이레브 독	Rebeireb Dok
+레아블렘	Leablem
+레하르	Lehar
+로뎃	Rodet
+로라	Laura
+로루타 하만	Loruta Haman
+로몬	Romon
+루나포마 일꾼	Lunapoma Worker
+루민	Lumin
+루비엘	Rubiel
+룬 스톤	Rune Stone
+리	Lee
+리노 리셋	Rino Reset
+리릭	Lyric
+리브라	Libra
+리브리	Libri
+리히타르젠 상인연합	Lighthalzen Merchant Union
+리히타르젠 투자담당관	Lighthalzen Investment Manager
+링크	Link
+마기	Magi
+마르티네	Martine
+마마라	Mamara
+마마리	Mamari
+마마시나	Mamasina
+마법사 교수	Mage Professor
+마법사 로벨리아	Mage Lobelia
+마사	Martha
+마술사 마스터	Magician Master
+마술사 마스터 조교	Magician Master's Assistant
+마왕성에서...	From the Demon King's Castle...
+마을사람	Villager
+마크	Mark
+만능 동글이	All-purpose Donggeuli
+만다린	Mandarin
+만델	Mandel
+만투에 타라	Mantue Tara
+맏탈란 타라	Mattalan Tara
+먼데서 온 손님	Guest from Afar
+메가 부스터 전직요원	Mega Booster Job Agent
+메시도르	Messidor
+모가자 실드	Mogaja Shield
+모로크 병사	Morroc Soldier
+모크스 벌레의 집	Moks Bug Nest
+모크스버섯	Moks Mushroom
+모험가	Adventurer
+모험가...	Adventurer...
+몬스터 코인 교환원	Monster Coin Exchanger
+몬스터 학자	Monster Scholar
+못마땅한 환자	Disgruntled Patient
+무기 장인 하르반	Weaponsmith Harvan
+무두하 타만	Muduha Taman
+무인보관함	Storage Locker
+무지개 끝...	End of the Rainbow...
+문지기	Gatekeeper
+물놀이하는 아이	Child Playing in the Water
+물푸레 마을	Ash Village
+뮤	Myu
+미뉴엘	Minuel
+미요기	Miyogi
+밀라	Mila
+바닥을 구르는 냐이즈	Rolling Nyaiz
+바드와 댄서 홍보요원	Bard and Dancer Promoter
+바람잡이 고양이	Shill Cat
+바위 틈	Crack in the Rock
+바텐더	Bartender
+박물관 관장	Museum Curator
+반시	Banshi
+발다리스	Valdaris
+발터 선원	Walter Sailor
+밝히리의 속삭임	Whisper of Balkhiri
+버려진 자판기	Abandoned Vending Machine
+버만 에어	Burman Aire
+버프제공NPC	Buff NPC
+베로나	Verona
+베루스 신도	Verus Believer
+베르카셀	Verkasel
+베릴	Beryl
+보리리	Boriri
+복사 담당 엘리스	Acolyte Officer Elise
+복제전문가 미로	Replica Expert Miro
+볼록렌즈	Convex Lens
+부상당한 병사	Wounded Soldier
+부스터 교환원	Booster Exchanger
+부스터 안내원	Booster Guide
+부스터 인챈터(오토매틱)	Booster Enchanter (Automatic)
+부스터 인챈터(일루시온)	Booster Enchanter (Illusion)
+불꽃 금화 교환원	Flame Gold Coin Exchanger
+불사의 군단	Immortal Legion
+브로민	Bromin
+비말	Vimal
+비톨리	Vitoli
+뿌리 금화 교환원	Root Gold Coin Exchanger
+사레크간드	Sarekgand
+사르코	Sarko
+사막의 흔한 도둑	Common Desert Thief
+사서 관리인	Librarian Manager
+사서 토라	Librarian Tora
+사탕가게 고양이	Candy Shop Cat
+산다르만 경비	Sandarman Guard
+산차	Sancha
+산타 견습생	Santa Apprentice
+살림하미드	Salimhamid
+살이 쭉 빠진 환자	Emaciated Patient
+상담사 울스	Counselor Ulus
+상회 노동자	Trading Company Worker
+새롱이	Saerongi
+샘	Sam
+생던밥	Saengdeonbap
+샴 루미	Sham Lumi
+서류뭉치	Stack of Documents
+서성거리는 환자	Pacing Patient
+선교사 로제타	Missionary Rosetta
+성별 변경 카드 판매기	Gender Change Card Vendor
+성성파한	Seongseongpahan
+성소 벨레도르	Sanctuary Beledor
+세럼	Serum
+세르반	Servan
+세르토랑	Sertorang
+세자르	Cesar
+소드 클랜	Sword Clan
+소드클랜 접수인	Sword Clan Receptionist
+소리가 난 곳	Where the Sound Came From
+소율	Soyul
+손님	Guest
+수거용 자판기	Collection Vending Machine
+수납장	Cabinet
+수리공	Repairman
+수상한 검사	Suspicious Swordman
+수상한 사람	Suspicious Person
+수상한 자국	Suspicious Mark
+수상한 지점	Suspicious Spot
+수석 사제	High Priest
+수석 석수	Head Stonemason
+수안	Suan
+수키	Suki
+숙련된 모험가	Seasoned Adventurer
+술래	It
+숨겨진 배	Hidden Ship
+쉐도우 전용 마법서	Shadow Exclusive Spellbook
+슈파파	Shupapa
+스노클링 강사	Snorkeling Instructor
+슬리더	Slider
+시리아	Siria
+시미연	Si Miyeon
+시이데	Siide
+시키	Shiki
+신비한 광대	Mysterious Clown
+신비한 메달 크레인	Mysterious Medal Crane
+신사 고양이 신묘	Gentleman Cat Sinmyo
+신음하는 남자	Groaning Man
+실리카	Silica
+심부름꾼	Errand Runner
+심심한 마쉬	Bored Mash
+심심한 프리스트	Bored Priest
+심층 관리자 사탕이	Deep Layer Manager Satangi
+씻고 싶은 환자	Patient Who Wants a Bath
+아르테아	Artea
+아리	Ari
+아이디	Aidi
+아이레	Aire
+아이반	Ivan
+아인브로크 상인연합	Einbroch Merchant Union
+아인브로크 투자담당관	Einbroch Investment Manager
+아크완드 클랜	Arch Wand Clan
+아크완드클랜 접수인	Arch Wand Clan Receptionist
+안내야	Annaeya
+안내요원	Guide
+안드레아	Andrea
+안티온	Antion
+알베르	Albert
+알톤	Alton
+알프	Alf
+암흑의 땅	Land of Darkness
+약품 기술자 야곱	Pharmacist Jacob
+어느 과학자의...	A Scientist's...
+어떤 의사의 기록..	A Doctor's Record...
+어린 환자	Young Patient
+어부 하르반	Fisherman Harvan
+에데라	Edera
+에리리간드	Eririgand
+에스트	Est
+엔젤링 키우기	Raising an Angeling
+엘다	Elda
+엘런 슈일	Ellen Shuil
+엘레나 볼코바 그...	Elena Volkova...
+엘리시아	Elysia
+여관 종업원	Inn Employee
+여관 주인	Innkeeper
+여우가면을 쓴 남자	Man in a Fox Mask
+여행자의 비석	Traveler's Monument
+연구원 필립	Researcher Philip
+연시	Yeonsi
+오라랑	Orarang
+오이펠	Oifel
+온내체라멜간드	Onnaecheramelgand
+왕국소속자판기	Royal Vending Machine
+용병 지원자	Mercenary Applicant
+용병단원	Mercenary
+용지락 의뢰 게시판	Yongjirak Request Board
+워프 엘리베이터	Warp Elevator
+웨인	Wayne
+위그너 상단 교환원	Wigner Company Exchanger
+위그너 상단 직원	Wigner Company Clerk
+위그너 상단원 포포	Wigner Company Member Popo
+위자드 안내 교관	Wizard Guide Instructor
+유빌루스	Yubilus
+유우지	Yuuji
+유크터 뿌뿌	Yukter Ppuppu
+윤활제교환기TX140	Lubricant Exchanger TX140
+은행 직원	Bank Clerk
+이그리드	Igrid
+이론	Iron
+이리소프	Irisof
+이베인	Ivein
+이상한 사내	Strange Man
+이서트	Iseot
+이스가르드 제작 대회	Issgard Crafting Contest
+이정표	Signpost
+일루시온 패스 담당원	Illusion Pass Clerk
+자원봉사자 발런 웍	Volunteer Balun Wok
+자칭 천재 연금술사	Self-proclaimed Genius Alchemist
+작르다구미간드	Jakreudagumigand
+작업자	Worker
+작은 문	Small Door
+작은 물푸레나무	Small Ash Tree
+작은 배	Small Boat
+작은 요정 보라돌이	Little Fairy Boradori
+잡상인	Peddler
+잡힌 꼬마	Captured Kid
+장식문	Ornamental Door
+저주 전문 주술사	Curse Specialist Shaman
+저택 관리자	Mansion Manager
+전투 조교	Combat Instructor
+점원	Clerk
+정리의 달인	Master of Tidying
+제레니아	Jerenia
+제린	Jerin
+제이드	Jade
+제이크	Jake
+제인	Jane
+제작 시뮬레이터	Crafting Simulator
+제트	Jet
+젤메투	Jelmetu
+조리 시뮬레이터	Cooking Simulator
+조사원	Investigator
+조사지점	Investigation Point
+조지	George
+존다기획사 파견사원	Zonda Agency Dispatch Worker
+졸고 있는 냐이즈	Dozing Nyaiz
+종업원	Employee
+죄수 103GD214	Prisoner 103GD214
+죄수 117FM188	Prisoner 117FM188
+죄수 243AD265	Prisoner 243AD265
+죄수 243DV17	Prisoner 243DV17
+죄수 265CM154	Prisoner 265CM154
+죄수 267BD184	Prisoner 267BD184
+죄수 95EB72	Prisoner 95EB72
+주디	Judy
+주민	Resident
+중력성인	Gravity Saint
+지민	Jimin
+지식의 오브 교환원	Orb of Knowledge Exchanger
+지정 장소	Designated Spot
+지친 병사	Exhausted Soldier
+진료실 배식 봉사자	Clinic Meal Volunteer
+진료실 자원봉사자	Clinic Volunteer
+짐수레	Cart
+찌푸린 남자	Frowning Man
+찌푸린 냐이즈	Frowning Nyaiz
+차원 수호 기념관 안내	Dimension Guardian Memorial Guide
+천공술사	Celestial Mage
+청년	Young Man
+청시	Cheongsi
+체인지웨건	Change Wagon
+초기화 서비스	Reset Service
+츠다얀	Tsudayan
+측량기사	Surveyor
+치안관리	Security Officer
+카이젤	Kaiser
+카탈로그 자동 발급기	Catalog Dispenser
+카프라 이동 서비스	Kafra Transport Service
+카프라 직원	Kafra Employee
+코델리아	Cordelia
+코로나	Corona
+코르투	Kortu
+코모도 바드	Comodo Bard
+코모도 어린이	Comodo Child
+코모도 주민	Comodo Resident
+코모비	Komobi
+크로미스	Chromis
+크로스보우 클랜	Crossbow Clan
+크로스보우클랜 접수인	Crossbow Clan Receptionist
+크루세이더	Crusader
+크리투라 업무편람	Kritura Work Manual
+클제이나모간드	Kljeinamogand
+키이드	Kiid
+킴	Kim
+타마린	Tamarin
+타밀라	Tamila
+탈출한 신도	Escaped Believer
+털을 고르는 냐이즈	Grooming Nyaiz
+테크론	Techron
+텔코스 교수	Professor Telkos
+토릴	Toril
+토토르 앰버	Totor Amber
+트로스	Tros
+특이한 광대	Peculiar Clown
+티테	Tite
+파내었던 흔적	Dug-up Trace
+파렉스	Parex
+파모슈간드	Pamoshugand
+페이욘 필드	Payon Field
+편안해 보이는 노인	Relaxed Old Man
+포스틸 슈일	Postil Shuil
+포켓B	Pocket B
+풀 무더기	Pile of Grass
+프레이야교 신자	Freya Believer
+프론테라 필드	Prontera Field
+프버방시피	Peubeobangsipi
+피어리	Fiery
+피어싱 브로스넌	Piercing Brosnan
+피어싱 장인	Piercing Artisan
+피어싱전문가	Piercing Specialist
+하르반	Harvan
+하르반 상인	Harvan Merchant
+하르반 선원	Harvan Sailor
+하르반 장인 카드론	Harvan Artisan Kadron
+하얀 가루	White Powder
+하츄아	Hachua
+한수	Hansu
+핫비어 모어	Hotbeer More
+해리꼬리	Haerikkori
+해스	Hass
+허드렛일 게시판	Odd Jobs Board
+허리 두드리는 노인	Old Man Patting His Back
+헌터 홍보요원	Hunter Promoter
+험상궂은 남자	Grim-looking Man
+현자의 유산 패스 담당원	Sage's Legacy Pass Clerk
+호객하는 소년	Barker Boy
+홀시비간드	Holsibigand
+홍비	Hongbi
+홍시	Hongsi
+화끈머신	Hotness Machine
+휘겔 주민	Hugel Resident
+휴식중인 손님	Resting Guest
+휴지통	Trash Can
+흐베르겔미르	Hvergelmir
+흑발의 남자	Black-haired Man
+흔들리는 교차점	Shaking Crossroads
+히스	Heath

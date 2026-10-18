@@ -1,0 +1,4 @@
+# Positions for world-sync NPCs, used by generate.py instead of the
+# clients' spot. One per line:  <navi id> <map> <x> <y>
+# The navi id is the number after "#ws" in the NPC's name (e.g.
+# "Kafra Employee#ws15001" -> 15001).
