@@ -29,16 +29,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-          # The macos-latest label currently points to macos-14.
-          # macos-latest YAML-label will use macos-15 in August 2025
-          os: [macos-14, macos-15]
+          # macos-14 is gone: Homebrew no longer ships bottles for it (Tier 3), so
+          # `brew install mysql` compiles MySQL from source and fails before
+          # rAthena is built.
+          os: [macos-15]
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Update & Install packages
         # Macos runners already have most of the packages rAthena requires to build.
-        # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
         # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
         run: |
           brew update
