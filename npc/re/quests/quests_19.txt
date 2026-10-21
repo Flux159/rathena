@@ -976,7 +976,9 @@ OnInit:
 	end;
 }
 
-prt_cas,331,342,3	duplicate(dummy_npc)	Book-shaped Box#ep19box0	4_POINT_WHITE
+// The box stands one cell in front of Nihil, and a click on him can land on it,
+// so the box opens Nihil's dialog (step 5 talk, step 4 travel choice).
+prt_cas,331,342,3	duplicate(Nihil#ep19nh01)	Book-shaped Box#ep19box0	4_POINT_WHITE
 prt_cas,334,342,3	duplicate(dummy_cloaked_npc)	Lehar#ep19lehar02	4_EP19_LEHAR
 
 // unknown effect
