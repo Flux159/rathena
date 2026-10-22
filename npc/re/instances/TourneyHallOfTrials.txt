@@ -1,0 +1,197 @@
+//===== rAthena Script =======================================
+//= Instance: Tourney Hall of Trials.
+//===== Description: =========================================
+//- [Walkthrough conversion]
+//- Part of the Imperial Guard job change (npc/re/jobs/4-2/imperial_guard.txt).
+//- Follows the official quest flow; the dialog is our own
+//- wording, not a translation of the official text.
+//- Two one-on-one rounds against the Knight of Devotion and the
+//- Knight of Armament; the order comes from the quest the King's
+//- Knight gave in the Palace (3438: Devotion first, 3436: Armament
+//- first).
+//- The positions inside 1@4igd were picked by us after the
+//- official play-through videos (the arena in the middle of the map).
+//- No experience and no loot on the instance map.
+//- Total : 2 rounds.
+//===== Changelogs: ==========================================
+//= 1.0 First version. [MondoTruth]
+//============================================================
+
+1@4igd,50,53,3	script	King's Knight#ig1	4_M_KNIGHT_SILVER,{
+	.@devotion_first = (isbegin_quest(3438) > 0);
+	switch('ig_step) {
+	case 0:
+		// A fresh hall always starts with round 1.
+		for ( .@q = 3436; .@q <= 3439; .@q++ ) {
+			if (isbegin_quest(.@q) > 0)
+				erasequest .@q;
+		}
+		if (.@devotion_first)
+			setquest 3438;
+		else
+			setquest 3436;
+		mes "[King's Knight]";
+		mes "Welcome to the Tourney Hall of Trials.";
+		next;
+		mes "[King's Knight]";
+		mes "You fight one-on-one. Whoever beats the other wins and goes on to the next round.";
+		next;
+		mes "[King's Knight]";
+		if (.@devotion_first)
+			mes "Your first opponent is the ^4d4dffKnight of Devotion^000000.";
+		else
+			mes "Your first opponent is the ^4d4dffKnight of Armament^000000.";
+		next;
+		callsub S_Opponent, .@devotion_first, 1;
+		mes "[King's Knight]";
+		mes "Then, let's begin.";
+		close2;
+		'ig_step = 1;
+		callsub S_Spawn, .@devotion_first;
+		end;
+	case 1:
+	case 3:
+		mes "[King's Knight]";
+		mes "The round is not over yet. Your opponent is waiting!";
+		close;
+	case 2:
+		if (.@devotion_first) {
+			completequest 3438;
+			setquest 3439;
+		} else {
+			completequest 3436;
+			setquest 3437;
+		}
+		mes "[King's Knight]";
+		mes "That was a good fight.";
+		next;
+		mes "[King's Knight]";
+		if (.@devotion_first)
+			mes "Your next opponent is the ^4d4dffKnight of Armament^000000.";
+		else
+			mes "Your next opponent is the ^4d4dffKnight of Devotion^000000.";
+		next;
+		callsub S_Opponent, !.@devotion_first, 2;
+		mes "[King's Knight]";
+		mes "Whoever wins this match earns the title of Imperial Guard.";
+		close2;
+		'ig_step = 3;
+		callsub S_Spawn, !.@devotion_first;
+		end;
+	case 4:
+		mes "[King's Knight]";
+		mes "That was a good fight.";
+		next;
+		mes "[King's Knight]";
+		mes "You have proven your sense of justice.";
+		next;
+		mes "[King's Knight]";
+		mes "What people call justice changes with the times they live in.";
+		next;
+		mes "[King's Knight]";
+		mes "For now, I'd say go with the current.";
+		mes "Later, maybe you can help keep the same conflict from happening again.";
+		next;
+		mes "[King's Knight]";
+		mes "Congratulations on your victory.";
+		mes "Will you accept the title of Imperial Guard now?";
+		next;
+		if (select( "Yes.", "I need to get ready first." ) == 2) {
+			mes "[King's Knight]";
+			mes "Take your time. I'll be here.";
+			close;
+		}
+		if (Class != JOB_ROYAL_GUARD && Class != JOB_ROYAL_GUARD_T) {
+			mes "[King's Knight]";
+			mes "Hm? You're not a Royal Guard anymore. I can't give you the title like this.";
+			close;
+		}
+		if (checkriding() || ismounting()) {
+			mes "[King's Knight]";
+			mes "Get down from your mount first.";
+			close;
+		}
+		if (SkillPoint > 0) {
+			mes "[King's Knight]";
+			mes "You still have skill points left. Learn your skills first.";
+			close;
+		}
+		if (checkweight(490087,1) == 0) {
+			mes "[King's Knight]";
+			mes "You're carrying too much. Make some room in your inventory first.";
+			close;
+		}
+		if (.@devotion_first)
+			completequest 3439;
+		else
+			completequest 3437;
+		completequest 3440;
+		jobchange JOB_IMPERIAL_GUARD;
+		getitem 490087,1;	// 4th_Q_Necklace
+		mes "[King's Knight]";
+		mes "From now on, you are an Imperial Guard.";
+		next;
+		mes "[King's Knight]";
+		mes "Carry yourself in a way that fits your title,";
+		next;
+		mes "[King's Knight]";
+		mes "and keep adding to the king's honor.";
+		close2;
+		.@id = instance_id();
+		warp "prt_cas",179,12;
+		instance_destroy .@id;
+		end;
+	}
+	end;
+
+// What the opponent says before a round.
+// getarg(0): 1 = Knight of Devotion, 0 = Knight of Armament
+// getarg(1): the round
+S_Opponent:
+	if (getarg(0)) {
+		mes "[Knight of Devotion]";
+		if (getarg(1) == 1)
+			mes "We meet again, just as I thought we would.";
+		else
+			mes "So we meet after all. Let me show you that faith can stand against any blade.";
+	} else {
+		mes "[Knight of Armament]";
+		if (getarg(1) == 1) {
+			mes "We meet again.";
+			mes "Let's see which of us is stronger.";
+		} else {
+			mes "So we meet here.";
+			mes "I'll show you what superior arms can do.";
+		}
+	}
+	next;
+	return;
+
+// getarg(0): 1 = Knight of Devotion, 0 = Knight of Armament
+S_Spawn:
+	killmonster 'ig_map$, instance_npcname("King's Knight#ig1") + "::OnKnightDead";
+	if (getarg(0))
+		monster 'ig_map$,48,49,"--en--","4JOB_DEVOTION_NIGHT",1, instance_npcname("King's Knight#ig1") + "::OnKnightDead";
+	else
+		monster 'ig_map$,48,49,"--en--","4JOB_ARMED_NIGHT",1, instance_npcname("King's Knight#ig1") + "::OnKnightDead";
+	return;
+
+OnKnightDead:
+	if ('ig_step == 1) {
+		'ig_step = 2;
+		mapannounce 'ig_map$, "King's Knight : The round is decided! Come and see me.", bc_map, 0xFFFF00;
+	} else if ('ig_step == 3) {
+		'ig_step = 4;
+		mapannounce 'ig_map$, "King's Knight : The final match is decided! Come and see me.", bc_map, 0xFFFF00;
+	}
+	end;
+
+OnInstanceInit:
+	'ig_map$ = instance_mapname("1@4igd");
+	'ig_step = 0;
+	setmapflag 'ig_map$, MF_NOBASEEXP;
+	setmapflag 'ig_map$, MF_NOJOBEXP;
+	setmapflag 'ig_map$, MF_NOMOBLOOT;
+	setmapflag 'ig_map$, MF_NOMVPLOOT;
+	end;
+}

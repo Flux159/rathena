@@ -1350,6 +1350,40 @@ Body:
   - Id: 3420
     Title: Defeat Deep Sea fishmen in the Lower Layers - Standby
     TimeLimit: 4h
+  - Id: 3430
+    Title: Speak with the Knight of Devotion
+  - Id: 3431
+    Title: Talk to the Knight of Armament
+  - Id: 3432
+    Title: Powerful Equipment and Excellent Swordsmanship - Knight of Devotion
+  - Id: 3433
+    Title: Faith and Loyalty - Knight of Devotion
+  - Id: 3434
+    Title: Powerful Equipment and Excellent Swordsmanship - Knight of Armament
+  - Id: 3435
+    Title: Faith and Loyalty - Knight of Armament
+  - Id: 3436
+    Title: Round 1 - Knight of Armament
+    Targets:
+      - Mob: 4JOB_ARMED_NIGHT
+        Count: 1
+  - Id: 3437
+    Title: Round 2 - Knight of Devotion
+    Targets:
+      - Mob: 4JOB_DEVOTION_NIGHT
+        Count: 1
+  - Id: 3438
+    Title: Round 1 - Knight of Devotion
+    Targets:
+      - Mob: 4JOB_DEVOTION_NIGHT
+        Count: 1
+  - Id: 3439
+    Title: Round 2 - Knight of Armament
+    Targets:
+      - Mob: 4JOB_ARMED_NIGHT
+        Count: 1
+  - Id: 3440
+    Title: To the Battle of Trials
   - Id: 3446
     Title: Illusion Investigation Team - Jiroker
   - Id: 3447
