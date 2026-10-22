@@ -839,6 +839,8 @@ OnTouch:
 }
 
 prt_cas,331,343,4	script(CLOAKED)	Nihil#ep19nh01	4_EP17_NIHIL_K,{
+// The Book-shaped Box in front of Nihil sends its clicks here.
+OnBox:
 	if (ep19_main == 3) {
 		mes "[Nihil]";
 		mes "This is a Guardian Box, it looks like a normal book.";
@@ -977,16 +979,14 @@ OnInit:
 }
 
 // Nihil and Lehar stay cloaked until the player steps on #ep19_evt04, and the box
-// stands one cell in front of Nihil, so a click meant for him can land on it.
+// stands one cell in front of Nihil: the client picks the box for clicks on him.
 // At step 5 (or the step 4 travel choice) the box shows them both, as
-// #ep19_evt04 does, and points to Nihil.
+// #ep19_evt04 does, and opens Nihil's dialog.
 prt_cas,331,342,3	script	Book-shaped Box#ep19box0	4_POINT_WHITE,{
 	if (ep19_main == 3 || ep19_main == 4) {
 		cloakoffnpcself( "Nihil#ep19nh01" );
 		cloakoffnpcself( "Lehar#ep19lehar02" );
-		mes "A book-shaped box. It won't open.";
-		mes "^4D4DFFNihil^000000 is standing right behind it.";
-		close;
+		doevent "Nihil#ep19nh01::OnBox";
 	}
 	end;
 }
