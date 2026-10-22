@@ -109857,10 +109857,66 @@ Body:
 #    AegisName: 4JOB_KINGS_NIGHT
 #  - Id: 20824
 #    AegisName: 4JOB_AGONY_NIGHT
-#  - Id: 20825
-#    AegisName: 4JOB_DEVOTION_NIGHT
-#  - Id: 20826
-#    AegisName: 4JOB_ARMED_NIGHT
+  # Ragnarok Offline: the two opponents of the Imperial Guard job change
+  # (npc/re/instances/TourneyHallOfTrials.txt). Level, HP, stats, race,
+  # element, size and the attack ranges as Divine Pride shows them (kRO),
+  # turned into Attack/Attack2 the way tools/world_sync/divine_pride.py does;
+  # the speeds from its formulas. No skills are known.
+  - Id: 20825
+    AegisName: 4JOB_DEVOTION_NIGHT
+    Name: Knight of Devotion
+    Level: 200
+    Hp: 4800000
+    Attack: 3175
+    Defense: 299
+    MagicDefense: 163
+    Str: 118
+    Agi: 99
+    Vit: 147
+    Int: 162
+    Dex: 130
+    Luk: 134
+    AttackRange: 1
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Medium
+    Race: Demihuman
+    Element: Neutral
+    ElementLevel: 2
+    WalkSpeed: 250
+    AttackDelay: 586
+    AttackMotion: 862
+    DamageMotion: 480
+    Ai: 21
+    Class: Boss
+  - Id: 20826
+    AegisName: 4JOB_ARMED_NIGHT
+    Name: Knight of Armament
+    Level: 200
+    Hp: 5000000
+    Attack: 5200
+    Attack2: 1590
+    Defense: 389
+    MagicDefense: 117
+    Str: 188
+    Agi: 122
+    Vit: 178
+    Int: 86
+    Dex: 141
+    Luk: 66
+    AttackRange: 1
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Medium
+    Race: Demihuman
+    Element: Neutral
+    ElementLevel: 2
+    WalkSpeed: 250
+    AttackDelay: 586
+    AttackMotion: 862
+    DamageMotion: 480
+    Ai: 21
+    Class: Boss
 #  - Id: 20827
 #    AegisName: 4JOB_DOOMK
 #  - Id: 20828
