@@ -976,9 +976,20 @@ OnInit:
 	end;
 }
 
-// The box stands one cell in front of Nihil, and a click on him can land on it,
-// so the box opens Nihil's dialog (step 5 talk, step 4 travel choice).
-prt_cas,331,342,3	duplicate(Nihil#ep19nh01)	Book-shaped Box#ep19box0	4_POINT_WHITE
+// Nihil and Lehar stay cloaked until the player steps on #ep19_evt04, and the box
+// stands one cell in front of Nihil, so a click meant for him can land on it.
+// At step 5 (or the step 4 travel choice) the box shows them both, as
+// #ep19_evt04 does, and points to Nihil.
+prt_cas,331,342,3	script	Book-shaped Box#ep19box0	4_POINT_WHITE,{
+	if (ep19_main == 3 || ep19_main == 4) {
+		cloakoffnpcself( "Nihil#ep19nh01" );
+		cloakoffnpcself( "Lehar#ep19lehar02" );
+		mes "A book-shaped box. It won't open.";
+		mes "^4D4DFFNihil^000000 is standing right behind it.";
+		close;
+	}
+	end;
+}
 prt_cas,334,342,3	duplicate(dummy_cloaked_npc)	Lehar#ep19lehar02	4_EP19_LEHAR
 
 // unknown effect
