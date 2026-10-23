@@ -9,22 +9,24 @@
 //- (npc/re/instances/ShadowManor.txt).
 //- Field positions from the iRO Wiki guide and the videos:
 //- the pale shadow (ve_fild07 ~101,141) and Verkhasel north
-//- of Veins (ve_fild05 ~318,235) were read off the minimap.
+//- of Veins (ve_fild05 317,235, also the official clients'
+//- navigation spot) were read off the minimap; Noah stands
+//- where the iRO video's /navi points (veins 87,158).
 //- Sprites and cutins as in the iRO video: Rumin 4_M_AC_RUMIN
 //- (lumin_ac), Verkhasel 4_M_GUILLOTINE (gc_verkhasel), Mayssel
 //- 4_F_MAYSEL (gc_mayssel), Vicente 4_M_HUMAN_02 (sc_vicente).
 //- Mayssel is only in the safe house while she briefs you;
-//- Tori's mother only while you look at the pale shadow.
+//- Tori's father only while you look at the pale shadow, right
+//- next to you. Overhead lines as in the video's chat log.
 //- Unknown, picked by us:
-//-  - the sprites of Noah, Tori, the mother and Blackie,
-//-  - the cells of Mayssel, Vicente, the mother, Noah and Tori,
-//-  - who sends you to Noah (here: Tori's mother).
+//-  - the sprites of Noah, Tori, the father and Blackie,
+//-  - the cells of Mayssel, Vicente, Noah and Tori.
 //- Quest log: kRO's chain 18059 "Shadow's Call" and 18060-18067
 //- "Job Change to Shadow Cross-1" to "-8" (the client's quest
 //- table); each step below moves to the next one. kRO has no
 //- waiting time after giving up in the mansion.
-//- The videos name the shadow "Blackie"; Noah once calls it
-//- "Noir" in iRO, probably a translation slip, so we use Blackie.
+//- The children call the shadow "Noir" in iRO and it calls
+//- itself Blackie; we use Blackie everywhere.
 //===== Changelogs: ==========================================
 //= 1.0 First version. [MondoTruth]
 //= 1.1 Story follows the videos: Mayssel and Vicente, the
@@ -37,13 +39,16 @@
 //=     mansion is marked for the navigation. [MondoTruth]
 //= 1.4 The villager only appears while you look at the pale
 //=     shadow. [MondoTruth]
+//= 1.5 Every dialog page and overhead line checked against the
+//=     iRO video again; World Sync's placeholder Verkhasel on
+//=     the same cell is hidden. [MondoTruth]
 //============================================================
 
 // job_sc_4th:
 //  1 talked to Rumin, go to the safe house
 //  2 briefed by Verkhasel, Mayssel and Vicente: search the southern coast
 //  3 (unused since 1.4; treated as 2)
-//  4 looked at the pale shadow, the mother told you about her son, Tori
+//  4 looked at the pale shadow, Tori's father told you about his son
 //  5 called Tori at Noah's: the black bead, Blackie
 //  6 called Blackie on the shore, report to Verkhasel
 //  7 bring the materials to Verkhasel north of Veins
@@ -79,12 +84,16 @@ job3_guil01,74,92,5	script	Rumin#sc_start	4_M_AC_RUMIN,{
 		next;
 		select("Why?");
 		mes "[Rumin]";
-		mes "The guild is looking for people for a new team, and I put your name forward.";
-		mes "Don't make me regret it.";
+		mes "The guild has been gathering information for a while, with Mayssel and Verkhasel running it.";
+		mes "And now they've found something that could decide everything.";
 		next;
 		mes "[Rumin]";
-		mes "The others are waiting at the ^0000ffsafe house in the eastern district of Veins^000000.";
-		mes "Verkhasel will tell you the rest.";
+		mes "They need people for the operation, and I gave them your name.";
+		mes "That was the right call, wasn't it?";
+		next;
+		mes "[Rumin]";
+		mes "The others are waiting at the ^0000ffsafe house in the eastern district of Veins^000000. Head there now.";
+		mes "Verkhasel will tell you what the operation is about.";
 		job_sc_4th = 1;
 		setquest 18059;
 		close2;
@@ -92,8 +101,11 @@ job3_guil01,74,92,5	script	Rumin#sc_start	4_M_AC_RUMIN,{
 		end;
 	}
 	mes "[Rumin]";
-	mes "You got this far on your own. The safe house won't be hard to find. Buck up.";
-	mes "It's in the ^0000ffeastern district of Veins^000000.";
+	mes "Where exactly? No idea. All I know is that it's a ^0000ffsafe house in the eastern district of Veins^000000.";
+	mes "Knock on every door there if you have to.";
+	next;
+	mes "[Rumin]";
+	mes "Look carefully and you'll find it. You got this far without anyone's help. Chin up.";
 	close2;
 	cutin "",255;
 	end;
@@ -118,63 +130,120 @@ ve_in,212,384,3	script	Verkhasel#sc_house	4_M_GUILLOTINE,{
 		break;
 	case 1:
 		mes "[Verkhasel]";
-		mes strcharinfo(0) + "? Rumin sent you, then. That's why he told us not to worry.";
-		mes "Tell me, have you ever heard of the ^0000ffShadow Phenomenon^000000?";
+		mes strcharinfo(0) + "? So Rumin sent you. That explains why he told us not to worry.";
+		next;
+		mes "[Verkhasel]";
+		mes "Yes, you're the kind of person we need. Let's get straight to it.";
+		mes "Have you ever heard of the ^0000ffShadow Phenomenon^000000?";
+		next;
+		select("Why should I care about that?");
+		mes "[Verkhasel]";
+		mes "Hm... In our trade it's an old, well-known story. I'm surprised it never reached you.";
+		mes "Be honest: the guild's affairs don't interest you much, do they?";
+		next;
+		mes "[Verkhasel]";
+		mes "Never mind. The Shadow Phenomenon is the traces one particular being leaves behind.";
+		mes "For now we call it the ^0000ffdark elemental^000000, but nobody knows exactly what it is.";
 		next;
 		// Mayssel only shows up for the briefing (iRO video).
 		cloakoffnpcself .@may$;
 		specialeffect EF_TELEPORTATION, SELF, .@may$;
-		npctalk "Mayssel : I can tell you more about that.", .@may$, bc_self;
+		npctalk "Mayssel : Let me tell you more about it.", .@may$, bc_self;
 		cutin "gc_mayssel01.bmp",1;
 		mes "[Mayssel]";
-		mes "It's been a while, " + strcharinfo(0) + ".";
-		mes "We simply call it the ^0000ffShadow^000000. A being that leaves traces of shadow wherever it goes.";
-		mes "I came across its traces by pure chance.";
-		next;
-		cutin "sc_vicente01.bmp",2;
-		mes "[Vicente]";
-		mes "Chance alone wouldn't have done it. Something like that is hard to pin down, and we even found a living witness.";
-		mes "That was Doomk's doing. Our superiors are already building a new system around it.";
-		next;
-		npctalk "Vicente : ...and that's why Doomk went off to the Workshop, to design a new uniform.", .@vic$, bc_self;
-		npctalk "Verkhasel : He never changes.", .@me$, bc_self;
-		cutin "gc_mayssel01.bmp",1;
-		mes "[Mayssel]";
-		mes "I've drawn up the new organization, and Doomk and I picked the names together.";
-		mes "Whoever takes in the Shadow's power will lead a new group: the ^0000ffShadow Crosses^000000.";
-		next;
-		cutin "sc_vicente01.bmp",2;
-		mes "[Vicente]";
-		mes "We'll share whatever we learn about it, of course.";
+		mes "It's been a long time, " + strcharinfo(0) + ". Not since our last operation together.";
+		mes "That suits me. I'd rather not mix work and pleasure.";
 		next;
 		cutin "gc_verkhasel01.bmp",0;
 		mes "[Verkhasel]";
-		mes "Sharing is fine, but the Shadow goes to whoever reaches it first.";
-		mes "I'm betting on you. Mayssel's cookies are on the line.";
-		next;
-		npctalk "Mayssel : What do my cookies have to do with it?", .@may$, bc_self;
-		cutin "sc_vicente01.bmp",2;
-		mes "[Vicente]";
-		mes "Then bet away. We have an ace of our own.";
-		mes "Cookies or daggers, whatever you like. Can we trust you to pay up?";
+		mes "Mayssel had the luck to meet the Shadow and take in its power.";
+		mes "She can even command darkness now.";
 		next;
 		cutin "gc_mayssel01.bmp",1;
 		mes "[Mayssel]";
-		mes "The traces were seen on the ^0000ffsouthern coast of Veins^000000 and in the ^0000ffRachel South Field^000000.";
-		mes "To keep it fair, you choose first.";
+		mes "It was an accident in my case. But the Shadow could be a great help to you, and to the guild as well.";
 		next;
-		cutin "gc_verkhasel01.bmp",0;
-		mes "[Verkhasel]";
-		mes "Then that's settled: we take the coast. Search the ^0000fffishing pier on the southern coast of Veins^000000.";
-		mes "I'll check the other spots myself.";
+		mes "[Mayssel]";
+		mes "We've had a special group of informants gathering everything about the Shadow.";
+		mes "And at last, all that work has paid off.";
 		next;
 		cutin "sc_vicente01.bmp",2;
 		mes "[Vicente]";
-		mes "So Rachel is ours. Good luck.";
+		mes "And what work it was. Nobody believed any of it until our living witness here turned up.";
+		next;
+		mes "[Vicente]";
+		mes "Don't forget that none of it would have happened without Doomk.";
+		mes "Without his backing, your informants would never have worked that well.";
+		next;
+		cutin "gc_mayssel01.bmp",1;
+		mes "[Mayssel]";
+		mes "We're thankful for that, which is why you're here today.";
+		mes "Where's the rest of your people, Vicente? We called your guild in to share what we found.";
+		next;
+		npctalk "Vicente : I knew it! That's why Doomk rushed off to the Workshop. A new uniform to design.", .@vic$, bc_self;
+		npctalk "Verkhasel : He never changes, does he?", .@me$, bc_self;
+		cutin "sc_vicente01.bmp",2;
+		mes "[Vicente]";
+		mes "Ah... My superiors are busy building a new system inside the organization,";
+		mes "so we can put the Shadow's power to use once we have it.";
+		next;
+		cutin "gc_mayssel01.bmp",1;
+		mes "[Mayssel]";
+		mes "No need to worry about that. Our chart is already updated, names and all. Doomk helped, of course.";
+		mes "On our side there'll be a new group: the ^0000ffShadow Crosses^000000, for whoever takes in the power.";
+		next;
+		cutin "sc_vicente01.bmp",2;
+		mes "[Vicente]";
+		mes "Mayssel, we agreed to share everything we learn.";
+		next;
+		cutin "gc_verkhasel01.bmp",0;
+		mes "[Verkhasel]";
+		mes "And we will. But only the information.";
+		mes "The Shadow itself goes to whoever gets there first, and my money is on " + strcharinfo(0) + ".";
+		next;
+		mes "[Verkhasel]";
+		mes "I'll even bet Mayssel's secret homemade cookie set that " + strcharinfo(0) + " finds the Shadow before your candidate does.";
+		next;
+		npctalk "Mayssel : And what do my cookies have to do with this?", .@may$, bc_self;
+		cutin "gc_mayssel01.bmp",1;
+		mes "[Mayssel]";
+		mes "Do that and I'll snap your third dagger, Verkhasel.";
+		next;
+		npctalk "Verkhasel : Wait, what does my dagger have to do with this?", .@me$, bc_self;
+		cutin "sc_vicente01.bmp",2;
+		mes "[Vicente]";
+		mes "So sure of yourselves. Well, we have an ace up our sleeve too.";
+		mes "Bet whatever you like, cookies or daggers.";
+		next;
+		mes "[Vicente]";
+		mes "But how reliable is this new lead of yours?";
+		mes "Is it really the Shadow Phenomenon this time?";
+		next;
+		cutin "gc_mayssel01.bmp",1;
+		mes "[Mayssel]";
+		mes "Yes. What we heard matches what I remember.";
+		mes "The latest sightings came from around Veins and Rachel, and the ones who saw it were village children.";
+		next;
+		mes "[Mayssel]";
+		mes "To be exact: the ^0000ffsouthern coast of Veins^000000 and the area near the ^0000ffRachel South Field^000000.";
+		mes "To show we're playing fair, you choose first.";
+		next;
+		mes "[Mayssel]";
+		mes "We trust our information either way. So, Vicente, which one do you want?";
+		next;
+		cutin "sc_vicente01.bmp",2;
+		mes "[Vicente]";
+		mes "If you insist. Rachel for us, naturally. Our Workshop has a branch there.";
+		next;
+		cutin "gc_verkhasel01.bmp",0;
+		mes "[Verkhasel]";
+		mes "That leaves us the coast. Search the ^0000fffishing pier on the southern coast of Veins^000000.";
 		job_sc_4th = 2;
 		changequest 18059,18060;
 		close2;
 		cutin "",255;
+		npctalk "Mayssel : Well, if you'll excuse me.", .@may$, bc_self;
+		sleep2 1500;
 		cloakonnpcself .@may$;
 		end;
 	case 2:
@@ -187,31 +256,38 @@ ve_in,212,384,3	script	Verkhasel#sc_house	4_M_GUILLOTINE,{
 		break;
 	case 6:
 		mes "[Verkhasel]";
-		mes "Back already? The spots I checked had barely a trace left.";
-		mes "You found something, didn't you?";
+		mes "Good to see you. The spots I checked had barely a trace left.";
+		mes "How about you?";
 		next;
 		mes "- You tell him about Blackie. -";
 		next;
 		mes "[Verkhasel]";
-		mes "It wants to be called again somewhere dark. Then we need a dark place, and fast.";
+		mes "It wants somewhere dark, then. We'd better find a place quickly.";
+		next;
+		mes "[Verkhasel]";
+		mes "I've got it! The mansion from our last mission together, remember?";
+		mes "It's built in a valley and always in shade.";
+		next;
+		mes "[Verkhasel]";
+		mes "The guild left it in our care, so we're free to use it.";
 		next;
 		cutin "sc_vicente01.bmp",2;
 		mes "[Vicente]";
-		mes "A dark place, just like that? I don't know of one.";
-		mes "If you do, you'll share it with us, won't you?";
+		mes "Hm? I had no idea there was a place like that. Will you share it with us?";
+		mes "You found the dark elemental before us this time, but next time may be different.";
 		next;
 		cutin "gc_verkhasel01.bmp",0;
 		mes "[Verkhasel]";
-		mes "The mansion from our last mission. Built in a valley, in shade all day.";
-		mes "To call the Shadow there we'll need:";
+		mes "I'll sort that out with Mayssel later.";
+		mes strcharinfo(0) + ", first get hold of the things that will call it:";
 		mes "^0000ff5 Crystal of Darkness^000000";
 		mes "^0000ff20 Dark Piece^000000";
 		next;
 		// kRO's quest text: the crystals come from Morroc's demons.
 		mes "[Verkhasel]";
 		mes "The demons of Morroc carry such crystals.";
-		mes "I'll mark the way to the mansion for you: <NAVI>^0000ff[Verkhasel]^000000<INFO>ve_fild05,317,235,0,000,0</INFO></NAVI>, north of Veins.";
-		mes "Meet me there once you have everything. I'll have the mansion ready.";
+		mes "I'll mark the mansion on your map: <NAVI>^0000ff[Verkhasel]^000000<INFO>ve_fild05,317,235,0,000,0</INFO></NAVI>, north of Veins.";
+		mes "Meet me there once you have everything. The mansion will be ready.";
 		job_sc_4th = 7;
 		changequest 18063,18064;
 		break;
@@ -257,10 +333,10 @@ ve_fild07,99,141,0	script	Pale Shadow#sc	1_SHADOW_NPC,{
 	switch(job_sc_4th) {
 	case 2:
 	case 3:	// 3 was a step of its own before 1.4
-		mes "- There is a pale shadow between the piled boxes. -";
-		mes "- Is it just a shadow, or a trace of the Shadow? Hard to tell. -";
+		mes "- There's a faint shadow between the stacked boxes. -";
+		mes "- Is it an ordinary shadow, or a trace of the Shadow? Hard to say. -";
 		next;
-		// The villager only shows up for this talk, right next to you (iRO video).
+		// Tori's father only shows up for this talk, right next to you (iRO video).
 		.@v$ = "Villager#sc";
 		getmapxy(.@map$, .@x, .@y, BL_PC);
 		if (checkcell(.@map$, .@x + 1, .@y + 1, cell_chkpass))
@@ -268,16 +344,32 @@ ve_fild07,99,141,0	script	Pale Shadow#sc	1_SHADOW_NPC,{
 		cloakoffnpcself .@v$;
 		npctalk "Villager : Hey, what are you doing over there?", .@v$, bc_self;
 		mes "[Villager]";
-		mes "There's nothing over there but fish traps and nets.";
-		mes "I only came to see if my son was playing with the nets again, or had caught something.";
+		mes "An adventurer? There's nothing over there but fish traps and nets. What are you after?";
+		mes "I only came to check whether my boy was playing with the nets again.";
 		next;
 		mes "[Villager]";
-		mes "Something odd? I haven't seen anything. But lately my ^0000ffTori^000000 can't keep away from this place.";
-		mes "Ask him. He plays with ^0000ffNoah^000000, outside the ^0000ffSecurity Management Room^000000 in town.";
-		mes "If you don't see him, shout his name. He'll come out.";
+		mes "Yes, lately he and the other village kids come here to play all the time.";
+		mes "And you know as well as I do that it's no safe place for children.";
 		next;
 		mes "[Villager]";
-		mes "At least he left the nets alone today. Good.";
+		mes "I didn't want him leaving the village today, but he wouldn't listen.";
+		mes "He said he'd promised to meet someone. Someone hiding in between those nets.";
+		next;
+		mes "[Villager]";
+		mes "So I came to see whether he'd netted something. And you, adventurer?";
+		next;
+		select("I'm looking for witnesses for an investigation.");
+		mes "[Villager]";
+		mes "I see. I haven't seen anything myself, but lately my son can't keep away from this place.";
+		mes "Maybe he knows something.";
+		next;
+		mes "[Villager]";
+		mes "He'll be playing near the ^0000ffentrance of the village^000000 about now.";
+		mes "His name? Oh, I never said, did I. It's ^0000ffTori^000000.";
+		next;
+		mes "[Villager]";
+		mes "If you can't spot him, just call his name. Ha ha.";
+		mes "Well, I'd better get back. At least he left our nets alone.";
 		job_sc_4th = 4;
 		changequest 18060,18061;
 		close2;
@@ -285,7 +377,7 @@ ve_fild07,99,141,0	script	Pale Shadow#sc	1_SHADOW_NPC,{
 		end;
 	case 4:
 		mes "- Nothing here looks out of the ordinary. -";
-		mes "- The villager's son, ^0000ffTori^000000, might know more. He plays with ^0000ffNoah^000000 outside the ^0000ffSecurity Management Room^000000 in Veins. -";
+		mes "- The villager's son, ^0000ffTori^000000, might know more. He plays near the entrance of Veins. -";
 		close;
 	case 5:
 		mes "- Nothing here looks out of the ordinary either. -";
@@ -293,21 +385,35 @@ ve_fild07,99,141,0	script	Pale Shadow#sc	1_SHADOW_NPC,{
 		next;
 		unittalk getcharid(3), strcharinfo(0) + " : Hey, Blackie.";
 		mes "[Blackie]";
-		mes "Who's that? You're not one of the little ones.";
+		mes "What is it, human? Hm? You're not one of the little ones.";
 		mes "What did you just call me?";
 		next;
 		mes "[Blackie]";
-		mes "Never mind. I am not going to wither away out here. It took me long enough to reach the human realm.";
+		mes "Ugh... It's far too bright out here. I'm losing my shape...";
+		mes "Darkness... I need darkness... Aaagh...";
 		next;
 		mes "[Blackie]";
+		mes "Yes, those children. They can only do so much for me. But you're grown up, aren't you?";
+		mes "Take me somewhere full of darkness, with no light at all!";
+		next;
+		mes "[Blackie]";
+		mes "I won't fade away in this wilderness! It took me so long to reach the human world.";
 		mes "Call me again somewhere dark, and I'll grant you one wish.";
-		mes "I don't forget a favour. Until then, I'll follow you like a little shadow.";
 		next;
 		mes "[Blackie]";
-		mes "I came through on the children's ^0000ffRune of Darkness^000000... I never knew this world was so bright.";
+		mes "I never forget a favour. I'll hang on to you like a little shadow.";
+		mes "Call me when you've found the right place.";
 		next;
-		mes "- The pale shadow fades between the boxes. -";
-		mes "- Verkhasel should hear about this. -";
+		mes "[Blackie]";
+		mes "How? Simple. Use things soaked in darkness to call me.";
+		mes "Your world is full of them. ^0000ffRunes of Darkness^000000 and ^0000ffDark Pieces^000000, for example.";
+		next;
+		mes "[Blackie]";
+		mes "I came over on the children's Rune of Darkness, but... ugh, I had no idea it would be this bright...";
+		next;
+		mes "- The chatty shadow faded away in the middle of a sentence. -";
+		mes "- It must have run out of strength. -";
+		mes "- Better report to the safe house for now. -";
 		job_sc_4th = 6;
 		changequest 18062,18063;
 		close;
@@ -321,8 +427,8 @@ ve_fild07,99,141,0	script	Pale Shadow#sc	1_SHADOW_NPC,{
 	}
 }
 
-// Tori's mother is only seen during the first talk with the pale shadow,
-// next to the player; this cell is only her fallback.
+// Tori's father is only seen during the first look at the pale shadow,
+// next to the player; this cell is only his fallback.
 ve_fild07,104,143,3	script	Villager#sc	946,{
 	mes "[Villager]";
 	mes "Nothing but fish traps and nets down here.";
@@ -341,41 +447,58 @@ veins,87,158,5	script	Noah#sc	941,{
 	}
 	if (job_sc_4th == 5) {
 		mes "[Noah]";
-		mes "Blackie is our friend. Don't be mean to him.";
+		mes "Blackie is in the net crate at the little dock. Please give him something to eat.";
 		close;
 	}
 	mes "[Noah]";
-	mes "Tori? He's around here somewhere. He comes out if you call him.";
-	mes "You have to shout really loud, though.";
+	mes "Hm? What is it?";
 	next;
-	mes "- I should call Tori. -";
+	select("Where's Tori?");
+	unittalk getcharid(3), strcharinfo(0) + " : Hi. Are you Tori?";
+	npctalk "Noah : Um, I'm Noah. Tori... I came here to play with Tori.", "", bc_self;
+	mes "[Noah]";
+	mes "He's somewhere around here. He'll come out if you call him.";
+	mes "Can you shout really loud? You have to shout for him. Noah can't.";
+	next;
+	mes "- I should call out for Tori. -";
+	mes "- He'll come out if I shout his name loud enough. -";
 	next;
 	input .@name$;
+	unittalk getcharid(3), strcharinfo(0) + " : " + .@name$;
 	if (.@name$ != "Tori") {
 		mes "- Nobody comes out. -";
 		close;
 	}
 	cloakoffnpcself "Tori#sc";
+	npctalk "Tori : Who are you?", "Tori#sc", bc_self;
+	npctalk "Noah : An adventurer came to see you.", "", bc_self;
+	npctalk "Tori : Huh? Me?", "Tori#sc", bc_self;
 	mes "[Tori]";
-	mes "Who's that? You're so loud!";
+	mes "Oh, you're not the adventurer from before. Phew, you gave me a fright!";
+	mes "A while ago I found something an adventurer dropped on the ground.";
 	next;
 	mes "[Tori]";
-	mes "...Why are you looking at me like that? I didn't steal anything!";
-	next;
-	select("What do you mean?");
-	mes "[Tori]";
-	mes "Oh, you're not that adventurer from before. Phew, you scared me.";
+	mes "I swear I didn't steal it from anybody! And I don't have it on me now, either.";
 	next;
 	mes "[Tori]";
-	mes "A while ago an adventurer dropped something. A ^0000ffshiny black bead^000000.";
-	mes "It was so pretty I didn't want to lose it or show anybody, so I kept it.";
+	mes "Not exactly, anyway. That reminds me, Blackie has gone so pale... Huh?";
+	mes "Adventurers take requests from people, right? Please help Blackie!";
 	next;
 	mes "[Tori]";
-	mes "But Blackie has gone so pale... Please, help Blackie!";
+	mes "I picked up a ^0000ffshiny black bead^000000. It was so pretty, I didn't want anyone to see it or to lose it, so I hid it.";
 	next;
 	mes "[Noah]";
-	mes "He's at the little dock on the beach, inside the net crates.";
-	mes "A black fairy came out of the bead. That's Blackie. He hides in the nets.";
+	mes "At the ^0000fflittle dock on the beach^000000. Inside one of the net crates.";
+	mes "Then a black fairy came out of the bead. That's Blackie.";
+	next;
+	npctalk "Tori : You can ask Blackie what he likes.", "Tori#sc", bc_self;
+	npctalk "Noah : Yes, you can!", "", bc_self;
+	mes "[Noah]";
+	mes "Blackie... If you go to the dock on the beach, there's a crate for fishing nets. He hides in there.";
+	next;
+	mes "[Noah]";
+	mes "Noah and Tori aren't allowed to go there today.";
+	mes "Adventurer, please go and see how Blackie is, and give him something to eat. Please?";
 	job_sc_4th = 5;
 	changequest 18061,18062;
 	close;
@@ -429,7 +552,6 @@ ve_fild05,317,235,3	script	Verkhasel#sc_start	4_M_GUILLOTINE,{
 	}
 	if (getcharid(1) == 0 || is_party_leader() == false) {
 		mes "[Verkhasel]";
-		mes "There's no telling whether it will accept our terms, so let's be ready for anything.";
 		mes "Make a party of your own and lead it, then talk to me.";
 		close2;
 		cutin "",255;
@@ -444,12 +566,18 @@ ve_fild05,317,235,3	script	Verkhasel#sc_start	4_M_GUILLOTINE,{
 		end;
 	}
 	mes "[Verkhasel]";
-	mes "There's no telling whether it will accept our terms, so let's be ready for anything.";
-	mes "The mansion is ready. Mayssel and Doomk are coming too.";
-	mes "Shall we go?";
+	mes "Here we are. Good work getting the materials for the summoning. That should be plenty.";
+	mes "Mayssel will catch up soon. Let's go on ahead.";
 	next;
-	switch( select( "Enter the Shadow Manor.", "Open the way to the Shadow Manor." ) ) {
-	case 2:
+	mes "[Verkhasel]";
+	mes "There's no promise this dark elemental will agree to our terms when it appears.";
+	mes "Let's be ready for anything before we call it.";
+	next;
+	mes "[Verkhasel]";
+	mes "Tell me when you're ready to go in.";
+	next;
+	switch( select( "Open the way to the Shadow Manor.", "Enter the Shadow Manor." ) ) {
+	case 1:
 		.@id = instance_create(.@md_name$);
 		mes "[Verkhasel]";
 		if (.@id == -3)
@@ -459,7 +587,7 @@ ve_fild05,317,235,3	script	Verkhasel#sc_start	4_M_GUILLOTINE,{
 		else
 			mes "There. Talk to me again when you're ready to go in.";
 		break;
-	case 1:
+	case 2:
 		switch( instance_enter(.@md_name$) ) {
 		case IE_OTHER:
 			mes "^ff0000An unknown error occurred.^000000";
@@ -483,5 +611,11 @@ ve_fild05,317,235,3	script	Verkhasel#sc_start	4_M_GUILLOTINE,{
 	}
 	close2;
 	cutin "",255;
+	end;
+
+OnInit:
+	// The World Sync Extras mod puts a placeholder Verkhasel without logic on this cell.
+	if (getnpcid(0, "Verkhasel#ws17263"))
+		disablenpc "Verkhasel#ws17263";
 	end;
 }

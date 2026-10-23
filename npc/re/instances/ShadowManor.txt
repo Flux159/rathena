@@ -8,28 +8,29 @@
 //- translation of the official text.
 //- Verkhasel, Mayssel and Doomk come in with you. Mayssel says
 //- the Shadow likes dark places such as a big garden tree; Doomk
-//- vanishes into the shadows and Mayssel goes searching too.
-//- Under the tree the materials react, Verkhasel and Mayssel
-//- join you and Blackie appears. Blackie takes Doomk, who was
-//- hiding in the shadows, and tests you in a fight against the
-//- "Shadow"; talked to again, it gives you its power and
-//- Verkhasel hands you the new uniform. Doomk comes back to
-//- congratulate you.
+//- and Mayssel go searching on their own. Under the tree the
+//- materials react, all three come back and Blackie appears.
+//- Blackie tests you: it takes Doomk over and you fight him.
+//- Talked to again after the fight, Blackie gives you its power;
+//- Mayssel and Doomk congratulate you.
 //- Unknown, picked by us:
 //-  - the cells of every NPC and of the tree (no map of the
 //-    official spots); the tree spot is next to the big tree
 //-    block at 68-72,72-77,
-//-  - who you fight: the iRO video shows a monster named
-//-    "Shadow" and Verkhasel says "Good luck, Doomk", and the
-//-    fork has the monster 4JOB_DOOMK, so here it is 4JOB_DOOMK
-//-    named "Shadow" (kRO subtitles: "Good luck, Shadow"),
+//-  - the fight: the iRO video shows a monster labelled "Shadow"
+//-    and then "Doomk" (battle log: "Possessed Doomk" and
+//-    "Someone"); here it is one monster, the fork's 4JOB_DOOMK,
+//-    named "Possessed Doomk",
+//-  - who says "What's this energy?", "What? What's going on?"
+//-    and "You won't get away with this!" (the chat log has no
+//-    names for them),
 //-  - when the materials are used: kRO's quest text says they
 //-    are for summoning the spirit, so they go at the tree,
 //-  - Doomk's sprite (4_M_SHADOWCHASER), 4JOB_DOOMK's stats and
 //-    the effects of the appearances.
 //- Quest log (kRO): 18065 on entering, 18066 once Blackie is
-//- summoned, 18067 once it gave you its power. Giving up has no
-//- waiting time: kRO's text only says you can go in again.
+//- summoned, 18067 once it offered you its power. Giving up has
+//- no waiting time: kRO's text only says you can go in again.
 //- No experience and no loot on the instance map.
 //===== Changelogs: ==========================================
 //= 1.0 First version. [MondoTruth]
@@ -42,6 +43,9 @@
 //=     "Shadow" fight with overhead lines; cutins and sprites.
 //=     [MondoTruth]
 //= 1.4 Blackie does the job change. [MondoTruth]
+//= 1.5 Every dialog page and overhead line checked against the
+//=     iRO video again: all three come back at the tree, Doomk
+//=     is the one you fight. [MondoTruth]
 //============================================================
 
 // 'sc_step:
@@ -49,7 +53,7 @@
 //  1 Mayssel's hint: find a dark place, a big garden tree
 //  2 Blackie was called at the tree
 //  3 Blackie took over Doomk: fight
-//  4 the Shadow is down, talk to Blackie
+//  4 Doomk is down, talk to Blackie
 //  5 Blackie offers its power: talk to it again
 //  6 Shadow Cross: Verkhasel takes you out
 
@@ -58,43 +62,53 @@
 	switch('sc_step) {
 	case 0:
 		mes "[Verkhasel]";
-		mes "Remember this place? Our last operation was here.";
-		mes "You became a Guillotine Cross right after it.";
+		mes "Remember this place? We came here on our last operation together.";
+		mes "You became a Guillotine Cross right after that.";
 		next;
 		cutin "3rd_sc_doomk01.bmp",2;
 		mes "[Doomk]";
-		mes "First time I've been here.";
-		mes "We haven't met, have we? I'm Doomk, leader of the Shadow Chasers.";
-		mes "So, let's go and hunt that dark elemental, or whatever it is.";
+		mes "Huh, I never knew this place existed.";
+		mes "We haven't met, have we? I'm Doomk, I lead the Shadow Chasers.";
+		next;
+		mes "[Doomk]";
+		mes "Right, let's go and hunt down this dark elemental, or whatever it is.";
 		next;
 		cutin "gc_mayssel01.bmp",1;
 		mes "[Mayssel]";
-		mes "We're not hunting it, Doomk, we're inviting it. As crude as ever.";
+		mes "We're not hunting it, Doomk. We're calling it.";
+		mes "As blunt as ever, I see.";
 		next;
 		cutin "gc_verkhasel01.bmp",0;
 		mes "[Verkhasel]";
-		mes "Mayssel, where do we start? You're the one who knows it.";
+		mes "Mayssel, where do we go from here?";
+		mes "You're the only one of us who has taken in its power so far.";
 		next;
 		cutin "gc_mayssel01.bmp",1;
 		mes "[Mayssel]";
-		mes "It likes places that stay dark and shady even at noon.";
+		mes "Even I don't know everything about it.";
+		mes "For a start, let's find a place the dark elemental would like.";
+		next;
+		mes "[Mayssel]";
+		mes "It likes places that stay dark and shady even at midday, where it can hide from the light.";
 		mes "Under a ^0000ffbig garden tree^000000, for instance.";
 		next;
 		cutin "3rd_sc_doomk01.bmp",2;
 		mes "[Doomk]";
-		mes "Then I'll go and look around.";
+		mes "Then why don't we split up and look around?";
+		mes "It'll answer wherever it likes, won't it?";
 		next;
 		specialeffect EF_HIDING, AREA, instance_npcname("Doomk#sc1");
 		disablenpc instance_npcname("Doomk#sc1");
 		cutin "gc_mayssel01.bmp",1;
 		mes "[Mayssel]";
-		mes "I'll search too. It won't mind where we call it from.";
+		mes "Fine, I'll do the same.";
+		mes "To be honest, I doubt it cares where we call it from.";
 		next;
 		disablenpc instance_npcname("Mayssel#sc1");
 		cutin "gc_verkhasel01.bmp",0;
 		mes "[Verkhasel]";
-		mes "Not much of a team, those two.";
-		mes "Look around the garden and find where the dark elemental reacts.";
+		mes "Not exactly team players, those two.";
+		mes "Look around and find the spot where the dark elemental reacts.";
 		'sc_step = 1;
 		break;
 	case 1:
@@ -104,7 +118,7 @@
 		if ('sc_step == 1)
 			mes "Find a big tree in the garden, somewhere that stays dark.";
 		else
-			mes "Go on, deal with the Shadow. I'll watch your back.";
+			mes "Go on. It wants to see what you can do.";
 		next;
 		if (select( "All right.", "Give up." ) == 2) {
 			mes "[Verkhasel]";
@@ -166,7 +180,7 @@ OnInstanceInit:
 		mes "Go on, it wants to talk to you.";
 		break;
 	case 3:
-		mes "Careful! That's Doomk it's using!";
+		mes "Careful! It's using Doomk!";
 		break;
 	case 4:
 	case 5:
@@ -185,9 +199,9 @@ OnInstanceInit:
 	cutin "3rd_sc_doomk01.bmp",2;
 	mes "[Doomk]";
 	if ('sc_step >= 4)
-		mes "Ugh... my head. It went for me instead of you, and you still won. Not bad.";
+		mes "Ugh... my head. That thing used me like a puppet. Still, you won. Not bad.";
 	else
-		mes "Found a good spot yet? Call me when you do.";
+		mes "Did you find a good spot? I'm right behind you.";
 	close2;
 	cutin "",255;
 	end;
@@ -211,6 +225,7 @@ OnInstanceInit:
 		mes "^0000ff20 Dark Piece^000000 (" + countitem(6089) + " / 20)";
 		close;
 	}
+	unittalk getcharid(3), strcharinfo(0) + " : This looks like a good spot.";
 	mes "- The Crystals of Darkness and the Dark Pieces in your bag stir. -";
 	mes "- They're reacting to something here. -";
 	if (job_sc_4th == 7) {
@@ -221,27 +236,29 @@ OnInstanceInit:
 	}
 	'sc_step = 2;
 	close2;
-	// Verkhasel and Mayssel join you; Blackie shows itself.
+	// Verkhasel, Mayssel and Doomk join you; Blackie shows itself.
 	getmapxy(.@map$, .@x, .@y, BL_PC);
-	.@verk$ = instance_npcname("Verkhasel#sc1");
-	.@may$ = instance_npcname("Mayssel#sc1");
-	disablenpc .@verk$;
-	if (checkcell(.@map$, .@x + 2, .@y, cell_chkpass))
-		movenpc .@verk$, .@x + 2, .@y;
-	else
-		movenpc .@verk$, 73,69;
-	if (checkcell(.@map$, .@x + 1, .@y - 2, cell_chkpass))
-		movenpc .@may$, .@x + 1, .@y - 2;
-	else
-		movenpc .@may$, 75,70;
-	movenpc instance_npcname("Doomk#sc1"), 67,70;
-	enablenpc .@verk$;
-	enablenpc .@may$;
-	specialeffect EF_TELEPORTATION, AREA, .@verk$;
-	specialeffect EF_TELEPORTATION, AREA, .@may$;
+	setarray .@npc$[0], instance_npcname("Verkhasel#sc1"), instance_npcname("Mayssel#sc1"), instance_npcname("Doomk#sc1");
+	setarray .@dx[0], 2, 1, -2;
+	setarray .@dy[0], 0, -2, 0;
+	setarray .@fx[0], 73, 75, 67;
+	setarray .@fy[0], 69, 70, 70;
+	for (.@i = 0; .@i < 3; .@i++) {
+		disablenpc .@npc$[.@i];
+		if (checkcell(.@map$, .@x + .@dx[.@i], .@y + .@dy[.@i], cell_chkpass))
+			movenpc .@npc$[.@i], .@x + .@dx[.@i], .@y + .@dy[.@i];
+		else
+			movenpc .@npc$[.@i], .@fx[.@i], .@fy[.@i];
+		enablenpc .@npc$[.@i];
+		specialeffect EF_TELEPORTATION, AREA, .@npc$[.@i];
+	}
 	sleep2 500;
-	npctalk "Verkhasel : What's this energy?", .@verk$;
+	npctalk "Doomk : I'm back!", .@npc$[2];
 	sleep2 1000;
+	npctalk "Verkhasel : What's this energy?", .@npc$[0];
+	sleep2 1000;
+	npctalk "Mayssel : What? What's happening?", .@npc$[1];
+	sleep2 500;
 	enablenpc instance_npcname("Blackie#sc1");
 	specialeffect EF_DARKBREATH, AREA, instance_npcname("Blackie#sc1");
 	end;
@@ -251,40 +268,62 @@ OnInstanceInit:
 	switch('sc_step) {
 	case 2:
 		mes "[Blackie]";
-		mes "Ooh, nobody had called me that in a long time. Blackie, that's my name now.";
-		mes "Some little humans gave it to me.";
+		mes "Ooh, nobody's called me that in ages.";
+		mes "I'm Blackie now. Some young humans gave me that name, and I treasure it.";
 		next;
 		mes "[Blackie]";
-		mes "And you want some of my power in return. I expected as much.";
-		mes "But I'll be the one who decides who gets it.";
+		mes "Phew! What sort of place is this, anyway? Not bad at all.";
+		mes "Mind if I stay a while?";
+		next;
+		mes "[Blackie]";
+		mes "You already know the energy of darkness, so I'm not worried we won't get along.";
+		mes "But I'm not lending my power to just any weakling.";
+		next;
+		mes "[Blackie]";
+		mes "I'll decide who gets it.";
 		next;
 		cutin "gc_mayssel01.bmp",1;
 		mes "[Mayssel]";
-		mes "Of course. The mansion is yours to keep, nobody comes here uninvited.";
-		mes "All we ask is that you help us grow stronger.";
+		mes "Of course. The whole mansion is yours to keep.";
+		mes "In return, we only ask you to help us grow stronger. You can do that, can't you?";
+		next;
+		cutin "3rd_sc_doomk01.bmp",2;
+		mes "[Doomk]";
+		mes "Isn't that a bit bold, haggling with a dark elemental like that?";
+		mes "What if it says no?";
 		next;
 		cutin "",255;
+		npctalk "Blackie : Great! I'm an elemental who can give you anything you want!";
 		mes "[Blackie]";
-		mes "Ha! I'm a great elemental, I can give you anything.";
-		mes "Ready? Now, whom shall I use...";
+		mes "I'm...";
+		mes "great! I can give you anything you want!";
 		next;
 		mes "[Blackie]";
-		mes "Yes, you!";
+		mes "Right, you there, human. Yes, you, the one who brought me the darkness.";
+		mes "I want to test you.";
+		next;
+		mes "[Blackie]";
+		mes "Don't worry. I just want to see what you can do. Get ready.";
+		next;
+		cutin "gc_verkhasel01.bmp",0;
+		mes "[Verkhasel]";
+		mes "Good. Then setting up a new rank among us won't be a problem.";
 		'sc_step = 3;
 		close2;
+		cutin "",255;
 		donpcevent instance_npcname("#sc_fight") + "::OnStart";
 		end;
 	case 3:
-		mes "- Blackie has taken Doomk over. Beat the Shadow! -";
+		mes "- Blackie has taken Doomk over. Beat him! -";
 		close;
 	case 4:
 		mes "[Blackie]";
 		mes "Hah hah hah! You won.";
-		mes "That fight was only to see if you could accept the darkness. And you can.";
+		mes "That fight was only to see if you could accept the darkness.";
 		next;
 		mes "[Blackie]";
-		mes "You've got what it takes. Shall I share my power with you?";
-		mes "Talk to me again when you're ready.";
+		mes "You pass. So, shall I share my power with you?";
+		mes "Tell me when you're ready to take it.";
 		'sc_step = 5;
 		changequest 18066,18067;
 		close;
@@ -304,42 +343,45 @@ OnInstanceInit:
 			mes "You're carrying too much. Make some room in your inventory first.";
 			close;
 		}
-		mes "[Blackie]";
-		mes "Ready to take in the darkness?";
+		cutin "gc_verkhasel01.bmp",0;
+		mes "[Verkhasel]";
+		mes "Wait. Once you take in the power of darkness, you'll be a ^0000ffShadow Cross^000000:";
+		mes "a member of the guild's new group, ranked above every Assassin.";
 		next;
-		if (select( "Wait, let me think...", "I'm ready." ) == 1) {
-			mes "[Blackie]";
-			mes "Take your time. I'm not going anywhere.";
-			close;
-		}
+		mes "[Verkhasel]";
+		mes "And a new rank deserves a new look, so we had a uniform made.";
+		next;
+		cutin "gc_mayssel01.bmp",1;
+		mes "[Mayssel]";
+		mes "Doomk helped us design it. I'm sure it'll suit you.";
+		next;
+		cutin "",255;
+		mes "[Blackie]";
+		mes "Hah hah hah. As you wish.";
+		mes "I'm an elemental who never forgets a favour.";
+		mes "Now relax, and take in my energy.";
+		close2;
 		// The official animation is not known.
 		specialeffect2 EF_DARKBREATH;
+		sleep2 1000;
 		job_sc_4th = 0;
 		completequest 18067;
 		jobchange JOB_SHADOW_CROSS;
 		getitem 490087,1;	// 4th_Q_Necklace
 		specialeffect2 EF_JOBLVUP;
-		cutin "gc_verkhasel01.bmp",0;
-		mes "[Verkhasel]";
-		mes "Mayssel and I had a new uniform made for you. I hope you like it.";
-		next;
-		mes "[Verkhasel]";
-		mes "Congratulations. You are the first ^ff0000Shadow Cross^000000.";
-		mes "Keep the necklace as proof.";
 		'sc_step = 6;
-		close2;
-		cutin "",255;
-		// Doomk is back, next to you.
+		sleep2 1000;
+		npctalk "Mayssel : How do you feel?", instance_npcname("Mayssel#sc1");
+		sleep2 1500;
+		// Doomk steps up next to you.
 		getmapxy(.@map$, .@x, .@y, BL_PC);
 		.@doomk$ = instance_npcname("Doomk#sc1");
-		if (checkcell(.@map$, .@x - 2, .@y, cell_chkpass))
-			movenpc .@doomk$, .@x - 2, .@y;
-		enablenpc .@doomk$;
-		specialeffect EF_TELEPORTATION, AREA, .@doomk$;
-		sleep2 500;
+		if (checkcell(.@map$, .@x, .@y + 1, cell_chkpass)) {
+			disablenpc .@doomk$;
+			movenpc .@doomk$, .@x, .@y + 1;
+			enablenpc .@doomk$;
+		}
 		npctalk "Doomk : Congratulations.", .@doomk$;
-		sleep2 1500;
-		npctalk "Mayssel : How do you feel?", instance_npcname("Mayssel#sc1");
 		end;
 	default:
 		mes "- Blackie lies quietly in the shade of the tree. -";
@@ -357,33 +399,47 @@ OnInstanceInit:
 OnStart:
 	if ('sc_step != 3)
 		end;
-	disablenpc instance_npcname("Doomk#sc1");
-	monster 'sc_map$,67,70,"Shadow","4JOB_DOOMK",1, instance_npcname("#sc_fight") + "::OnShadowDead";
+	// Blackie takes Doomk over: the NPC goes, the monster comes in his place.
+	.@doomk$ = instance_npcname("Doomk#sc1");
+	getmapxy(.@map$, .@x, .@y, BL_NPC, .@doomk$);
+	specialeffect EF_DARKBREATH, AREA, .@doomk$;
+	disablenpc .@doomk$;
+	monster 'sc_map$, .@x, .@y, "Possessed Doomk", "4JOB_DOOMK", 1, instance_npcname("#sc_fight") + "::OnDoomkDead";
+	'sc_mob = $@mobid[0];
 	initnpctimer;
 	end;
 
 OnTimer1000:
-	npctalk "Blackie : Let's see what you've got!", instance_npcname("Blackie#sc1");
+	npctalk "Blackie : Let's see what you've got.", instance_npcname("Blackie#sc1");
+	end;
+
+OnTimer3000:
+	if (unitexists('sc_mob))
+		unittalk 'sc_mob, "Possessed Doomk : You... You won't get away with this!";
 	end;
 
 OnTimer5000:
+	npctalk "Blackie : Now fight! Fight and win!", instance_npcname("Blackie#sc1");
+	end;
+
+OnTimer8000:
 	npctalk "Verkhasel : Good luck, Doomk.", instance_npcname("Verkhasel#sc1");
 	end;
 
-OnTimer10000:
-	npctalk "Blackie : I like you. You suit me better than I thought.", instance_npcname("Blackie#sc1");
-	end;
-
-OnTimer16000:
-	npctalk "Blackie : Oh? You draw on me more than I expected.", instance_npcname("Blackie#sc1");
+OnTimer14000:
+	npctalk "Blackie : I like you. You suit me better than I thought!", instance_npcname("Blackie#sc1");
 	stopnpctimer;
 	end;
 
-OnShadowDead:
+OnDoomkDead:
 	if ('sc_step != 3)
 		end;
 	stopnpctimer;
 	'sc_step = 4;
-	mapannounce 'sc_map$, "The Shadow fades. Talk to Blackie.", bc_map, 0xFFFF00;
+	// Doomk is himself again where he fell.
+	.@doomk$ = instance_npcname("Doomk#sc1");
+	enablenpc .@doomk$;
+	npctalk "Doomk : Grr, you used me!", .@doomk$;
+	mapannounce 'sc_map$, "Blackie lets go of Doomk. Talk to Blackie.", bc_map, 0xFFFF00;
 	end;
 }
