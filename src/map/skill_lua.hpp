@@ -201,7 +201,8 @@
  * its Unit, or hits the area when it has none. replace = true does the same
  * for a skill that has a class, dropping the stock behaviour (a reused ID).
  * stock_checks = false skips the checks skill.cpp makes for that skill alone
- * before it may be used (Spell Fist only while casting a bolt); its skill_db
+ * before it may be used (Spell Fist only while casting a bolt) and on its
+ * target (pre-renewal's Back Stab only from behind); its skill_db
  * requirements still apply.
  * on_cast runs for any skill a unit uses (c.x, c.y: where); can_cast refuses
  * a player's use by returning false (and a message); cost changes sp, hp, ap,
@@ -504,9 +505,10 @@ void skill_lua_on_cast(block_list* src, block_list* target, int16 x, int16 y, ui
 /// the use; the player has been told why.
 bool skill_lua_can_cast(map_session_data& sd, uint16 skill_id, uint16 skill_lv);
 
-/// skill_check_condition_castbegin and _castend: false when a mod turns off
-/// the server's skill-specific checks for the skill (stock_checks = false),
-/// such as Spell Fist's "only while casting a bolt".
+/// skill_check_condition_castbegin and _castend, and skill_castend_id_check:
+/// false when a mod turns off the server's skill-specific checks for the
+/// skill (stock_checks = false), such as Spell Fist's "only while casting a
+/// bolt" or pre-renewal Back Stab's "only from behind".
 bool skill_lua_stock_checks(uint16 skill_id);
 
 /// skill_get_requirement: mods' cost hooks.

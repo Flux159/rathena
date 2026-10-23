@@ -4766,7 +4766,7 @@ static int8 skill_castend_id_check(block_list *src, block_list *target, uint16 s
 	if (src != target && (status_bl_has_mode(target,MD_SKILLIMMUNE) || (status_get_class(target) == MOBID_EMPERIUM && !skill->inf2[INF2_TARGETEMPERIUM])) && skill_get_casttype(skill_id) == CAST_NODAMAGE)
 		return USESKILL_FAIL_MAX; // Don't show a skill fail message (NoDamage type doesn't consume requirements)
 
-	switch (skill_id) {
+	switch (skill_lua_stock_checks(skill_id) ? skill_id : 0) {
 		case AL_INCAGI:
 		case AL_DECAGI:
 		case SA_DISPELL: // Mado Gear is immune to Dispell according to bugreport:49 [Ind]
