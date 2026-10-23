@@ -253991,6 +253991,8 @@ Body:
       Acolyte: true
       Priest: true
       Monk: true
+      Druid: true
+      Karnos: true
     Locations:
       Right_Hand: true
     WeaponLevel: 2
