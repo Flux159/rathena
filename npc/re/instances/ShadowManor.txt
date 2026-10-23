@@ -1,0 +1,290 @@
+//===== rAthena Script =======================================
+//= Instance: Shadow Manor.
+//===== Description: =========================================
+//- [Walkthrough conversion]
+//- Part of the Shadow Cross job change (npc/re/jobs/4-1/shadow_cross.txt).
+//- Follows the official quest flow as seen in iRO and kRO
+//- gameplay videos; the dialog is our own wording, not a
+//- translation of the official text.
+//- Verkhasel, Mayssel and Doomk come in with you. Mayssel says
+//- the Shadow likes dark places such as a big garden tree; you
+//- find the tree, call Blackie there with the materials, and
+//- Blackie tests you in a fight before giving you its power.
+//- Unknown, picked by us:
+//-  - the cells of every NPC and of the tree (no map of the
+//-    official spots); the tree spot is next to the big tree
+//-    block at 68-72,72-77,
+//-  - who you fight: the videos show Blackie taking over one of
+//-    the party, and the fork has the monster 4JOB_DOOMK, so here
+//-    Blackie takes Doomk; the subtitles disagree (iRO "Good luck,
+//-    Doomk", kRO "Good luck, Shadow"),
+//-  - when the materials are used: kRO's quest text says they
+//-    are for summoning the spirit, so they go at the tree,
+//-  - Doomk's sprite (4_M_SHADOWCHASER) and 4JOB_DOOMK's stats.
+//- Quest log (kRO): 18065 on entering, 18066 once Blackie is
+//- summoned, 18067 once it gave you its power. Giving up has no
+//- waiting time: kRO's text only says you can go in again.
+//- No experience and no loot on the instance map.
+//===== Changelogs: ==========================================
+//= 1.0 First version. [MondoTruth]
+//= 1.1 Allies Mayssel and Doomk, the garden tree, Blackie's
+//=     test, as in the videos. [MondoTruth]
+//= 1.2 kRO's quest ids; no waiting time after giving up.
+//=     [MondoTruth]
+//============================================================
+
+// 'sc_step:
+//  0 just entered
+//  1 Mayssel's hint: find a dark place, a big garden tree
+//  2 Blackie was called at the tree
+//  3 Blackie took over Doomk: fight
+//  4 Doomk is down, talk to Blackie
+//  5 Blackie gave you its power, talk to Verkhasel
+
+1@4sac,91,25,3	script	Verkhasel#sc1	467,{
+	switch('sc_step) {
+	case 0:
+		mes "[Verkhasel]";
+		mes "Here we are. Shady even at noon, just as I remembered.";
+		next;
+		mes "[Doomk]";
+		mes "Hm, I didn't know there was a place like this.";
+		mes "We haven't met, have we? I'm Doomk, leader of the Shadow Chasers.";
+		mes "Let's go and hunt that dark elemental, or whatever it is.";
+		next;
+		mes "[Verkhasel]";
+		mes "Mayssel, where do we start? You're the one who knows it.";
+		next;
+		mes "[Mayssel]";
+		mes "It likes places that stay dark in the middle of the day, where it can hide from the light.";
+		mes "Under a ^0000ffbig garden tree^000000, for instance.";
+		next;
+		mes "[Doomk]";
+		mes "Then I'll look around. Call me when you find a good spot.";
+		next;
+		mes "[Verkhasel]";
+		mes "Not much of a team player, that one.";
+		mes "Look around the garden and find where the dark elemental reacts.";
+		'sc_step = 1;
+		close;
+	case 1:
+	case 2:
+	case 3:
+		mes "[Verkhasel]";
+		if ('sc_step == 1)
+			mes "Find a big tree in the garden, somewhere that stays dark.";
+		else
+			mes "Go on, deal with the Shadow. I'll watch your back.";
+		next;
+		if (select( "All right.", "Give up." ) == 2) {
+			mes "[Verkhasel]";
+			mes "Giving up ends this. You can come back and try again later.";
+			mes "Are you sure?";
+			next;
+			if (select( "Stay.", "Leave." ) == 2) {
+				.@id = instance_id();
+				warp "ve_fild05",317,232;
+				instance_destroy .@id;
+				end;
+			}
+		}
+		close;
+	case 4:
+		mes "[Verkhasel]";
+		mes "It's waiting for you. Go and talk to it.";
+		close;
+	}
+	if (Class != JOB_GUILLOTINE_CROSS && Class != JOB_GUILLOTINE_CROSS_T) {
+		mes "[Verkhasel]";
+		mes "Hm? You're not a Guillotine Cross anymore. I can't help you like this.";
+		close;
+	}
+	if (SkillPoint > 0) {
+		mes "[Verkhasel]";
+		mes "You still have skill points left. Learn your skills first.";
+		close;
+	}
+	if (checkweight(490087,1) == 0) {
+		mes "[Verkhasel]";
+		mes "You're carrying too much. Make some room in your inventory first.";
+		close;
+	}
+	mes "[Verkhasel]";
+	mes "The Shadow has chosen you. Take in its darkness and become a ^ff0000Shadow Cross^000000.";
+	next;
+	if (select( "Wait, let me think...", "I'm ready." ) == 1) {
+		mes "[Verkhasel]";
+		mes "Take your time.";
+		close;
+	}
+	close2;
+	// The official animation is not known.
+	specialeffect2 EF_DARKBREATH;
+	sleep2 1000;
+	specialeffect2 EF_LEVEL99_4;
+	sleep2 1000;
+	job_sc_4th = 0;
+	completequest 18067;
+	jobchange JOB_SHADOW_CROSS;
+	getitem 490087,1;	// 4th_Q_Necklace
+	specialeffect2 EF_JOBLVUP;
+	mes "[Mayssel]";
+	mes "Doomk helped us design the outfit. I'm sure it'll look good on you.";
+	next;
+	mes "[Verkhasel]";
+	mes "Congratulations, Shadow Cross. Keep the necklace as proof.";
+	mes "Let's get out of here.";
+	close2;
+	.@id = instance_id();
+	warp "ve_fild05",317,232;
+	instance_destroy .@id;
+	end;
+
+OnInstanceInit:
+	'sc_map$ = instance_mapname("1@4sac");
+	'sc_step = 0;
+	setmapflag 'sc_map$, MF_NOBASEEXP;
+	setmapflag 'sc_map$, MF_NOJOBEXP;
+	setmapflag 'sc_map$, MF_NOMOBLOOT;
+	setmapflag 'sc_map$, MF_NOMVPLOOT;
+	end;
+}
+
+1@4sac,93,24,3	script	Mayssel#sc1	894,{
+	mes "[Mayssel]";
+	switch('sc_step) {
+	case 0:
+		mes "Talk to Verkhasel first.";
+		break;
+	case 1:
+		mes "Somewhere dark, even at noon. A ^0000ffbig garden tree^000000 would be perfect.";
+		break;
+	case 2:
+		mes "Go on, it wants to talk to you.";
+		break;
+	case 3:
+		mes "Careful! That isn't Doomk anymore!";
+		break;
+	default:
+		mes "Well done. I knew Verkhasel's bet was safe.";
+		break;
+	}
+	close;
+}
+
+1@4sac,86,25,5	script	Doomk#sc1	4_M_SHADOWCHASER,{
+	mes "[Doomk]";
+	if ('sc_step >= 4)
+		mes "Ugh... my head. It went for me instead of you, and you still won. Not bad.";
+	else
+		mes "Found a good spot yet? Call me when you do.";
+	close;
+}
+
+// The spot under the big tree where the dark elemental reacts.
+1@4sac,70,71,0	script	#sc_tree	4_ENERGY_BLACK,{
+	if ('sc_step == 0) {
+		mes "- A cold, dark spot under a big tree. -";
+		mes "- Better talk to Verkhasel first. -";
+		close;
+	}
+	if ('sc_step > 1) {
+		mes "- The darkness under the tree is thick and cold. -";
+		close;
+	}
+	mes "- Under the big tree the air is cold and dark. -";
+	mes "- Something here reacts to you. -";
+	next;
+	if (job_sc_4th == 7) {
+		if (countitem(7799) < 5 || countitem(6089) < 20) {
+			mes "- To call the Shadow you need: -";
+			mes "^0000ff5 Crystal of Darkness^000000 (" + countitem(7799) + " / 5)";
+			mes "^0000ff20 Dark Piece^000000 (" + countitem(6089) + " / 20)";
+			close;
+		}
+		if (select( "Lay down the crystals and the pieces.", "Not yet." ) == 2)
+			close;
+		delitem 7799,5;	// Dark_Crystal
+		delitem 6089,20;	// Piece_Of_Darkness
+		job_sc_4th = 8;
+		changequest 18065,18066;
+	}
+	mes "- You call the name the children gave it: Blackie. -";
+	'sc_step = 2;
+	close2;
+	movenpc instance_npcname("Verkhasel#sc1"), 73,69;
+	movenpc instance_npcname("Mayssel#sc1"), 75,70;
+	movenpc instance_npcname("Doomk#sc1"), 67,70;
+	specialeffect EF_DARKBREATH;
+	enablenpc instance_npcname("Blackie#sc1");
+	end;
+}
+
+1@4sac,70,70,4	script	Blackie#sc1	1_SHADOW_NPC,{
+	switch('sc_step) {
+	case 2:
+		mes "[Blackie]";
+		mes "Ooh, nobody had called me that in a long time.";
+		mes "That's my name now. Some little humans gave it to me. A precious name.";
+		next;
+		mes "[Verkhasel]";
+		mes "This place is private property. Nobody comes here uninvited. Stay as long as you like.";
+		next;
+		mes "[Blackie]";
+		mes "And in return you want some of my power. I expected as much.";
+		mes "But I will decide who gets it.";
+		next;
+		mes "[Mayssel]";
+		mes "Of course. The mansion is all yours.";
+		mes "All we ask is that you help us grow stronger.";
+		next;
+		mes "[Blackie]";
+		mes "Hm. Don't worry, I only want to test your skills.";
+		mes "Get ready!";
+		'sc_step = 3;
+		close2;
+		donpcevent instance_npcname("#sc_fight") + "::OnStart";
+		end;
+	case 3:
+		mes "- Blackie is inside Doomk. Beat him! -";
+		close;
+	case 4:
+		mes "[Blackie]";
+		mes "Hah hah hah! You won.";
+		mes "That fight was only to see if you could accept the darkness. And you can.";
+		next;
+		mes "[Blackie]";
+		mes "I like you. You suit me better than I thought.";
+		mes "Take my power. Verkhasel will show you the rest.";
+		'sc_step = 5;
+		changequest 18066,18067;
+		close;
+	default:
+		mes "- Blackie lies quietly in the shade of the tree. -";
+		close;
+	}
+
+OnInstanceInit:
+	disablenpc();
+	end;
+}
+
+1@4sac,1,1,0	script	#sc_fight	-1,{
+	end;
+
+OnStart:
+	if ('sc_step != 3)
+		end;
+	disablenpc instance_npcname("Doomk#sc1");
+	monster 'sc_map$,67,70,"Doomk","4JOB_DOOMK",1, instance_npcname("#sc_fight") + "::OnDoomkDead";
+	mapannounce 'sc_map$, "Blackie: Now fight! Fight and win!", bc_map, 0xFFFF00;
+	end;
+
+OnDoomkDead:
+	if ('sc_step != 3)
+		end;
+	'sc_step = 4;
+	enablenpc instance_npcname("Doomk#sc1");
+	mapannounce 'sc_map$, "Blackie leaves Doomk's body. Talk to Blackie.", bc_map, 0xFFFF00;
+	end;
+}
