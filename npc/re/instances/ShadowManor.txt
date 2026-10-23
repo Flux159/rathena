@@ -17,13 +17,11 @@
 //-  - the cells of every NPC and of the tree (no map of the
 //-    official spots); the tree spot is next to the big tree
 //-    block at 68-72,72-77,
-//-  - the fight: the iRO video shows a monster labelled "Shadow"
-//-    and then "Doomk" (battle log: "Possessed Doomk" and
-//-    "Someone"); here it is one monster, the fork's 4JOB_DOOMK,
-//-    named "Possessed Doomk",
+//-  - the monster you fight: the fork's 4JOB_DOOMK, named
+//-    "Possessed Doomk" as in the iRO video's battle log,
 //-  - who says "What's this energy?", "What? What's going on?"
 //-    and "You won't get away with this!" (the chat log has no
-//-    names for them),
+//-    names for them; "I'm back!" is Blackie's),
 //-  - when the materials are used: kRO's quest text says they
 //-    are for summoning the spirit, so they go at the tree,
 //-  - Doomk's sprite (4_M_SHADOWCHASER), 4JOB_DOOMK's stats and
@@ -253,14 +251,14 @@ OnInstanceInit:
 		specialeffect EF_TELEPORTATION, AREA, .@npc$[.@i];
 	}
 	sleep2 500;
-	npctalk "Doomk : I'm back!", .@npc$[2];
+	enablenpc instance_npcname("Blackie#sc1");
+	specialeffect EF_DARKBREATH, AREA, instance_npcname("Blackie#sc1");
+	sleep2 500;
+	npctalk "Blackie : I'm back!", instance_npcname("Blackie#sc1");
 	sleep2 1000;
 	npctalk "Verkhasel : What's this energy?", .@npc$[0];
 	sleep2 1000;
 	npctalk "Mayssel : What? What's happening?", .@npc$[1];
-	sleep2 500;
-	enablenpc instance_npcname("Blackie#sc1");
-	specialeffect EF_DARKBREATH, AREA, instance_npcname("Blackie#sc1");
 	end;
 }
 
