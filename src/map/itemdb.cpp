@@ -21,6 +21,7 @@
 #include "battle.hpp" // struct battle_config
 #include "cashshop.hpp"
 #include "clif.hpp"
+#include "extensions.hpp"
 #include "intif.hpp"
 #include "log.hpp"
 #include "mob.hpp"
@@ -3341,6 +3342,9 @@ bool itemdb_ishatched_egg( const item* item ) {
 * @param nameid ID of item
 */
 char itemdb_isidentified(t_itemid nameid) {
+	if( extension_enabled( "identified_equipment" ) )
+		return 1;
+
 	int32 type=itemdb_type(nameid);
 	switch (type) {
 		case IT_WEAPON:

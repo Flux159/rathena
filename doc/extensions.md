@@ -118,3 +118,4 @@ server restarts (the app's **Apply**).
 | `attendance_repeat` | Attendance rewards start over at day 1 after the last day of the period |
 | `attendance_script_rewards` | Enables `setattendancereward`, which changes one day's reward of the running attendance period |
 | `stylist_script_costs` | Enables `setstylistcost`, which sets the stylist window's cost of one look in Zeny or a coupon, and `setstylistpayment`, which picks how a player pays; an order is bought whole or not at all |
+| `identified_equipment` | Weapons, armour, pet armour and shadow gear are created identified, from drops, Steal, boxes, quests and scripts |
