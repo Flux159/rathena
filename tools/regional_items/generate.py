@@ -154,11 +154,11 @@ for names, jobs, cls in [
     ('soul linker|소울 ?링커', ['SoulLinker'], None), ('soul reaper|소울 ?리퍼', ['SoulLinker'], 'All_Third'),
     ('soul ascetic|혼령사', ['SoulLinker'], 'Fourth'),
     ('gunslinger|건슬링거', ['Gunslinger'], None), ('rebellion|rebel|리벨리온', ['Rebellion'], None),
-    ('night watch|나이트 ?워치', ['Rebellion'], 'Fourth'),
+    ('night watch|나이트 ?워치', ['Rebellion'], 'Third'),  # rAthena's Night Watch is a third class
     ('ninja|닌자', ['Ninja'], None), ('kagerou|oboro|카게로우|오보로', ['KagerouOboro'], None),
-    ('shinkiro|shiranui|신키로|시라누이', ['KagerouOboro'], 'Fourth'),
+    ('shinkiro|shiranui|신키로|시라누이', ['KagerouOboro'], 'Third'),  # and so are Shinkiro / Shiranui
     ('summoner|doram|도람', ['Summoner'], None), ('spirit handler|영도사', ['Spirit_Handler'], None),
-    ('druid|드루이드', ['Druid'], None), ('karnos|카르노스', ['Karnos'], None), ('alitea|알리테아', ['Karnos'], 'Fourth'),
+    ('druid|드루이드', ['Druid'], None), ('karnos|카르노스', ['Karnos'], None), ('alitea|알리테아', ['Karnos'], 'Fourth'),  # gear counts Alitea as fourth (pc_isItemClass)
 ]:
     for n in names.split('|'):
         for v in ({n.replace(' ?', ' '), n.replace(' ?', '')} if ' ?' in n else {n}):

@@ -26502,7 +26502,7 @@ Body:
     Jobs:
       KagerouOboro: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Head_Top: true
     ArmorLevel: 2
@@ -26538,7 +26538,7 @@ Body:
     Jobs:
       Rebellion: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Head_Top: true
     ArmorLevel: 2
@@ -36157,7 +36157,7 @@ Body:
     Jobs:
       Rebellion: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Right_Accessory: true
     ArmorLevel: 1
@@ -36185,7 +36185,7 @@ Body:
     Jobs:
       Rebellion: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Left_Accessory: true
     ArmorLevel: 1
@@ -36563,7 +36563,7 @@ Body:
     Jobs:
       KagerouOboro: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Right_Accessory: true
     ArmorLevel: 1
@@ -36592,7 +36592,7 @@ Body:
     Jobs:
       KagerouOboro: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Left_Accessory: true
     ArmorLevel: 1
@@ -37112,7 +37112,7 @@ Body:
     Jobs:
       KagerouOboro: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Right_Accessory: true
     ArmorLevel: 1
@@ -37769,7 +37769,7 @@ Body:
     Jobs:
       KagerouOboro: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Right_Accessory: true
     ArmorLevel: 1
@@ -37955,7 +37955,7 @@ Body:
     Jobs:
       Rebellion: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Right_Accessory: true
     ArmorLevel: 1
@@ -37984,7 +37984,7 @@ Body:
     Jobs:
       Rebellion: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Right_Accessory: true
     ArmorLevel: 1
@@ -38203,7 +38203,7 @@ Body:
     Jobs:
       Rebellion: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Right_Accessory: true
     ArmorLevel: 1
@@ -38231,7 +38231,7 @@ Body:
     Jobs:
       Rebellion: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Right_Accessory: true
     ArmorLevel: 1
@@ -38867,7 +38867,7 @@ Body:
     Jobs:
       KagerouOboro: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Right_Accessory: true
     ArmorLevel: 1
@@ -39073,7 +39073,7 @@ Body:
     Jobs:
       Rebellion: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Right_Accessory: true
     ArmorLevel: 1
@@ -42094,7 +42094,7 @@ Body:
     Jobs:
       KagerouOboro: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Both_Hand: true
     WeaponLevel: 5
@@ -42150,7 +42150,7 @@ Body:
     Jobs:
       KagerouOboro: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Both_Hand: true
     WeaponLevel: 5
@@ -42513,7 +42513,7 @@ Body:
     Jobs:
       Rebellion: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Both_Hand: true
     WeaponLevel: 5
@@ -42558,7 +42558,7 @@ Body:
     Jobs:
       Rebellion: true
     Classes:
-      Fourth: true
+      Third: true
     Locations:
       Both_Hand: true
     WeaponLevel: 5
