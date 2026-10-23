@@ -12,8 +12,9 @@
 //- Under the tree the materials react, Verkhasel and Mayssel
 //- join you and Blackie appears. Blackie takes Doomk, who was
 //- hiding in the shadows, and tests you in a fight against the
-//- "Shadow"; then it gives you its power and Verkhasel hands
-//- you the new uniform. Doomk comes back to congratulate you.
+//- "Shadow"; talked to again, it gives you its power and
+//- Verkhasel hands you the new uniform. Doomk comes back to
+//- congratulate you.
 //- Unknown, picked by us:
 //-  - the cells of every NPC and of the tree (no map of the
 //-    official spots); the tree spot is next to the big tree
@@ -40,6 +41,7 @@
 //=     come back at the tree and after the job change; the
 //=     "Shadow" fight with overhead lines; cutins and sprites.
 //=     [MondoTruth]
+//= 1.4 Blackie does the job change. [MondoTruth]
 //============================================================
 
 // 'sc_step:
@@ -48,7 +50,7 @@
 //  2 Blackie was called at the tree
 //  3 Blackie took over Doomk: fight
 //  4 the Shadow is down, talk to Blackie
-//  5 Blackie gave you its power, talk to Verkhasel
+//  5 Blackie offers its power: talk to it again
 //  6 Shadow Cross: Verkhasel takes you out
 
 1@4sac,91,25,3	script	Verkhasel#sc1	4_M_GUILLOTINE,{
@@ -119,58 +121,10 @@
 		}
 		break;
 	case 4:
+	case 5:
 		mes "[Verkhasel]";
 		mes "It's waiting for you. Go and talk to it.";
 		break;
-	case 5:
-		if (Class != JOB_GUILLOTINE_CROSS && Class != JOB_GUILLOTINE_CROSS_T) {
-			mes "[Verkhasel]";
-			mes "Hm? You're not a Guillotine Cross anymore. I can't help you like this.";
-			break;
-		}
-		if (SkillPoint > 0) {
-			mes "[Verkhasel]";
-			mes "You still have skill points left. Learn your skills first.";
-			break;
-		}
-		if (checkweight(490087,1) == 0) {
-			mes "[Verkhasel]";
-			mes "You're carrying too much. Make some room in your inventory first.";
-			break;
-		}
-		mes "[Verkhasel]";
-		mes "Mayssel and I had a new uniform made for you. I hope you like it.";
-		next;
-		if (select( "Wait, let me think...", "I'm ready." ) == 1) {
-			mes "[Verkhasel]";
-			mes "Take your time.";
-			break;
-		}
-		// The official animation is not known.
-		specialeffect2 EF_DARKBREATH;
-		job_sc_4th = 0;
-		completequest 18067;
-		jobchange JOB_SHADOW_CROSS;
-		getitem 490087,1;	// 4th_Q_Necklace
-		specialeffect2 EF_JOBLVUP;
-		mes "[Verkhasel]";
-		mes "Congratulations. You are the first ^ff0000Shadow Cross^000000.";
-		mes "Keep the necklace as proof.";
-		'sc_step = 6;
-		close2;
-		cutin "",255;
-		// Doomk is back, next to you.
-		getmapxy(.@map$, .@x, .@y, BL_PC);
-		.@doomk$ = instance_npcname("Doomk#sc1");
-		if (checkcell(.@map$, .@x - 2, .@y, cell_chkpass))
-			movenpc .@doomk$, .@x - 2, .@y;
-		enablenpc .@doomk$;
-		specialeffect EF_TELEPORTATION, AREA, .@doomk$;
-		sleep2 500;
-		npctalk "Doomk : Congratulations.", .@doomk$;
-		sleep2 1500;
-		npctalk "Mayssel : How do you feel?", instance_npcname("Mayssel#sc1");
-		end;
 	case 6:
 		mes "[Verkhasel]";
 		mes "Let's get out of here. Ready to go back?";
@@ -330,10 +284,63 @@ OnInstanceInit:
 		next;
 		mes "[Blackie]";
 		mes "You've got what it takes. Shall I share my power with you?";
-		mes "Tell Verkhasel when you're ready.";
+		mes "Talk to me again when you're ready.";
 		'sc_step = 5;
 		changequest 18066,18067;
 		close;
+	case 5:
+		if (Class != JOB_GUILLOTINE_CROSS && Class != JOB_GUILLOTINE_CROSS_T) {
+			mes "[Blackie]";
+			mes "Hm? You're not a Guillotine Cross anymore. My power won't fit you like this.";
+			close;
+		}
+		if (SkillPoint > 0) {
+			mes "[Blackie]";
+			mes "You still have skill points left. Learn your skills first.";
+			close;
+		}
+		if (checkweight(490087,1) == 0) {
+			mes "[Blackie]";
+			mes "You're carrying too much. Make some room in your inventory first.";
+			close;
+		}
+		mes "[Blackie]";
+		mes "Ready to take in the darkness?";
+		next;
+		if (select( "Wait, let me think...", "I'm ready." ) == 1) {
+			mes "[Blackie]";
+			mes "Take your time. I'm not going anywhere.";
+			close;
+		}
+		// The official animation is not known.
+		specialeffect2 EF_DARKBREATH;
+		job_sc_4th = 0;
+		completequest 18067;
+		jobchange JOB_SHADOW_CROSS;
+		getitem 490087,1;	// 4th_Q_Necklace
+		specialeffect2 EF_JOBLVUP;
+		cutin "gc_verkhasel01.bmp",0;
+		mes "[Verkhasel]";
+		mes "Mayssel and I had a new uniform made for you. I hope you like it.";
+		next;
+		mes "[Verkhasel]";
+		mes "Congratulations. You are the first ^ff0000Shadow Cross^000000.";
+		mes "Keep the necklace as proof.";
+		'sc_step = 6;
+		close2;
+		cutin "",255;
+		// Doomk is back, next to you.
+		getmapxy(.@map$, .@x, .@y, BL_PC);
+		.@doomk$ = instance_npcname("Doomk#sc1");
+		if (checkcell(.@map$, .@x - 2, .@y, cell_chkpass))
+			movenpc .@doomk$, .@x - 2, .@y;
+		enablenpc .@doomk$;
+		specialeffect EF_TELEPORTATION, AREA, .@doomk$;
+		sleep2 500;
+		npctalk "Doomk : Congratulations.", .@doomk$;
+		sleep2 1500;
+		npctalk "Mayssel : How do you feel?", instance_npcname("Mayssel#sc1");
+		end;
 	default:
 		mes "- Blackie lies quietly in the shade of the tree. -";
 		close;

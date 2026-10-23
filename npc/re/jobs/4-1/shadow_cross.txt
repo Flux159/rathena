@@ -13,7 +13,8 @@
 //- Sprites and cutins as in the iRO video: Rumin 4_M_AC_RUMIN
 //- (lumin_ac), Verkhasel 4_M_GUILLOTINE (gc_verkhasel), Mayssel
 //- 4_F_MAYSEL (gc_mayssel), Vicente 4_M_HUMAN_02 (sc_vicente).
-//- Mayssel is only in the safe house while she briefs you.
+//- Mayssel is only in the safe house while she briefs you;
+//- Tori's mother only while you look at the pale shadow.
 //- Unknown, picked by us:
 //-  - the sprites of Noah, Tori, the mother and Blackie,
 //-  - the cells of Mayssel, Vicente, the mother, Noah and Tori,
@@ -34,13 +35,15 @@
 //=     Mayssel appears for the briefing only; you greet Blackie
 //=     out loud instead of typing its name; the way to the
 //=     mansion is marked for the navigation. [MondoTruth]
+//= 1.4 The villager only appears while you look at the pale
+//=     shadow. [MondoTruth]
 //============================================================
 
 // job_sc_4th:
 //  1 talked to Rumin, go to the safe house
 //  2 briefed by Verkhasel, Mayssel and Vicente: search the southern coast
-//  3 looked at the pale shadow between the boxes
-//  4 the mother told you about her son, Tori
+//  3 (unused since 1.4; treated as 2)
+//  4 looked at the pale shadow, the mother told you about her son, Tori
 //  5 called Tori at Noah's: the black bead, Blackie
 //  6 called Blackie on the shore, report to Verkhasel
 //  7 bring the materials to Verkhasel north of Veins
@@ -253,17 +256,36 @@ ve_in,214,383,2	script	Vicente#sc_house	4_M_HUMAN_02,{
 ve_fild07,99,141,0	script	Pale Shadow#sc	1_SHADOW_NPC,{
 	switch(job_sc_4th) {
 	case 2:
+	case 3:	// 3 was a step of its own before 1.4
 		mes "- There is a pale shadow between the piled boxes. -";
 		mes "- Is it just a shadow, or a trace of the Shadow? Hard to tell. -";
-		job_sc_4th = 3;
-		close;
-	case 3:
-		mes "- The pale shadow is still there between the boxes. -";
-		mes "- Maybe someone around here has seen something. -";
-		close;
+		next;
+		// The villager only shows up for this talk, right next to you (iRO video).
+		.@v$ = "Villager#sc";
+		getmapxy(.@map$, .@x, .@y, BL_PC);
+		if (checkcell(.@map$, .@x + 1, .@y + 1, cell_chkpass))
+			movenpc .@v$, .@x + 1, .@y + 1;
+		cloakoffnpcself .@v$;
+		npctalk "Villager : Hey, what are you doing over there?", .@v$, bc_self;
+		mes "[Villager]";
+		mes "There's nothing over there but fish traps and nets.";
+		mes "I only came to see if my son was playing with the nets again, or had caught something.";
+		next;
+		mes "[Villager]";
+		mes "Something odd? I haven't seen anything. But lately my ^0000ffTori^000000 can't keep away from this place.";
+		mes "Ask him. He plays with ^0000ffNoah^000000, outside the ^0000ffSecurity Management Room^000000 in town.";
+		mes "If you don't see him, shout his name. He'll come out.";
+		next;
+		mes "[Villager]";
+		mes "At least he left the nets alone today. Good.";
+		job_sc_4th = 4;
+		changequest 18060,18061;
+		close2;
+		cloakonnpcself .@v$;
+		end;
 	case 4:
 		mes "- Nothing here looks out of the ordinary. -";
-		mes "- That woman's son might know more. -";
+		mes "- The villager's son, ^0000ffTori^000000, might know more. He plays with ^0000ffNoah^000000 outside the ^0000ffSecurity Management Room^000000 in Veins. -";
 		close;
 	case 5:
 		mes "- Nothing here looks out of the ordinary either. -";
@@ -299,32 +321,16 @@ ve_fild07,99,141,0	script	Pale Shadow#sc	1_SHADOW_NPC,{
 	}
 }
 
+// Tori's mother is only seen during the first talk with the pale shadow,
+// next to the player; this cell is only her fallback.
 ve_fild07,104,143,3	script	Villager#sc	946,{
-	if (job_sc_4th < 3 || job_sc_4th > 5) {
-		mes "[Villager]";
-		mes "Nothing but fish traps and nets down here.";
-		close;
-	}
-	if (job_sc_4th == 3) {
-		npctalk "Villager : Hey, what are you doing over there?", "", bc_self;
-		mes "[Villager]";
-		mes "There's nothing over there but fish traps and nets.";
-		mes "I only came to see if my son was playing with the nets again, or had caught something.";
-		next;
-		mes "[Villager]";
-		mes "Something odd? I haven't seen anything. But lately my ^0000ffTori^000000 can't keep away from this place.";
-		mes "Ask him. He plays with ^0000ffNoah^000000, outside the ^0000ffSecurity Management Room^000000 in town.";
-		mes "If you don't see him, shout his name. He'll come out.";
-		next;
-		mes "[Villager]";
-		mes "At least he left the nets alone today. Good.";
-		job_sc_4th = 4;
-		changequest 18060,18061;
-		close;
-	}
 	mes "[Villager]";
-	mes "Tori is in town, with Noah, outside the Security Management Room.";
+	mes "Nothing but fish traps and nets down here.";
 	close;
+
+OnInit:
+	cloakonnpc;
+	end;
 }
 
 veins,87,158,5	script	Noah#sc	941,{
