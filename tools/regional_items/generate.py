@@ -158,7 +158,7 @@ for names, jobs, cls in [
     ('ninja|닌자', ['Ninja'], None), ('kagerou|oboro|카게로우|오보로', ['KagerouOboro'], None),
     ('shinkiro|shiranui|신키로|시라누이', ['KagerouOboro'], 'Third'),  # and so are Shinkiro / Shiranui
     ('summoner|doram|도람', ['Summoner'], None), ('spirit handler|영도사', ['Spirit_Handler'], None),
-    ('druid|드루이드', ['Druid'], None), ('karnos|카르노스', ['Karnos'], None), ('alitea|알리테아', ['Karnos'], 'Fourth'),  # gear counts Alitea as fourth (pc_isItemClass)
+    ('druid|드루이드', ['Druid'], None), ('karnos|카르노스', ['Karnos'], None), ('alitea|알리테아', ['Karnos'], 'Third'),  # Alitea too (MAPID_ALITEA)
 ]:
     for n in names.split('|'):
         for v in ({n.replace(' ?', ' '), n.replace(' ?', '')} if ' ?' in n else {n}):
