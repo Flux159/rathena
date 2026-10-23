@@ -40,8 +40,7 @@
 //= 1.4 The villager only appears while you look at the pale
 //=     shadow. [MondoTruth]
 //= 1.5 Every dialog page and overhead line checked against the
-//=     iRO video again; World Sync's placeholder Verkhasel on
-//=     the same cell is hidden. [MondoTruth]
+//=     iRO video again. [MondoTruth]
 //============================================================
 
 // job_sc_4th:
@@ -611,11 +610,5 @@ ve_fild05,317,235,3	script	Verkhasel#sc_start	4_M_GUILLOTINE,{
 	}
 	close2;
 	cutin "",255;
-	end;
-
-OnInit:
-	// The World Sync Extras mod puts a placeholder Verkhasel without logic on this cell.
-	if (getnpcid(0, "Verkhasel#ws17263"))
-		disablenpc "Verkhasel#ws17263";
 	end;
 }
