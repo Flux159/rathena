@@ -1804,38 +1804,47 @@ static bool pc_job_can_use_item( const map_session_data* sd, const item_data* it
 		[Cydh] finishing :D
  *------------------------------------------*/
 static bool pc_isItemClass ( const map_session_data* sd, const item_data* item ) {
+	uint64 class_ = sd->class_;
+
+	// Gear counts Karnos as a third class and Alitea as a fourth class, as kRO does:
+	// one tier above their place in the job tree after the Druid
+	if( ( class_ & MAPID_THIRDMASK ) == MAPID_ALITEA )
+		class_ |= JOBL_FOURTH;
+	else if( ( class_ & MAPID_SECONDMASK ) == MAPID_KARNOS )
+		class_ |= JOBL_THIRD;
+
 	while (1) {
-		if (item->class_upper&ITEMJ_NORMAL && !(sd->class_&(JOBL_UPPER|JOBL_BABY|JOBL_THIRD|JOBL_FOURTH)))	//normal classes (no upper, no baby, no third, no fourth)
+		if (item->class_upper&ITEMJ_NORMAL && !(class_&(JOBL_UPPER|JOBL_BABY|JOBL_THIRD|JOBL_FOURTH)))	//normal classes (no upper, no baby, no third, no fourth)
 			break;
 #ifndef RENEWAL
 		//allow third classes to use trans. class items
-		if (item->class_upper&ITEMJ_UPPER && sd->class_&(JOBL_UPPER|JOBL_THIRD))	//trans. classes
+		if (item->class_upper&ITEMJ_UPPER && class_&(JOBL_UPPER|JOBL_THIRD))	//trans. classes
 			break;
 		//third-baby classes can use same item too
-		if (item->class_upper&ITEMJ_BABY && sd->class_&JOBL_BABY)	//baby classes
+		if (item->class_upper&ITEMJ_BABY && class_&JOBL_BABY)	//baby classes
 			break;
 		//don't need to decide specific rules for third-classes?
 		//items for third classes can be used for all third classes
-		if (item->class_upper&(ITEMJ_THIRD|ITEMJ_THIRD_UPPER|ITEMJ_THIRD_BABY) && sd->class_&JOBL_THIRD)
+		if (item->class_upper&(ITEMJ_THIRD|ITEMJ_THIRD_UPPER|ITEMJ_THIRD_BABY) && class_&JOBL_THIRD)
 			break;
 #else
 		//trans. classes (exl. third-trans.)
-		if (item->class_upper&ITEMJ_UPPER && sd->class_&JOBL_UPPER && !(sd->class_&JOBL_THIRD))
+		if (item->class_upper&ITEMJ_UPPER && class_&JOBL_UPPER && !(class_&JOBL_THIRD))
 			break;
 		//baby classes (exl. third-baby)
-		if (item->class_upper&ITEMJ_BABY && sd->class_&JOBL_BABY && !(sd->class_&JOBL_THIRD))
+		if (item->class_upper&ITEMJ_BABY && class_&JOBL_BABY && !(class_&JOBL_THIRD))
 			break;
 		//third classes (exl. third-trans. and baby-third and fourth)
-		if (item->class_upper&ITEMJ_THIRD && sd->class_&JOBL_THIRD && !(sd->class_&(JOBL_UPPER|JOBL_BABY)) && !(sd->class_&JOBL_FOURTH))
+		if (item->class_upper&ITEMJ_THIRD && class_&JOBL_THIRD && !(class_&(JOBL_UPPER|JOBL_BABY)) && !(class_&JOBL_FOURTH))
 			break;
 		//trans-third classes (exl. fourth)
-		if (item->class_upper&ITEMJ_THIRD_UPPER && sd->class_&JOBL_THIRD && sd->class_&JOBL_UPPER && !(sd->class_&JOBL_FOURTH))
+		if (item->class_upper&ITEMJ_THIRD_UPPER && class_&JOBL_THIRD && class_&JOBL_UPPER && !(class_&JOBL_FOURTH))
 			break;
 		//third-baby classes (exl. fourth)
-		if (item->class_upper&ITEMJ_THIRD_BABY && sd->class_&JOBL_THIRD && sd->class_&JOBL_BABY && !(sd->class_&JOBL_FOURTH))
+		if (item->class_upper&ITEMJ_THIRD_BABY && class_&JOBL_THIRD && class_&JOBL_BABY && !(class_&JOBL_FOURTH))
 			break;
 		//fourth classes
-		if (item->class_upper&ITEMJ_FOURTH && sd->class_&JOBL_FOURTH)
+		if (item->class_upper&ITEMJ_FOURTH && class_&JOBL_FOURTH)
 			break;
 #endif
 		return false;
