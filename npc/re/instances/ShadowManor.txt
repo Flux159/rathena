@@ -241,10 +241,11 @@ OnInstanceInit:
 	.@npc$[0] = instance_npcname("Verkhasel#sc1");
 	.@npc$[1] = instance_npcname("Mayssel#sc1");
 	.@npc$[2] = instance_npcname("Doomk#sc1");
-	setarray .@dx[0], 2, 1, -2;
-	setarray .@dy[0], 0, -2, 0;
-	setarray .@fx[0], 73, 75, 67;
-	setarray .@fy[0], 69, 70, 70;
+	// Doomk stands north of you, away from Blackie (70,70).
+	setarray .@dx[0], 2, 1, -1;
+	setarray .@dy[0], 0, -2, -2;
+	setarray .@fx[0], 73, 75, 71;
+	setarray .@fy[0], 69, 70, 66;
 	disablenpc .@npc$[0];
 	for (.@i = 0; .@i < 3; .@i++) {
 		if (checkcell(.@map$, .@x + .@dx[.@i], .@y + .@dy[.@i], cell_chkpass))
