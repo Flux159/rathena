@@ -236,20 +236,26 @@ OnInstanceInit:
 	close2;
 	// Verkhasel, Mayssel and Doomk join you; Blackie shows itself.
 	getmapxy(.@map$, .@x, .@y, BL_PC);
-	setarray .@npc$[0], instance_npcname("Verkhasel#sc1"), instance_npcname("Mayssel#sc1"), instance_npcname("Doomk#sc1");
+	// One call per line: instance_npcname returns a shared buffer, so three calls
+	// in one setarray would all give the last name.
+	.@npc$[0] = instance_npcname("Verkhasel#sc1");
+	.@npc$[1] = instance_npcname("Mayssel#sc1");
+	.@npc$[2] = instance_npcname("Doomk#sc1");
 	setarray .@dx[0], 2, 1, -2;
 	setarray .@dy[0], 0, -2, 0;
 	setarray .@fx[0], 73, 75, 67;
 	setarray .@fy[0], 69, 70, 70;
+	disablenpc .@npc$[0];
 	for (.@i = 0; .@i < 3; .@i++) {
-		disablenpc .@npc$[.@i];
 		if (checkcell(.@map$, .@x + .@dx[.@i], .@y + .@dy[.@i], cell_chkpass))
 			movenpc .@npc$[.@i], .@x + .@dx[.@i], .@y + .@dy[.@i];
 		else
 			movenpc .@npc$[.@i], .@fx[.@i], .@fy[.@i];
-		enablenpc .@npc$[.@i];
-		specialeffect EF_TELEPORTATION, AREA, .@npc$[.@i];
 	}
+	for (.@i = 0; .@i < 3; .@i++)
+		enablenpc .@npc$[.@i];
+	for (.@i = 0; .@i < 3; .@i++)
+		specialeffect EF_TELEPORTATION, AREA, .@npc$[.@i];
 	sleep2 500;
 	enablenpc instance_npcname("Blackie#sc1");
 	specialeffect EF_DARKBREATH, AREA, instance_npcname("Blackie#sc1");
