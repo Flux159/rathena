@@ -95439,8 +95439,10 @@ Body:
     View: 1527
     Script: |
       bonus bHPGainValue,500;
+      bonus bLongHPGainValue,500;
       bonus bMagicHPGainValue,500;
       bonus bSPGainValue,50;
+      bonus bLongSPGainValue,50;
       bonus bMagicSPGainValue,50;
       if (getpetinfo(PETINFO_EGGID) == 9055) {
          if (getpetinfo(PETINFO_INTIMATE) >= PET_INTIMATE_LOYAL)
@@ -189559,7 +189561,9 @@ Body:
       bonus bBaseAtk,100;
       bonus bMatk,100;
       bonus bHPGainValue,700;
+      bonus bLongHPGainValue,700;
       bonus bSPGainValue,70;
+      bonus bLongSPGainValue,70;
       bonus bMagicHPGainValue,700;
       bonus bMagicSPGainValue,70;
       skill "BS_GREED",1;
