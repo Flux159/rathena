@@ -45,6 +45,13 @@ ve_fild07,147,371,0	warp	ve_fild7-1	1,1,veins,146,28
 // Renewal Addon
 ve_fild06,81,177,0	warp	VeF06S_VeF04S	1,1,ve_fild04,115,55
 
+// kRO's navigation links (navi_link_krpri): ve_fild05 is reached from
+// ve_fild03 and from the second portal of ve_fild06.
+ve_fild03,222,43,0	warp	VeF03S_VeF05N	1,1,ve_fild05,200,325
+ve_fild05,200,330,0	warp	VeF05N_VeF03S	1,1,ve_fild03,222,48
+ve_fild05,359,192,0	warp	VeF05E_VeF06S	1,1,ve_fild06,88,261
+ve_fild06,89,265,0	warp	VeF06S_VeF05E	1,1,ve_fild05,354,191
+
 //============================================================ 
 // Old changelog
 //============================================================ 

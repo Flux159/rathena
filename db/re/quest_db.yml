@@ -7370,6 +7370,30 @@ Body:
     Title: Herb Medicine - Being a Doctor's Assistance
   - Id: 11057
     Title: Herb Medicine - Being a Doctor's Assistance
+  - Id: 11058
+    Title: Coward Boy Mikhail
+  - Id: 11059
+    Title: Coward Boy Mikhail
+  - Id: 11060
+    Title: Coward Boy Mikhail
+  - Id: 11061
+    Title: Coward Boy Mikhail
+  - Id: 11062
+    Title: Coward Boy Mikhail
+  - Id: 11063
+    Title: Coward Boy Mikhail
+  - Id: 11064
+    Title: Coward Boy Mikhail
+  - Id: 11065
+    Title: Coward Boy Mikhail
+  - Id: 11066
+    Title: Coward Boy Mikhail
+  - Id: 11067
+    Title: Coward Boy Mikhail
+  - Id: 11068
+    Title: Coward Boy Mikhail
+  - Id: 11069
+    Title: Coward Boy Mikhail
   - Id: 11070
     Title: Poison King
   - Id: 11071
@@ -13035,22 +13059,24 @@ Body:
   - Id: 18058
     Title: Einbech Mine target - Standby
     TimeLimit: 4h
+  - Id: 18059
+    Title: Shadow's Call
   - Id: 18060
-    Title: Missing boy Mikhail
+    Title: Job Change to Shadow Cross-1
   - Id: 18061
-    Title: Mikhail's Whereabouts
+    Title: Job Change to Shadow Cross-2
   - Id: 18062
-    Title: Missing boy Mikhail
+    Title: Job Change to Shadow Cross-3
   - Id: 18063
-    Title: The isolated swamp
+    Title: Job Change to Shadow Cross-4
   - Id: 18064
-    Title: Back to the Village
+    Title: Job Change to Shadow Cross-5
   - Id: 18065
-    Title: High-strength Adhesive
+    Title: Job Change to Shadow Cross-6
   - Id: 18066
-    Title: Back to the swamp
+    Title: Job Change to Shadow Cross-7
   - Id: 18067
-    Title: Make the paste
+    Title: Job Change to Shadow Cross-8
   - Id: 18068
     Title: Fixing the Matrushka
   - Id: 18069
