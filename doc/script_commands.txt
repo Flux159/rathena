@@ -5899,7 +5899,7 @@ storage or cart.
 
 ---------------------------------------
 
-*equip <item id>{,<char_id>};
+*equip <item id>{,<char_id>{,<position>}};
 *autoequip <item id>,<option>;
 
 These commands are to equip a equipment on the attached character.
@@ -5908,10 +5908,25 @@ this item in his/her inventory, while the autoequip function will
 equip the given item ID when this is looted. The option parameter of
 the autoequip is 1 or 0, 1 to turn it on, and 0 to turn it off.
 
+When the character carries more than one of the item, equip takes a copy
+that is not worn yet, so a second ring or dagger of the same kind can go on.
+
+<position> picks where the item goes, as an EQP_* constant, the way the
+client asks for it: EQP_HAND_L puts a dagger, one-handed sword or one-handed
+axe in the left hand of a character who can dual wield (the Assassin line,
+Kagerou and Oboro, or anyone with Left Hand Mastery), and
+EQP_ACC_L or EQP_ACC_R puts an accessory on that side. Whatever is in that
+position comes off first. Without it the item goes where it normally does.
+A position the item cannot go in is an error and returns 0. To give a
+position for the attached character, pass its char id, getcharid(0).
+
 Examples:
 
 //This will equip a 1104 (falchion) on the character if this is in the inventory.
 	equip 1104;
+
+//This will equip a 1201 (knife) in the left hand of an Assassin.
+	equip 1201,getcharid(0),EQP_HAND_L;
 
 //The invoked character will now automatically equip a falchion when it's looted.
 	autoequip 1104,1;

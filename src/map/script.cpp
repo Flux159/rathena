@@ -17091,7 +17091,7 @@ BUILDIN_FUNC(unequip) {
 }
 
 /**
- * equip <item id>{,<char_id>};
+ * equip <item id>{,<char_id>{,<position>}};
  **/
 BUILDIN_FUNC(equip) {
 	TBL_PC *sd;
@@ -17105,9 +17105,25 @@ BUILDIN_FUNC(equip) {
 	if (id != nullptr) {
 		int32 i;
 
-		ARR_FIND( 0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].nameid == nameid );
+		// A copy that is not worn yet: pc_equipitem refuses a worn one, so with two of the
+		// same item (a ring for each side, a dagger for each hand) the second never went on.
+		ARR_FIND( 0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].nameid == nameid && sd->inventory.u.items_inventory[i].equip == 0 );
+		if (i == MAX_INVENTORY)
+			ARR_FIND( 0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].nameid == nameid );
 		if (i < MAX_INVENTORY) {
-			pc_equipitem(sd,i,id->equip);
+			int32 pos = id->equip;
+
+			// The position to put it in, as the client asks for one: EQP_HAND_L for a
+			// dual wielder's left hand, EQP_ACC_L or EQP_ACC_R for one side.
+			if (script_hasdata(st,4)) {
+				pos = script_getnum(st,4);
+				if (!(pos & pc_equippoint(sd,i))) {
+					ShowError("buildin_equip: Item %u cannot be equipped at position %d.\n", nameid, pos);
+					script_pushint(st,0);
+					return SCRIPT_CMD_FAILURE;
+				}
+			}
+			pc_equipitem(sd,i,pos);
 			script_pushint(st,1);
 			return SCRIPT_CMD_SUCCESS;
 		}
@@ -28865,7 +28881,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(npcshopadditem,"sii*"),
 	BUILDIN_DEF(npcshopdelitem,"si*"),
 	BUILDIN_DEF(npcshopattach,"s?"),
-	BUILDIN_DEF(equip,"i?"),
+	BUILDIN_DEF(equip,"i??"),
 	BUILDIN_DEF(autoequip,"ii"),
 	BUILDIN_DEF(setbattleflag,"si?"),
 	BUILDIN_DEF(getbattleflag,"s"),
