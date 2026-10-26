@@ -109917,8 +109917,36 @@ Body:
     DamageMotion: 480
     Ai: 21
     Class: Boss
-#  - Id: 20827
-#    AegisName: 4JOB_DOOMK
+  # Shadow Cross job change (npc/re/instances/ShadowManor.txt). Unofficial stats, those of
+  # Stalker Gertie (B_GERTIE) at level 200 with less HP, not an MVP.
+  - Id: 20827
+    AegisName: 4JOB_DOOMK
+    Name: Doomk
+    Level: 200
+    Hp: 2500000
+    Attack: 6162
+    Attack2: 1274
+    Defense: 251
+    MagicDefense: 107
+    Str: 217
+    Agi: 315
+    Vit: 127
+    Int: 51
+    Dex: 333
+    Luk: 61
+    AttackRange: 1
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Medium
+    Race: Demihuman
+    Element: Dark
+    ElementLevel: 2
+    WalkSpeed: 100
+    AttackDelay: 76
+    AttackMotion: 864
+    DamageMotion: 288
+    Ai: 21
+    Class: Boss
 #  - Id: 20828
 #    AegisName: 4JOB_VERKHASEL
 #  - Id: 20829
