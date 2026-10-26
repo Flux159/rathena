@@ -596,6 +596,11 @@ def box_section(i, name, rnd, got, resolve, aegis_of, unknown):
     return out
 
 
+# iRO items that open the same item group as rAthena's own item (by AegisName)
+SAME_BOX = {
+    'Main_Lucky_Box_US': 'getgroupitem(IG_MAIN_LUCKY_BOX,true);',    # Kachua's Secret Box = Main_Lucky_Box
+}
+
 OCP_TIERS = [0.34, 1.01, 1.01, 1.01, 1.01, 2.73, 2.73, 2.73, 6.83, 6.83, 6.83]
 
 
@@ -1035,6 +1040,8 @@ def main():
                     if len(set(combo)) == len(combo):
                         combos.append((sorted(combo), eff, i))
 
+        if e.get('AegisName') in SAME_BOX:
+            script, unknown = [SAME_BOX[e['AegisName']]], []
         if is_box or typ == 'Usable':
             e['Type'] = 'Usable'
             if not script:
