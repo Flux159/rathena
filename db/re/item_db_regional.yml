@@ -17570,6 +17570,8 @@ Body:
     AegisName: Main_Lucky_Box_US
     Name: Kachua's Secret Box
     Type: Usable
+    Flags:
+      Container: true
     Script: |
       getgroupitem(IG_MAIN_LUCKY_BOX,true);
   - Id: 100656

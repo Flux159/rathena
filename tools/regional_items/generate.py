@@ -596,7 +596,8 @@ def box_section(i, name, rnd, got, resolve, aegis_of, unknown):
     return out
 
 
-# iRO items that open the same item group as rAthena's own item (by AegisName)
+# iRO items that open the same item group as rAthena's own item (by AegisName).
+# They are containers like rAthena's own, so get the same Container flag.
 SAME_BOX = {
     'Main_Lucky_Box_US': 'getgroupitem(IG_MAIN_LUCKY_BOX,true);',    # Kachua's Secret Box = Main_Lucky_Box
 }
@@ -1042,6 +1043,7 @@ def main():
 
         if e.get('AegisName') in SAME_BOX:
             script, unknown = [SAME_BOX[e['AegisName']]], []
+            e['Flags'] = {'Container': True}
         if is_box or typ == 'Usable':
             e['Type'] = 'Usable'
             if not script:
