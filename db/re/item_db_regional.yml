@@ -17571,9 +17571,9 @@ Body:
     Name: Kachua's Secret Box
     Type: Usable
     Flags:
-      NoConsume: true
+      Container: true
     Script: |
-      dispbottom "This box's contents aren't available on this server yet.";
+      getgroupitem(IG_MAIN_LUCKY_BOX,true);
   - Id: 100656
     AegisName: iRO_100656
     Name: Armor Enchantment Box
