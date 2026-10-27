@@ -168,8 +168,15 @@ FAMILY_KO = {'검사': 'swordman', '마법사': 'mage', '궁수': 'archer', '복
              '도람': 'summoner', '드루이드': 'druid'}
 
 
-def parse_jobs(text):
-    """'Swordman classes, Rune Knight' -> ({job: True}, {class: True}) or None if unread."""
+def parse_jobs(text, lines=False):
+    """'Swordman classes, Rune Knight' -> ({job: True}, {class: True}) or None if unread.
+
+    A word like "Classes" closing the list covers every name in it ("Swordman,
+    Merchant, and Thief Classes"). With lines, a bare first-class name stands
+    for its whole line too: iRO writes "Class : Acolyte" for level 100 gear
+    its own text gives to Cardinals and Inquisitors. Not when the list also
+    names a later job of that line: "Taekwon, Taekwon Master" leaves the
+    Soul Linker out."""
     if not text:
         return None
     t = text.lower().strip(' .,;')
@@ -186,15 +193,17 @@ def parse_jobs(text):
         c = {'3rd': 'All_Third', 'third': 'All_Third', '4th': 'Fourth', 'fourth': 'Fourth'}.get(m.group(1), 'All_Upper')
         return {}, {c: True}
     jobs, classes, any_unrestricted = [], set(), False
-    for tok in re.split(r'\s*(?:,|/|;|\band\b|&(?!trouvere)|및|·)\s*', t):
-        tok = tok.strip()
-        if not tok:
-            continue
-        family = bool(re.search(r'\b(?:classes|class|jobs|line|series)\b|계열|직업군', tok))
-        name = re.sub(r'\b(?:classes|class|jobs|job|only|line|series|types?)\b|계열|직업군|직업|만', '', tok).strip()
-        name = re.sub(r'^(?:the|all)\s+', '', name)
+    family_word = r'\b(?:classes|class|jobs|line|series)\b|계열|직업군'
+    toks = [x.strip() for x in re.split(r'\s*(?:,|/|;|\band\b|&(?!trouvere)|및|·)\s*', t) if x.strip()]
+    whole_list = bool(toks) and bool(re.search(family_word, toks[-1]))
+    names = [re.sub(r'^(?:the|all)\s+', '', re.sub(r'\b(?:classes|class|jobs|job|only|line|series|types?)\b|계열|직업군|직업|만', '', tok).strip())
+             for tok in toks]
+    for i, tok in enumerate(toks):
+        name = names[i]
         ko_family = FAMILY_KO.get(name)
         fam = name if name in FAMILY else ko_family
+        kin_named = fam and any(n != name and n in JOBNAMES and set(JOBNAMES[n][0]) & set(FAMILY[fam]) for n in names)
+        family = whole_list or (lines and not kin_named) or bool(re.search(family_word, tok))
         if family and fam:
             jobs += FAMILY[fam]
             any_unrestricted = True
@@ -881,8 +890,11 @@ def main():
             jt = f.get('장착')
         if not jt and (f.get('Class') and f.get('Type')):
             jt = f.get('Class')    # "Type: Headgear ... Class: All Jobs"
+        req = to_int(first(f, 'Required Level', 'Requires Level', 'Require Level', 'Required Lv', 'Required LVL', 'Req LvL', 'Req Lv', 'Required Base Level',
+                           'Req. Level', 'Base Level', 'Level Requirement', '요구 레벨', '요구레벨')) if equip else None
         if equip and jt:
-            pj = parse_jobs(jt)
+            # level 100+: a first job alone could never wear it, so a bare first-class name is its line
+            pj = parse_jobs(jt, lines=bool(req and req >= 100))
             if pj is None:
                 unknown.append('jobs not readable: %s' % jt)
             else:
@@ -903,8 +915,6 @@ def main():
             al = to_int(first(f, 'Armor Level', '방어구 레벨', '방어구레벨'))
             e['ArmorLevel'] = min(al, 2) if al else 1
         if equip:
-            req = to_int(first(f, 'Required Level', 'Requires Level', 'Require Level', 'Required Lv', 'Required LVL', 'Req LvL', 'Req Lv', 'Required Base Level',
-                               'Req. Level', 'Base Level', 'Level Requirement', '요구 레벨', '요구레벨'))
             if req and req > 1:
                 e['EquipLevelMin'] = req
         text = ' '.join(l for l in rest if l)
