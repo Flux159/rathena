@@ -174,7 +174,9 @@ def parse_jobs(text, lines=False):
     A word like "Classes" closing the list covers every name in it ("Swordman,
     Merchant, and Thief Classes"). With lines, a bare first-class name stands
     for its whole line too: iRO writes "Class : Acolyte" for level 100 gear
-    its own text gives to Cardinals and Inquisitors."""
+    its own text gives to Cardinals and Inquisitors. Not when the list also
+    names a later job of that line: "Taekwon, Taekwon Master" leaves the
+    Soul Linker out."""
     if not text:
         return None
     t = text.lower().strip(' .,;')
@@ -194,12 +196,14 @@ def parse_jobs(text, lines=False):
     family_word = r'\b(?:classes|class|jobs|line|series)\b|계열|직업군'
     toks = [x.strip() for x in re.split(r'\s*(?:,|/|;|\band\b|&(?!trouvere)|및|·)\s*', t) if x.strip()]
     whole_list = bool(toks) and bool(re.search(family_word, toks[-1]))
-    for tok in toks:
-        family = whole_list or lines or bool(re.search(family_word, tok))
-        name = re.sub(r'\b(?:classes|class|jobs|job|only|line|series|types?)\b|계열|직업군|직업|만', '', tok).strip()
-        name = re.sub(r'^(?:the|all)\s+', '', name)
+    names = [re.sub(r'^(?:the|all)\s+', '', re.sub(r'\b(?:classes|class|jobs|job|only|line|series|types?)\b|계열|직업군|직업|만', '', tok).strip())
+             for tok in toks]
+    for i, tok in enumerate(toks):
+        name = names[i]
         ko_family = FAMILY_KO.get(name)
         fam = name if name in FAMILY else ko_family
+        kin_named = fam and any(n != name and n in JOBNAMES and set(JOBNAMES[n][0]) & set(FAMILY[fam]) for n in names)
+        family = whole_list or (lines and not kin_named) or bool(re.search(family_word, tok))
         if family and fam:
             jobs += FAMILY[fam]
             any_unrestricted = True
