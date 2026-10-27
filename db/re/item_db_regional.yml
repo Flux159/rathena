@@ -8598,6 +8598,8 @@ Body:
     Slots: 2
     Jobs:
       Archer: true
+      Hunter: true
+      BardDancer: true
       Rogue: true
     Locations:
       Both_Hand: true
@@ -16759,6 +16761,7 @@ Body:
     Slots: 2
     Jobs:
       Thief: true
+      Assassin: true
       Rogue: true
     Locations:
       Right_Hand: true
@@ -16809,6 +16812,7 @@ Body:
       Monk: false
       Taekwon: false
       StarGladiator: false
+      SoulLinker: false
       Gunslinger: false
       Rebellion: false
       Summoner: false
@@ -31839,8 +31843,14 @@ Body:
     Slots: 1
     Jobs:
       Swordman: true
+      Knight: true
+      Crusader: true
       Merchant: true
+      Blacksmith: true
+      Alchemist: true
       Thief: true
+      Assassin: true
+      Rogue: true
     Locations:
       Shoes: true
     ArmorLevel: 2
@@ -32429,6 +32439,8 @@ Body:
     Slots: 1
     Jobs:
       Acolyte: true
+      Priest: true
+      Monk: true
     Locations:
       Shoes: true
     ArmorLevel: 2
@@ -32871,6 +32883,8 @@ Body:
     Slots: 1
     Jobs:
       Mage: true
+      Wizard: true
+      Sage: true
     Locations:
       Shoes: true
     ArmorLevel: 2
@@ -38310,6 +38324,8 @@ Body:
     Slots: 1
     Jobs:
       Swordman: true
+      Knight: true
+      Crusader: true
     Locations:
       Right_Accessory: true
     ArmorLevel: 1
@@ -38337,6 +38353,8 @@ Body:
     Slots: 1
     Jobs:
       Mage: true
+      Wizard: true
+      Sage: true
     Locations:
       Right_Accessory: true
     ArmorLevel: 1
@@ -39223,7 +39241,10 @@ Body:
     Slots: 1
     Jobs:
       Thief: true
+      Assassin: true
+      Rogue: true
       Ninja: true
+      KagerouOboro: true
     Locations:
       Left_Accessory: true
     ArmorLevel: 2
@@ -39372,7 +39393,11 @@ Body:
     Slots: 2
     Jobs:
       Swordman: true
+      Knight: true
+      Crusader: true
       Merchant: true
+      Blacksmith: true
+      Alchemist: true
       Thief: true
       Assassin: true
       Rogue: true
@@ -39541,10 +39566,19 @@ Body:
     Jobs:
       Swordman: true
       Archer: true
+      Hunter: true
+      BardDancer: true
       Thief: true
+      Assassin: true
+      Rogue: true
       Mage: true
+      Wizard: true
+      Sage: true
       Merchant: true
+      Blacksmith: true
+      Alchemist: true
       Ninja: true
+      KagerouOboro: true
       SoulLinker: true
     Locations:
       Right_Hand: true
@@ -39573,10 +39607,19 @@ Body:
     Jobs:
       Swordman: true
       Archer: true
+      Hunter: true
+      BardDancer: true
       Thief: true
+      Assassin: true
+      Rogue: true
       Mage: true
+      Wizard: true
+      Sage: true
       Merchant: true
+      Blacksmith: true
+      Alchemist: true
       Ninja: true
+      KagerouOboro: true
       SoulLinker: true
     Locations:
       Right_Hand: true
@@ -39976,11 +40019,22 @@ Body:
     Slots: 2
     Jobs:
       Swordman: true
+      Knight: true
+      Crusader: true
       Archer: true
+      Hunter: true
+      BardDancer: true
       Thief: true
+      Assassin: true
+      Rogue: true
       Mage: true
+      Wizard: true
+      Sage: true
       Merchant: true
+      Blacksmith: true
+      Alchemist: true
       Ninja: true
+      KagerouOboro: true
       SoulLinker: true
     Locations:
       Right_Hand: true
@@ -40419,8 +40473,13 @@ Body:
     Slots: 3
     Jobs:
       Novice: true
+      SuperNovice: true
       Swordman: true
+      Knight: true
+      Crusader: true
       Thief: true
+      Assassin: true
+      Rogue: true
       Merchant: true
       Blacksmith: true
       Alchemist: true
@@ -40735,7 +40794,11 @@ Body:
     Slots: 2
     Jobs:
       Mage: true
+      Wizard: true
+      Sage: true
       Acolyte: true
+      Priest: true
+      Monk: true
       SoulLinker: true
     Locations:
       Right_Hand: true
@@ -41530,7 +41593,11 @@ Body:
     Slots: 2
     Jobs:
       Swordman: true
+      Knight: true
+      Crusader: true
       Merchant: true
+      Blacksmith: true
+      Alchemist: true
       Acolyte: true
       Priest: true
       Monk: true
@@ -41719,6 +41786,8 @@ Body:
     Slots: 2
     Jobs:
       Swordman: true
+      Knight: true
+      Crusader: true
     Locations:
       Both_Hand: true
     WeaponLevel: 5
