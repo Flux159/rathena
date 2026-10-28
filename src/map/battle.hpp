@@ -185,6 +185,7 @@ struct Battle_Config
 	int32 random_monster_checklv;
 	int32 attr_recover;
 	int32 item_auto_get;
+	int32 unidentified_equipment;
 	int32 flooritem_lifetime;
 	int32 first_attack_loot_bonus;
 	int32 mvp_to_loot_priority;
