@@ -155,6 +155,15 @@
 	end;
 
 OnInstanceInit:
+	// Abyssal Mansion shares this map but has its own NPCs and scene.
+	if (instance_live_info(ILI_NAME, instance_id()) != "Shadow Manor") {
+		disablenpc instance_npcname("Verkhasel#sc1");
+		disablenpc instance_npcname("Mayssel#sc1");
+		disablenpc instance_npcname("Doomk#sc1");
+		disablenpc instance_npcname("Blackie#sc1");
+		disablenpc instance_npcname("#sc_tree");
+		end;
+	}
 	'sc_map$ = instance_mapname("1@4sac");
 	'sc_step = 0;
 	setmapflag 'sc_map$, MF_NOBASEEXP;

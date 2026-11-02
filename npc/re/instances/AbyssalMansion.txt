@@ -1,0 +1,491 @@
+//===== rAthena Script =======================================
+//= Instance: Abyssal Mansion.
+//===== Description: =========================================
+//- Part of the Abyss Chaser job change
+//- (npc/re/jobs/4-1/abyss_chaser.txt).
+//- Dialogue and route follow the reviewed official gameplay
+//- video. Blackie summons the dark power and tests the player
+//- through Possessed Verkhasel (20828 / 4JOB_VERKHASEL).
+//- Scene positions, delays and visual effects are design choices.
+//- The materials are consumed at the garden summoning. Failure
+//- has no cooldown: the player can re-enter through Doomk.
+//- No experience and no loot on the instance map.
+//===== Changelogs: ==========================================
+//= 1.0 First version. [MondoTruth]
+//============================================================
+
+// 'ac_step:
+//  0 arrival, talk to Doomk
+//  1 find the garden spot
+//  2 Blackie has been summoned
+//  3 fight Possessed Verkhasel
+//  4 Verkhasel is free, talk to Blackie
+//  5 Blackie offers its power
+//  6 Abyss Chaser, leave through Doomk
+
+1@4sac,145,65,4	script	Doomk#ac1	4_M_SHADOWCHASER,{
+	cutin "3rd_sc_doomk01.bmp",2;
+	switch('ac_step) {
+	case 0:
+		npctalk "The Assassin and Rogue Guilds share the same root. Of course, we cooperate with each other.", instance_npcname("Mayssel#ac1");
+		mes "[Doomk]";
+		mes "Hm, I didn't know there was a place";
+		mes "like this.";
+		mes "It definitely fits what the dark elemental";
+		mes "wanted.";
+		mes "So, what do we do now?";
+		next;
+		mes "[Doomk]";
+		mes "Let's go hunt the dark elemental, or";
+		mes "whatever it is.";
+		next;
+		cutin "gc_mayssel01.bmp",1;
+		mes "[Mayssel]";
+		mes "No, we're not hunting it, we're";
+		mes "summoning it, Doomk.";
+		mes "You're as crude as I remember.";
+		next;
+		mes "[Mayssel]";
+		mes "My name is Mayssel, and I'm the";
+		mes "manager of the Assassin Guild's";
+		mes "Veins branch.";
+		mes "I don't know if you remember me, but I";
+		mes "go teach beginning adventurers at the";
+		mes "Academy sometimes.";
+		next;
+		mes "[Mayssel]";
+		mes "We the Assassins have agreed to";
+		mes "cooperate with you because the power";
+		mes "of the dark elemental is important to all";
+		mes "of us.";
+		mes "Our information helped you find it, did it";
+		mes "not?";
+		next;
+		cutin "gc_verkhasel01.bmp",0;
+		mes "[Verkhasel]";
+		mes "Mayssel, what do we do from here?";
+		mes "So far, you're the only one who's";
+		mes "acquired its power.";
+		next;
+		cutin "gc_mayssel01.bmp",1;
+		mes "[Mayssel]";
+		mes "Even I don't know everything.";
+		mes "For now, let's look for a place that the";
+		mes "dark elemental likes.";
+		next;
+		mes "[Mayssel]";
+		mes "They like places that are dark and";
+		mes "shadowy even at the middle of the day,";
+		mes "to hide itself from the light.";
+		mes "Under a big garden tree, for instance.";
+		next;
+		cutin "3rd_sc_doomk01.bmp",2;
+		mes "[Doomk]";
+		mes "Hey, why don't we scatter and look?";
+		mes "It'll respond to wherever it likes, won't";
+		mes "it?";
+		next;
+		cutin "gc_verkhasel01.bmp",0;
+		mes "[Verkhasel]";
+		mes "Okay, I'll go look for a suitable place on";
+		mes "my own.";
+		next;
+		disablenpc instance_npcname("Verkhasel#ac1");
+		cutin "gc_mayssel01.bmp",1;
+		mes "[Mayssel]";
+		mes "Okay, then I'll do the same.";
+		mes "Frankly, I don't think it'd mind wherever";
+		mes "we call it.";
+		next;
+		disablenpc instance_npcname("Mayssel#ac1");
+		cutin "3rd_sc_doomk01.bmp",2;
+		mes "[Doomk]";
+		mes "You heard them. Let's get moving.";
+		mes "There's a garden beyond this building.";
+		mes "Why don't you check it out?";
+		mes "If the dark elemental responds, signal";
+		mes "us. We'll be there.";
+		'ac_step = 1;
+		break;
+	case 1:
+	case 2:
+	case 3:
+		mes "[Doomk]";
+		if ('ac_step == 1)
+			mes "Check the garden beyond this building. Find a dark spot under a tree.";
+		else
+			mes "Blackie is waiting. Show it what you can do.";
+		next;
+		if (select("All right.", "Give up.") == 2) {
+			mes "[Doomk]";
+			mes "Giving up ends this attempt. You can come back and try again.";
+			mes "Are you sure?";
+			next;
+			if (select("Stay.", "Leave.") == 2) {
+				cutin "",255;
+				.@id = instance_id();
+				warp "ve_fild05",313,106;
+				instance_destroy .@id;
+				end;
+			}
+		}
+		break;
+	case 4:
+	case 5:
+		mes "[Doomk]";
+		mes "Blackie is ready to share its power. Talk to it.";
+		break;
+	case 6:
+		mes "[Doomk]";
+		mes "Hah hah hah. I'm the best when it";
+		mes "comes to uniform aesthetics.";
+		mes "You look very nice.";
+		mes "Feel free to operate on your own like";
+		mes "you always have.";
+		next;
+		mes "[Doomk]";
+		mes "Now, shall we go back?";
+		next;
+		if (select("Not yet.", "Let's go.") == 2) {
+			cutin "",255;
+			.@id = instance_id();
+			warp "ve_fild05",313,106;
+			instance_destroy .@id;
+			end;
+		}
+		break;
+	}
+	close2;
+	cutin "",255;
+	end;
+
+OnInstanceInit:
+	if (instance_live_info(ILI_NAME, instance_id()) != "Abyssal Mansion") {
+		disablenpc instance_npcname("Doomk#ac1");
+		disablenpc instance_npcname("Mayssel#ac1");
+		disablenpc instance_npcname("Verkhasel#ac1");
+		disablenpc instance_npcname("Blackie#ac1");
+		disablenpc instance_npcname("#ac_tree");
+		end;
+	}
+	'ac_map$ = instance_mapname("1@4sac");
+	'ac_step = 0;
+	setmapflag 'ac_map$, MF_NOBASEEXP;
+	setmapflag 'ac_map$, MF_NOJOBEXP;
+	setmapflag 'ac_map$, MF_NOMOBLOOT;
+	setmapflag 'ac_map$, MF_NOMVPLOOT;
+	disablenpc instance_npcname("Blackie#ac1");
+	end;
+}
+
+1@4sac,147,64,5	script	Mayssel#ac1	4_F_MAYSEL,{
+	cutin "gc_mayssel01.bmp",1;
+	mes "[Mayssel]";
+	switch('ac_step) {
+	case 0:
+		mes "Talk to Doomk first.";
+		break;
+	case 1:
+		mes "Somewhere dark even at midday. A big garden tree would be perfect.";
+		break;
+	case 2:
+	case 3:
+		mes "Blackie wants to test you. Be ready.";
+		break;
+	default:
+		mes "Congratulations. The power of darkness suits you.";
+		break;
+	}
+	close2;
+	cutin "",255;
+	end;
+}
+
+1@4sac,149,65,6	script	Verkhasel#ac1	4_M_GUILLOTINE,{
+	cutin "gc_verkhasel01.bmp",0;
+	mes "[Verkhasel]";
+	if ('ac_step == 0)
+		mes "Talk to Doomk first.";
+	else if ('ac_step < 4)
+		mes "Let us find the place Blackie likes.";
+	else
+		mes "That was not my finest moment. You fought well.";
+	close2;
+	cutin "",255;
+	end;
+}
+
+1@4sac,79,49,0	script	#ac_tree	4_ENERGY_BLACK,{
+	if ('ac_step == 0) {
+		mes "- This spot looks good, but you should talk to Doomk first. -";
+		close;
+	}
+	if ('ac_step > 1) {
+		mes "- The darkness under the tree is thick and cold. -";
+		close;
+	}
+	if (job_ac_4th == 7 && (countitem(6089) < 20 || countitem(7799) < 5)) {
+		mes "- To call the dark elemental you need: -";
+		mes "^0000ff20 Dark Piece^000000 (" + countitem(6089) + " / 20)";
+		mes "^0000ff5 Crystal of Darkness^000000 (" + countitem(7799) + " / 5)";
+		close;
+	}
+	unittalk getcharid(3), strcharinfo(0) + " : This spot looks good.";
+	mes "- The Crystals of Darkness and Dark Pieces inside my pocket reacted. -";
+	if (job_ac_4th == 7) {
+		delitem 6089,20;	// Piece_Of_Darkness
+		delitem 7799,5;	// Dark_Crystal
+		job_ac_4th = 8;
+	}
+	'ac_step = 2;
+	close2;
+	.@npc$[0] = instance_npcname("Doomk#ac1");
+	.@npc$[1] = instance_npcname("Mayssel#ac1");
+	.@npc$[2] = instance_npcname("Verkhasel#ac1");
+	for (.@i = 0; .@i < 3; .@i++) {
+		enablenpc .@npc$[.@i];
+		specialeffect EF_TELEPORTATION, AREA, .@npc$[.@i];
+	}
+	enablenpc instance_npcname("Blackie#ac1");
+	specialeffect EF_DARKBREATH, AREA, instance_npcname("Blackie#ac1");
+	sleep2 500;
+	npctalk "Verkhasel : What's this energy?", .@npc$[2];
+	sleep2 700;
+	npctalk "Blackie : I'm back!", instance_npcname("Blackie#ac1");
+	sleep2 700;
+	npctalk "Mayssel : What? What's going on?", .@npc$[1];
+	end;
+}
+
+1@4sac,79,47,4	script	Blackie#ac1	1_SHADOW_NPC,{
+	switch('ac_step) {
+	case 2:
+		cutin "gc_mayssel01.bmp",1;
+		mes "[Mayssel]";
+		mes "Darkne! Long time, no see!";
+		next;
+		cutin "",255;
+		mes "[Blackie]";
+		mes "Oooh, I haven't been called that name";
+		mes "for a long time.";
+		mes "Now, I'm called Blackie.";
+		mes "Some young humans gave me this";
+		mes "valuable name.";
+		next;
+		mes "[Blackie]";
+		mes "Whew! By the way, what kind of place";
+		mes "is this? It's pretty nice.";
+		mes "Can I stay here for a while?";
+		next;
+		cutin "3rd_sc_doomk01.bmp",2;
+		mes "[Doomk]";
+		mes "What's this dark thing?";
+		mes "Is it the dark elemental?";
+		mes "How interesting!";
+		next;
+		cutin "gc_verkhasel01.bmp",0;
+		mes "[Verkhasel]";
+		mes "This place is private property, anyway.";
+		mes "People can't come in here as they";
+		mes "please. You can stay for as long as";
+		mes "you want.";
+		next;
+		mes "[Verkhasel]";
+		mes "But under one condition.";
+		mes "Even you elementals know nothing in";
+		mes "this world is for free.";
+		next;
+		cutin "",255;
+		mes "[Blackie]";
+		mes "You mean, you want some of my";
+		mes "power. Isn't that right?";
+		mes "Okay, I expected that.";
+		next;
+		mes "[Blackie]";
+		mes "Since you're already familiar with the";
+		mes "energy of darkness, I'm not worried";
+		mes "about our compatibility,";
+		mes "but I wouldn't want to lend my power to";
+		mes "some random weakling.";
+		next;
+		mes "[Blackie]";
+		mes "I will decide whom.";
+		next;
+		cutin "3rd_sc_doomk01.bmp",2;
+		mes "[Doomk]";
+		mes "It's your call.";
+		mes "We just want you to stay here and";
+		mes "share your power with us. Nothing";
+		mes "else matters.";
+		next;
+		mes "[Doomk]";
+		mes "And we want us Shadow Chasers to";
+		mes "be your first choice.";
+		next;
+		cutin "",255;
+		mes "[Blackie]";
+		mes "Do I have to do this more than once?";
+		next;
+		cutin "3rd_sc_doomk01.bmp",2;
+		mes "[Doomk]";
+		mes "We've never met anyone who's so";
+		mes "close to the abyss.";
+		mes "We too live and breathe in shadows.";
+		mes "I think we can be good friends.";
+		next;
+		cutin "",255;
+		mes "[Blackie]";
+		mes "I'm...";
+		mes "great! I can give you anything you want!";
+		npctalk "Blackie : great! I'm an elemental who can give you anything you want!";
+		next;
+		mes "[Blackie]";
+		mes "Okay, human over there.";
+		mes "I mean, you, who brought me the";
+		mes "darkness.";
+		mes "I want to test you.";
+		next;
+		mes "[Blackie]";
+		mes "Don't worry. I just want to test your";
+		mes "skills. Get ready.";
+		next;
+		mes "[Blackie]";
+		mes "Ready?";
+		mes "Then, whom should I use...?";
+		mes "Hmm... Yes, you!";
+		next;
+		mes "[Blackie]";
+		mes "Verkhasel, right?";
+		mes "Y-your white hair displeases me.";
+		mes "So, I'm going to use you.";
+		next;
+		cutin "gc_verkhasel01.bmp",0;
+		mes "[Verkhasel]";
+		mes "What are you talking about?";
+		mes "Wait, what did you do to my body? I";
+		mes "can't move!";
+		'ac_step = 3;
+		close2;
+		cutin "",255;
+		donpcevent instance_npcname("#ac_fight") + "::OnStart";
+		end;
+	case 3:
+		mes "- Blackie has possessed Verkhasel. Fight and win! -";
+		close;
+	case 4:
+		mes "[Blackie]";
+		mes "Hah hah hah hah! You won.";
+		mes "For your information, this fight was just";
+		mes "to see if you could accept darkness.";
+		next;
+		mes "[Blackie]";
+		mes "You'd better not think Verkhasel is";
+		mes "weaker than you,";
+		mes "or you'll regret it.";
+		'ac_step = 5;
+		if (isbegin_quest(18076) == 1)
+			changequest 18076,18077;
+		close;
+	case 5:
+		if (Class != JOB_SHADOW_CHASER && Class != JOB_SHADOW_CHASER_T) {
+			mes "[Blackie]";
+			mes "You are not a Shadow Chaser anymore. My power will not fit you like this.";
+			close;
+		}
+		if (SkillPoint > 0) {
+			mes "[Blackie]";
+			mes "You still have skill points left. Learn your skills first.";
+			close;
+		}
+		if (checkweight(490087,1) == 0) {
+			mes "[Blackie]";
+			mes "You're carrying too much. Make some room in your inventory first.";
+			close;
+		}
+		cutin "3rd_sc_doomk01.bmp",2;
+		mes "[Doomk]";
+		mes "Finally, Abyss Chaser, the new title";
+		mes "we've prepared for a long time, has";
+		mes "come to fruition.";
+		mes "We've even got a new uniform for it.";
+		next;
+		mes "[Doomk]";
+		mes "We've made sure it looks just as";
+		mes "awesome as our other uniforms.";
+		mes "Dark elemental, we're ready. Come on,";
+		mes "give them a makeover.";
+		next;
+		cutin "",255;
+		mes "[Blackie]";
+		mes "Hah hah hah. As you wish.";
+		mes "I'm an elemental who never forgets the";
+		mes "favors.";
+		mes "Now, relax and accept my energy.";
+		close2;
+		specialeffect2 EF_DARKBREATH;
+		sleep2 1000;
+		job_ac_4th = 0;
+		completequest 18077;
+		jobchange JOB_ABYSS_CHASER;
+		getitem 490087,1;	// 4th_Q_Necklace
+		specialeffect2 EF_JOBLVUP;
+		'ac_step = 6;
+		sleep2 1000;
+		npctalk "Doomk : With this, you're one step closer to the abyss!", instance_npcname("Doomk#ac1");
+		sleep2 1000;
+		npctalk "Mayssel : Congratulations.", instance_npcname("Mayssel#ac1");
+		sleep2 1000;
+		npctalk "Verkhasel : How do you feel?", instance_npcname("Verkhasel#ac1");
+		end;
+	case 6:
+		mes "[Blackie]";
+		mes "We're done now, right? Okay, then get";
+		mes "out of my house!";
+		close;
+	default:
+		mes "- A dark presence waits silently. -";
+		close;
+	}
+
+OnInstanceInit:
+	disablenpc;
+	end;
+}
+
+1@4sac,1,1,0	script	#ac_fight	-1,{
+	end;
+
+OnStart:
+	if ('ac_step != 3)
+		end;
+	.@verkhasel$ = instance_npcname("Verkhasel#ac1");
+	getmapxy(.@map$, .@x, .@y, BL_NPC, .@verkhasel$);
+	specialeffect EF_DARKBREATH, AREA, .@verkhasel$;
+	disablenpc .@verkhasel$;
+	monster 'ac_map$, .@x, .@y, "Possessed Verkhasel", "4JOB_VERKHASEL", 1, instance_npcname("#ac_fight") + "::OnVerkhaselDead";
+	'ac_mob = $@mobid[0];
+	initnpctimer;
+	end;
+
+OnTimer1000:
+	if (unitexists('ac_mob))
+		unittalk 'ac_mob, "Possessed Verkhasel : Wait... Wha...?";
+	end;
+
+OnTimer3000:
+	npctalk "Blackie : Now, fight! Fight and win!", instance_npcname("Blackie#ac1");
+	stopnpctimer;
+	end;
+
+OnVerkhaselDead:
+	if ('ac_step != 3)
+		end;
+	stopnpctimer;
+	'ac_step = 4;
+	.@verkhasel$ = instance_npcname("Verkhasel#ac1");
+	enablenpc .@verkhasel$;
+	npctalk "Verkhasel : Grr, you used me!", .@verkhasel$;
+	npctalk "Blackie : I like you. You're more compatible with me than I thought!", instance_npcname("Blackie#ac1");
+	mapannounce 'ac_map$, "Blackie lets go of Verkhasel. Talk to Blackie.", bc_map, 0xFFFF00;
+	end;
+}

@@ -1,0 +1,445 @@
+//===== rAthena Script =======================================
+//= Job change : Abyss Chaser
+//===== Description: =========================================
+//- [Walkthrough conversion]
+//- Official kRO requirements: Shadow Chaser, Base Level 200,
+//- Job Level 70, all Skill Points spent.
+//- Dialogue and route follow the reviewed official gameplay
+//- video, with kRO quest ids 18070-18077 from the client.
+//- The last part takes place in Abyssal Mansion
+//- (npc/re/instances/AbyssalMansion.txt).
+//- Instance scene positions and visual effects are design choices.
+//===== Changelogs: ==========================================
+//= 1.0 First version. [MondoTruth]
+//============================================================
+
+// job_ac_4th:
+//  1 talk to Julie in Rachel's southwestern market
+//  2 find Mulie and Peter at the old guard post
+//  3 investigate the Pale Shadow
+//  4 report back to Vicente
+//  5 bring 20 Dark Pieces and 5 Crystals of Darkness
+//  6 meet Doomk in Veins Field 5
+//  7 enter Abyssal Mansion and pass Blackie's test
+//  8 the summoning objects were consumed; retry only the test
+
+s_atelier,122,59,4	script	Vicente#ac_start	4_M_HUMAN_02,{
+	cutin "sc_vicente01.bmp",2;
+	if (Class == JOB_ABYSS_CHASER) {
+		mes "[Vicente]";
+		mes "How does it feel to be an Abyss Chaser? Doomk's uniform suits you.";
+		close2;
+		cutin "",255;
+		end;
+	}
+	if (Class != JOB_SHADOW_CHASER && Class != JOB_SHADOW_CHASER_T) {
+		mes "[Vicente]";
+		mes "This workshop serves Shadow Chasers. Come back when you are one of them.";
+		close2;
+		cutin "",255;
+		end;
+	}
+	if (BaseLevel < 200 || JobLevel < 70) {
+		mes "[Vicente]";
+		mes "You are not ready for the power we have found.";
+		mes "Come back at ^dd5555Base Level 200 and Job Level 70^000000.";
+		close2;
+		cutin "",255;
+		end;
+	}
+	if (SkillPoint > 0) {
+		mes "[Vicente]";
+		mes "You still have skill points left. Learn your skills first.";
+		close2;
+		cutin "",255;
+		end;
+	}
+	switch(job_ac_4th) {
+	case 0:
+		mes "[Vicente]";
+		mes strcharinfo(0) + ". Long time, no see.";
+		mes "How have you been?";
+		mes "What am I doing here?";
+		mes "Can't you tell? I've been waiting for you,";
+		mes strcharinfo(0) + ". Hah hah hah!";
+		next;
+		mes "[Vicente]";
+		mes "How are you doing lately?";
+		mes "Don't you feel as if you want to grow";
+		mes "stronger or gain new power, but can't?";
+		next;
+		mes "[Vicente]";
+		mes "Have you heard of the dark elemental?";
+		next;
+		select("The dark elemental?");
+		mes "[Vicente]";
+		mes "You haven't, have you?";
+		mes "A while ago, a member of the";
+		mes "Assassin Guild met the dark";
+		mes "elemental and acquired its power.";
+		mes "Maybe you've seen her, Mayssel.";
+		next;
+		mes "[Vicente]";
+		mes "The power of the dark elemental has";
+		mes "lent her pretty unique abilities.";
+		mes "So, the Assassin and Rogue Guilds";
+		mes "have agreed to share information";
+		mes "about this elemental whenever";
+		mes "possible.";
+		next;
+		mes "[Vicente]";
+		mes "And recently we received some reports";
+		mes "about peculiar phenomena.";
+		mes "We showed them to Mayssel. She said";
+		mes "they were definitely related to the dark";
+		mes "elemental.";
+		next;
+		select("What does it have to do with me?");
+		mes "[Vicente]";
+		mes "Everything. Because from now on,";
+		mes "you'll go try to acquire its power.";
+		mes "Both Doomk and I believe in giving";
+		mes "more opportunities to more capable";
+		mes "guildsmen.";
+		next;
+		mes "[Vicente]";
+		mes "It took us a long time to pick one,";
+		mes "which is you.";
+		mes "You should go. Acquiring the power of";
+		mes "the dark elemental will benefit you in";
+		mes "more ways than you can imagine.";
+		next;
+		mes "[Vicente]";
+		mes "I've got brief information about the dark";
+		mes "elemental. Its traces have been found";
+		mes "in two different locations.";
+		next;
+		mes "[Vicente]";
+		mes "The Assassin Guild will check one of";
+		mes "them. We'll check the other, which is";
+		mes "Rachel.";
+		next;
+		select("You mean, I'll check Rachel.");
+		mes "[Vicente]";
+		mes "If you successfully acquire the dark";
+		mes "power, we'll give you the new title,";
+		mes "Abyss Chaser.";
+		next;
+		select("Abyss Chaser!");
+		mes "[Vicente]";
+		mes "That's right. Doomk is already working";
+		mes "on your new uniform. Meanwhile, we";
+		mes "should gather information and look for";
+		mes "the dark elemental.";
+		next;
+		mes "[Vicente]";
+		mes "The dark elemental can't hide from";
+		mes "innocent souls like children.";
+		mes "Someone in Rachel has seen them.";
+		mes "Please go talk to this girl, Julie, in the";
+		mes "market district on the southwest side.";
+		job_ac_4th = 1;
+		setquest 18070;
+		break;
+	case 1:
+		mes "[Vicente]";
+		mes "Find <NAVI>^0000ff[Julie]^000000<INFO>rachel,54,48,0,000,0</INFO></NAVI> in Rachel's southwestern market district.";
+		break;
+	case 2:
+		mes "[Vicente]";
+		mes "Julie sent you to her brothers? The old guard post is south of Rachel.";
+		break;
+	case 3:
+		mes "[Vicente]";
+		mes "A pale shadow at the guard post? Go back and investigate it.";
+		break;
+	case 4:
+		mes "[Vicente]";
+		mes "Welcome back. Did you find any valid information?";
+		next;
+		mes "[Vicente]";
+		mes "Ooh, so you heard the voice of a";
+		mes "shadow that the kids called a fairy.";
+		mes "So, the Assassin Guild's information";
+		mes "was correct.";
+		next;
+		mes "[Vicente]";
+		mes "An object sustained with dark energy...";
+		mes "That reminds me, the Assassin Guild";
+		mes "said the children who discovered it for";
+		mes "the first time were playing with a rune";
+		mes "of darkness at that time.";
+		next;
+		mes "[Vicente]";
+		mes "I'll look for a dark place. You should go";
+		mes "get objects loaded with dark energy.";
+		mes "Bring ^0000ff20 Dark Pieces^000000 and ^0000ff5 Crystals of Darkness^000000.";
+		job_ac_4th = 5;
+		changequest 18073,18074;
+		break;
+	case 5:
+		if (countitem(6089) < 20 || countitem(7799) < 5) {
+			mes "[Vicente]";
+			mes "Bring objects sustained with dark energy:";
+			mes "^0000ff20 Dark Piece^000000 (" + countitem(6089) + " / 20)";
+			mes "^0000ff5 Crystal of Darkness^000000 (" + countitem(7799) + " / 5)";
+			break;
+		}
+		mes "[Vicente]";
+		mes "Objects sustained with dark energy.";
+		mes "These should do.";
+		mes "And about the summoning place. The";
+		mes "Assassin Guild has provided it to us";
+		mes "because...";
+		next;
+		mes "[Vicente]";
+		mes "It wants to share the dark elemental.";
+		mes "Well, if this goes well, maybe we can. I";
+		mes "expect to communicate with the dark";
+		mes "elemental on a regular basis. So";
+		mes "there's nothing to lose.";
+		next;
+		mes "[Vicente]";
+		mes "Doomk is waiting for you at the site.";
+		mes "I'll mark the location. Please go there.";
+		next;
+		mes "[Vicente]";
+		mes "Me? I'll go back to my workshop, of";
+		mes "course. Hah hah hah.";
+		mes "Now, good luck.";
+		job_ac_4th = 6;
+		changequest 18074,18075;
+		break;
+	default:
+		mes "[Vicente]";
+		mes "Please go meet <NAVI>^0000ff[Doomk]^000000<INFO>ve_fild05,313,110,0,000,0</INFO></NAVI> at the place I've marked for you.";
+		mes "Don't forget to bring the dark objects with you.";
+		break;
+	}
+	close2;
+	cutin "",255;
+	end;
+}
+
+rachel,54,48,4	script	Julie#ac	4_F_CHILD,{
+	if (job_ac_4th != 1) {
+		mes "[Julie]";
+		mes "Meanies! They never take me anywhere.";
+		close;
+	}
+	mes "[Julie]";
+	mes "Meanies!";
+	mes "If it was so dangerous, why did they";
+	mes "go? What about me?";
+	mes "Hmph, I'm going to tell on them to the";
+	mes "grown-ups!";
+	next;
+	select("Hi. Are you Julie?");
+	mes "[Julie]";
+	mes "Ah! A grown-up showed up just when I";
+	mes "needed them!";
+	mes "Adventurer, please help me!";
+	next;
+	mes "[Julie]";
+	mes "My brothers, they went to play with Noir";
+	mes "without me!";
+	mes "I hope a wolf will take them away!";
+	next;
+	select("Noir?");
+	mes "[Julie]";
+	mes "Yes. It's a pretty fairy who flies this way";
+	mes "and that.";
+	mes "It said it was looking for a place to stay.";
+	mes "My brothers went with it to show it";
+	mes "some place.";
+	next;
+	mes "[Julie]";
+	mes "And they told me not to come because";
+	mes "where they went was too dangerous";
+	mes "for me.";
+	mes "Hmph, they're liars! As if I'd be the only";
+	mes "one who'd be eaten alive!";
+	next;
+	select("Do you want me to go find them?");
+	mes "[Julie]";
+	mes "Yes, please. Please go punish my";
+	mes "brothers.";
+	mes "Tell them Julie sent you!";
+	next;
+	mes "[Julie]";
+	mes "The top of the hill in the south, where a";
+	mes "guard post used to be.";
+	mes "Please tell them to go back home.";
+	mes "They should have taken me with them.";
+	mes "Hmph!";
+	job_ac_4th = 2;
+	changequest 18070,18071;
+	close;
+}
+
+ve_fild02,53,189,4	script	Mulie#ac	4_M_CHILD,{
+	if (job_ac_4th != 2) {
+		mes "[Mulie]";
+		mes "This is our clubhouse. Julie still doesn't know about it.";
+		close;
+	}
+	unittalk getcharid(3), strcharinfo(0) + " : Who's Julie's brother?";
+	mes "[Mulie]";
+	mes "Wah! Err, me.";
+	mes "What's an adventurer doing here?";
+	next;
+	mes "[Mulie]";
+	mes "Julie sent you?";
+	mes "Mm... Okay, I have no choice.";
+	next;
+	npctalk "*Whisper* Peter... We have no choice, but to leave for now.", "Mulie#ac", bc_self;
+	npctalk "*Whisper* Okay... We can't let them find the fairy...", "Peter#ac", bc_self;
+	mes "[Peter]";
+	mes "If we leave, you should leave, too.";
+	mes "This is our clubhouse.";
+	mes "We were going to bring Julie here with";
+	mes "us the next time.";
+	next;
+	mes "[Mulie]";
+	mes "That's right. This is our clubhouse.";
+	mes "Hmph! We'll go home now.";
+	mes "You should come with us, too!";
+	job_ac_4th = 3;
+	changequest 18071,18072;
+	close;
+}
+
+ve_fild02,55,189,6	script	Peter#ac	4_M_CHILD,{
+	mes "[Peter]";
+	mes "Mulie does the talking. This is our secret clubhouse.";
+	close;
+}
+
+ve_fild02,54,187,0	script	Pale Shadow#ac	1_SHADOW_NPC,{
+	if (job_ac_4th != 3) {
+		mes "- There is an incongruous-looking shadow. -";
+		close;
+	}
+	mes "- There's an incongruous-looking shadow. -";
+	next;
+	mes "- It's pale. It rocks back and forth, saying something under its breath. -";
+	next;
+	mes "[Whisper]";
+	mes "Ugh... This place is way too bright for";
+	mes "my liking.";
+	mes "I'm losing my bodyyyy...";
+	mes "Darkness... I need darkness... Aaahh...";
+	next;
+	mes "[Whisper]";
+	mes "This place is filled with--ugh!--too";
+	mes "much sunlight...";
+	mes "I need dark energy.";
+	next;
+	mes "[Whisper]";
+	mes "Hey, big human over there. Please find";
+	mes "an object sustained with dark energy";
+	mes "and call me from somewhere dark.";
+	next;
+	unittalk getcharid(3), strcharinfo(0) + " : I'd better report back to Vicente.";
+	mes "- I should find an object sustained with dark energy and call the elemental from somewhere dark. -";
+	job_ac_4th = 4;
+	changequest 18072,18073;
+	close;
+}
+
+ve_fild05,313,110,4	script	Doomk#ac_start	4_M_SHADOWCHASER,{
+	.@md_name$ = "Abyssal Mansion";
+	if (job_ac_4th < 6 || (Class != JOB_SHADOW_CHASER && Class != JOB_SHADOW_CHASER_T)) {
+		mes "[Doomk]";
+		mes "This is no place for an idle visit, adventurer.";
+		close;
+	}
+	cutin "3rd_sc_doomk01.bmp",2;
+	if (job_ac_4th == 6 && (countitem(6089) < 20 || countitem(7799) < 5)) {
+		mes "[Doomk]";
+		mes "We need the dark objects Vicente asked for:";
+		mes "^0000ff20 Dark Piece^000000 (" + countitem(6089) + " / 20)";
+		mes "^0000ff5 Crystal of Darkness^000000 (" + countitem(7799) + " / 5)";
+		close2;
+		cutin "",255;
+		end;
+	}
+	if (SkillPoint > 0) {
+		mes "[Doomk]";
+		mes "You still have skill points left. Learn your skills first.";
+		close2;
+		cutin "",255;
+		end;
+	}
+	if (getcharid(1) == 0 || is_party_leader() == false) {
+		mes "[Doomk]";
+		mes "Make a party of your own and lead it, then talk to me.";
+		close2;
+		cutin "",255;
+		end;
+	}
+	getpartymember getcharid(1), 0;
+	if ($@partymembercount > 1) {
+		mes "[Doomk]";
+		mes "This is your test. Make a party with ^0000ffonly yourself^000000 in it.";
+		close2;
+		cutin "",255;
+		end;
+	}
+	mes "[Doomk]";
+	mes "I've been waiting since I got word from";
+	mes "Vincente.";
+	mes "Good job bringing Crystals of";
+	mes "Darkness and Dark Pieces.";
+	next;
+	mes "[Doomk]";
+	mes "Verkhasel will open the gate when";
+	mes "you're ready.";
+	mes "There's no guarantee the dark";
+	mes "elemental will do as we say. You'd";
+	mes "better be prepared for a fight.";
+	next;
+	mes "[Doomk]";
+	mes "I trust you, but if you cant trust yourself,";
+	mes "then I'll give you some time to be";
+	mes "prepared.";
+	next;
+	switch(select("Apply for the Abyssal Mansion.", "Enter the Abyssal Mansion.")) {
+	case 1:
+		.@id = instance_create(.@md_name$);
+		mes "[Doomk]";
+		if (.@id == -3)
+			mes "The gate is already open. Choose to enter.";
+		else if (.@id < 0)
+			mes "The gate won't open right now. Try again in a moment.";
+		else
+			mes "There. Talk to me again when you're ready to go in.";
+		break;
+	case 2:
+		switch(instance_enter(.@md_name$)) {
+		case IE_OTHER:
+			mes "^ff0000An unknown error occurred.^000000";
+			break;
+		case IE_NOINSTANCE:
+			mes "[Doomk]";
+			mes "The gate isn't open yet. Apply for the mansion first.";
+			break;
+		case IE_NOMEMBER:
+			mes "[Doomk]";
+			mes "Only the party that opened the gate may enter.";
+			break;
+		case IE_OK:
+			cutin "",255;
+			if (job_ac_4th == 6) {
+				job_ac_4th = 7;
+				changequest 18075,18076;
+			}
+			mapannounce "ve_fild05", strcharinfo(0) + " of the " + getpartyname(getcharid(1)) + " party is entering the " + .@md_name$ + ".", bc_map, 0xFF99;
+			end;
+		}
+		break;
+	}
+	close2;
+	cutin "",255;
+	end;
+}
