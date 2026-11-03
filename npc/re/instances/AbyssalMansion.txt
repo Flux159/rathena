@@ -23,7 +23,7 @@
 //  5 Blackie offers its power
 //  6 Abyss Chaser, leave through Doomk
 
-1@4sac,145,65,4	script	Doomk#ac1	4_M_SHADOWCHASER,{
+1@4sac,142,68,4	script(DISABLED)	Doomk#ac1	4_M_SHADOWCHASER,{
 	cutin "3rd_sc_doomk01.bmp",2;
 	switch('ac_step) {
 	case 0:
@@ -90,6 +90,7 @@
 		mes "Okay, I'll go look for a suitable place on";
 		mes "my own.";
 		next;
+		specialeffect EF_HIDING, AREA, instance_npcname("Verkhasel#ac1");
 		disablenpc instance_npcname("Verkhasel#ac1");
 		cutin "gc_mayssel01.bmp",1;
 		mes "[Mayssel]";
@@ -97,6 +98,7 @@
 		mes "Frankly, I don't think it'd mind wherever";
 		mes "we call it.";
 		next;
+		specialeffect EF_HIDING, AREA, instance_npcname("Mayssel#ac1");
 		disablenpc instance_npcname("Mayssel#ac1");
 		cutin "3rd_sc_doomk01.bmp",2;
 		mes "[Doomk]";
@@ -106,7 +108,11 @@
 		mes "If the dark elemental responds, signal";
 		mes "us. We'll be there.";
 		'ac_step = 1;
-		break;
+		next;
+		cutin "",255;
+		specialeffect EF_HIDING, AREA, instance_npcname("Doomk#ac1");
+		disablenpc instance_npcname("Doomk#ac1");
+		close;
 	case 1:
 	case 2:
 	case 3:
@@ -174,11 +180,15 @@ OnInstanceInit:
 	setmapflag 'ac_map$, MF_NOJOBEXP;
 	setmapflag 'ac_map$, MF_NOMOBLOOT;
 	setmapflag 'ac_map$, MF_NOMVPLOOT;
+	enablenpc instance_npcname("Doomk#ac1");
+	enablenpc instance_npcname("Mayssel#ac1");
+	enablenpc instance_npcname("Verkhasel#ac1");
+	enablenpc instance_npcname("#ac_tree");
 	disablenpc instance_npcname("Blackie#ac1");
 	end;
 }
 
-1@4sac,147,64,5	script	Mayssel#ac1	4_F_MAYSEL,{
+1@4sac,144,64,3	script(DISABLED)	Mayssel#ac1	4_F_MAYSEL,{
 	cutin "gc_mayssel01.bmp",1;
 	mes "[Mayssel]";
 	switch('ac_step) {
@@ -201,7 +211,7 @@ OnInstanceInit:
 	end;
 }
 
-1@4sac,149,65,6	script	Verkhasel#ac1	4_M_GUILLOTINE,{
+1@4sac,142,64,4	script(DISABLED)	Verkhasel#ac1	4_M_GUILLOTINE,{
 	cutin "gc_verkhasel01.bmp",0;
 	mes "[Verkhasel]";
 	if ('ac_step == 0)
@@ -215,7 +225,7 @@ OnInstanceInit:
 	end;
 }
 
-1@4sac,79,49,0	script	#ac_tree	4_ENERGY_BLACK,{
+1@4sac,79,49,0	script(DISABLED)	#ac_tree	4_ENERGY_BLACK,{
 	if ('ac_step == 0) {
 		mes "- This spot looks good, but you should talk to Doomk first. -";
 		close;
@@ -239,10 +249,20 @@ OnInstanceInit:
 	}
 	'ac_step = 2;
 	close2;
+	disablenpc instance_npcname("#ac_tree");
+	getmapxy(.@map$, .@x, .@y, BL_PC);
 	.@npc$[0] = instance_npcname("Doomk#ac1");
 	.@npc$[1] = instance_npcname("Mayssel#ac1");
 	.@npc$[2] = instance_npcname("Verkhasel#ac1");
+	setarray .@dx[0], 4, 5, 1;
+	setarray .@dy[0], 0, -1, 2;
+	setarray .@fx[0], 83, 84, 80;
+	setarray .@fy[0], 49, 48, 51;
 	for (.@i = 0; .@i < 3; .@i++) {
+		if (checkcell(.@map$, .@x + .@dx[.@i], .@y + .@dy[.@i], cell_chkpass))
+			movenpc .@npc$[.@i], .@x + .@dx[.@i], .@y + .@dy[.@i];
+		else
+			movenpc .@npc$[.@i], .@fx[.@i], .@fy[.@i];
 		enablenpc .@npc$[.@i];
 		specialeffect EF_TELEPORTATION, AREA, .@npc$[.@i];
 	}
@@ -257,7 +277,7 @@ OnInstanceInit:
 	end;
 }
 
-1@4sac,79,47,4	script	Blackie#ac1	1_SHADOW_NPC,{
+1@4sac,79,47,4	script(DISABLED)	Blackie#ac1	EP14_MORS_BOSSA,{
 	switch('ac_step) {
 	case 2:
 		cutin "gc_mayssel01.bmp",1;
