@@ -55,7 +55,7 @@
 //  5 Blackie offers its power: talk to it again
 //  6 Shadow Cross: Verkhasel takes you out
 
-1@4sac,91,25,3	script	Verkhasel#sc1	4_M_GUILLOTINE,{
+1@4sac,91,25,3	script(DISABLED)	Verkhasel#sc1	4_M_GUILLOTINE,{
 	cutin "gc_verkhasel01.bmp",0;
 	switch('sc_step) {
 	case 0:
@@ -155,16 +155,30 @@
 	end;
 
 OnInstanceInit:
+	// Abyssal Mansion shares this map but has its own NPCs and scene.
+	if (instance_live_info(ILI_NAME, instance_id()) != "Shadow Manor") {
+		disablenpc instance_npcname("Verkhasel#sc1");
+		disablenpc instance_npcname("Mayssel#sc1");
+		disablenpc instance_npcname("Doomk#sc1");
+		disablenpc instance_npcname("Blackie#sc1");
+		disablenpc instance_npcname("#sc_tree");
+		end;
+	}
 	'sc_map$ = instance_mapname("1@4sac");
 	'sc_step = 0;
 	setmapflag 'sc_map$, MF_NOBASEEXP;
 	setmapflag 'sc_map$, MF_NOJOBEXP;
 	setmapflag 'sc_map$, MF_NOMOBLOOT;
 	setmapflag 'sc_map$, MF_NOMVPLOOT;
+	enablenpc instance_npcname("Verkhasel#sc1");
+	enablenpc instance_npcname("Mayssel#sc1");
+	enablenpc instance_npcname("Doomk#sc1");
+	enablenpc instance_npcname("#sc_tree");
+	disablenpc instance_npcname("Blackie#sc1");
 	end;
 }
 
-1@4sac,93,24,3	script	Mayssel#sc1	4_F_MAYSEL,{
+1@4sac,93,24,3	script(DISABLED)	Mayssel#sc1	4_F_MAYSEL,{
 	cutin "gc_mayssel01.bmp",1;
 	mes "[Mayssel]";
 	switch('sc_step) {
@@ -193,7 +207,7 @@ OnInstanceInit:
 	end;
 }
 
-1@4sac,86,25,5	script	Doomk#sc1	4_M_SHADOWCHASER,{
+1@4sac,86,25,5	script(DISABLED)	Doomk#sc1	4_M_SHADOWCHASER,{
 	cutin "3rd_sc_doomk01.bmp",2;
 	mes "[Doomk]";
 	if ('sc_step >= 4)
@@ -206,7 +220,7 @@ OnInstanceInit:
 }
 
 // The spot under the big tree where the dark elemental reacts.
-1@4sac,70,71,0	script	#sc_tree	4_ENERGY_BLACK,{
+1@4sac,70,71,0	script(DISABLED)	#sc_tree	4_ENERGY_BLACK,{
 	if ('sc_step == 0) {
 		mes "- A cold, dark spot under a big tree. -";
 		mes "- Better talk to Verkhasel first. -";
@@ -269,7 +283,7 @@ OnInstanceInit:
 	end;
 }
 
-1@4sac,70,70,4	script	Blackie#sc1	1_SHADOW_NPC,{
+1@4sac,70,70,4	script(DISABLED)	Blackie#sc1	1_SHADOW_NPC,{
 	switch('sc_step) {
 	case 2:
 		mes "[Blackie]";

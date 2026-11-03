@@ -614,3 +614,10 @@ Body:
       Map: 1@4sac
       X: 88
       Y: 24
+  - Id: 10004
+    Name: Abyssal Mansion
+    TimeLimit: 600
+    Enter:
+      Map: 1@4sac
+      X: 147
+      Y: 67

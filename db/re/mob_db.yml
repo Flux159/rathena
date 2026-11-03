@@ -109947,8 +109947,35 @@ Body:
     DamageMotion: 288
     Ai: 21
     Class: Boss
-#  - Id: 20828
-#    AegisName: 4JOB_VERKHASEL
+  # Abyss Chaser job change (npc/re/instances/AbyssalMansion.txt).
+  # Official base stats; movement and animation timings are not published.
+  - Id: 20828
+    AegisName: 4JOB_VERKHASEL
+    Name: Verkhasel
+    Level: 200
+    Hp: 4700000
+    Attack: 4466
+    Attack2: 6506
+    Defense: 0
+    MagicDefense: 0
+    Str: 186
+    Agi: 155
+    Vit: 133
+    Int: 89
+    Dex: 197
+    Luk: 130
+    AttackRange: 2
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Small
+    Race: Demihuman
+    Element: Neutral
+    ElementLevel: 2
+    WalkSpeed: 100
+    AttackDelay: 76
+    AttackMotion: 864
+    DamageMotion: 288
+    Ai: 21
 #  - Id: 20829
 #    AegisName: 4JOB_BAPHOMET
 #  - Id: 20830
