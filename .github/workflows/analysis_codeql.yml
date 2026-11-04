@@ -28,9 +28,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          # The ubuntu-latest label currently points to ubuntu-20.04.
-          # Available: ubuntu-24.04, ubuntu-22.04
-          os: [ubuntu-latest]
+          # Pin the runner so GCC 10 and libpcre3-dev remain available.
+          os: [ubuntu-24.04]
           # Older versions of GCC are not available via unaltered aptitude repo lists.
           gcc: ['10']
           # We run build checks for both Renewal and PRE-Renewal
