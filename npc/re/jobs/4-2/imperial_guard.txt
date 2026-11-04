@@ -2,16 +2,18 @@
 //= Job change : Imperial Guard
 //===== Description: =========================================
 //- [Walkthrough conversion]
-//- Follows the official quest flow; the dialog is our own
-//- wording, not a translation of the official text.
+//- Dialog, NPC markers and scenes follow the iRO gameplay video
+//- https://www.youtube.com/watch?v=FUaZyJYUa6U. Branches not shown
+//- there use the official client's English strings.
 //- The two rounds take place in an instance
 //- (npc/re/instances/TourneyHallOfTrials.txt).
-//- The answer given to the second knight decides the order of
-//- the rounds: Faith and loyalty -> the Knight of Devotion
-//- first; Equipment and skills -> the Knight of Armament first.
-//- No answer fails the quest.
+//- Both knights must receive the same answer: Faith and loyalty ->
+//- the Knight of Devotion first; Equipment and skills -> the Knight
+//- of Armament first. Contradictory answers must be discussed again.
 //===== Changelogs: ==========================================
 //= 1.0 First version. [MondoTruth]
+//= 1.1 iRO dialog, choice logic, markers and emotions.
+//=     [MondoTruth]
 //============================================================
 
 prt_cas,181,10,3	script	King's Knight#ig_start	4_M_KNIGHT_SILVER,{
@@ -19,8 +21,10 @@ prt_cas,181,10,3	script	King's Knight#ig_start	4_M_KNIGHT_SILVER,{
 
 	if (Class == JOB_IMPERIAL_GUARD) {
 		mes "[King's Knight]";
-		mes "The winner of the final match, in person.";
-		mes "Wear your title with pride, and let your power add to its honor.";
+		mes "You're the winner of the final match.";
+		next;
+		mes "[King's Knight]";
+		mes "Congratulations on your earning such an honorable title. Please use your power to raise your honor.";
 		close;
 	}
 	if (Class != JOB_ROYAL_GUARD && Class != JOB_ROYAL_GUARD_T) {
@@ -38,52 +42,69 @@ prt_cas,181,10,3	script	King's Knight#ig_start	4_M_KNIGHT_SILVER,{
 	if (isbegin_quest(3430) == 0 && isbegin_quest(3433) == 0 && isbegin_quest(3432) == 0
 		&& isbegin_quest(3440) == 0) {
 		mes "[King's Knight]";
-		mes "The Royal Guards live for the king.";
-		mes "They are called the finest of all knights, thanks to their faith in their god and their loyalty to the crown.";
+		mes "The Royal Guards exist for the king.";
+		mes "They're considered the best of all knights because of their faith in their god and loyalty toward their king.";
 		next;
 		mes "[King's Knight]";
-		mes "Yet as the years go by, some of them bend under endless danger and hardship, and lose sight of who they are.";
+		mes "Over time, though, some Royal Guards crumble under the pressure of constant threats and hardship and forget who they are.";
 		next;
 		mes "[King's Knight]";
-		mes "So now and then the order has to be sifted.";
-		mes "Only those who remain true royal knights, fighting for strength and for justice, should stay in it.";
+		mes "That's why the group needs culling every once in a while.";
 		next;
 		mes "[King's Knight]";
-		mes "That is why the Palace will hold a tourney.";
+		mes "It only needs those who can stay as the honorable royal knights they are, fighting for their power and justice.";
 		next;
 		mes "[King's Knight]";
-		mes "Do you use your power for the right reasons?";
-		mes "Is your faith in yourself unshakable?";
+		mes "For that, the Palace has decided to host a tourney.";
 		next;
 		mes "[King's Knight]";
-		mes "Then, would you like to take part in this tourney?";
+		mes "Are you using your power for the right reasons?";
+		next;
+		mes "[King's Knight]";
+		mes "Do you have an unshakable belief in yourself?";
+		next;
+		mes "[King's Knight]";
+		mes "Then, how'd you like to join this tourney?";
 		next;
 		if (select( "I'd love to.", "Let me think..." ) == 2) {
 			mes "[King's Knight]";
-			mes "Take your time. The tourney is not going anywhere.";
+			mes "Hesitation is not a good emotion.";
+			next;
+			mes "[King's Knight]";
+			mes "Make a swift decision and come back to me.";
 			close;
 		}
 		setquest 3430;
 		setquest 3431;
 		mes "[King's Knight]";
-		mes "I told you the order needs sifting, remember?";
+		mes "I said the group needs culling. Remember?";
 		next;
 		mes "[King's Knight]";
-		mes "Before you join the tourney, meet two knights and talk to them.";
+		mes "You should see it for yourself.";
 		next;
 		mes "[King's Knight]";
-		mes "The first is the ^4d4dffKnight of Devotion^000000.";
-		mes "You will find her in the <NAVI>^4D4DFF[northwest of Prontera]^000000<INFO>prontera,58,364,000,1,</INFO></NAVI>.";
+		mes "Before joining the tourney, meet and talk to these two knights.";
 		next;
 		mes "[King's Knight]";
-		mes "The other is the ^4d4dffKnight of Armament^000000.";
-		mes "He is in the <NAVI>^4D4DFF[northeast of Prontera]^000000<INFO>prontera,276,355,000,1,</INFO></NAVI>.";
+		mes "First, the ^4d4dffKnight of Devotion^000000.";
 		next;
 		mes "[King's Knight]";
-		mes "Listen to them both, and think about which side you stand on.";
+		mes "She's on the <NAVI>^4D4DFF[northwest side of Prontera]^000000<INFO>prontera,58,364,000,1,</INFO></NAVI>.";
 		next;
 		mes "[King's Knight]";
-		mes "Off you go.";
+		mes "The other one is the ^4d4dffKnight of Armament^000000.";
+		next;
+		mes "[King's Knight]";
+		mes "He's on the <NAVI>^4D4DFF[northeast side of Prontera]^000000<INFO>prontera,276,355,000,1,</INFO></NAVI>.";
+		next;
+		mes "[King's Knight]";
+		mes "Talk to them and think about which side you're on.";
+		next;
+		mes "[King's Knight]";
+		mes "You can come back to me and apply for the tourney afterward.";
+		next;
+		mes "[King's Knight]";
+		mes "Now, see you.";
 		close;
 	}
 	if (isbegin_quest(3430) == 1 || isbegin_quest(3431) == 1) {
@@ -96,17 +117,45 @@ prt_cas,181,10,3	script	King's Knight#ig_start	4_M_KNIGHT_SILVER,{
 		close;
 	}
 	if (isbegin_quest(3440) == 0) {
-		// The answer given to the second knight counts.
-		.@faith = job_ig_4th_answer;
+		.@devotion_faith = (isbegin_quest(3433) == 1);
+		.@armament_faith = (isbegin_quest(3435) == 1);
+		if (.@devotion_faith != .@armament_faith) {
+			mes "[King's Knight]";
+			mes "Huh???";
+			next;
+			mes "[King's Knight]";
+			mes "If we'd had a proper conversation, you wouldn't have answered like that.";
+			next;
+			mes "[King's Knight]";
+			mes "Shouldn't you show some conviction in your opinion?";
+			next;
+			mes "[King's Knight]";
+			mes "This won't do. You must return and discuss this further.";
+			close2;
+			for ( .@q = 3432; .@q <= 3435; .@q++ ) {
+				if (isbegin_quest(.@q) > 0)
+					erasequest .@q;
+			}
+			setquest 3430;
+			setquest 3431;
+			end;
+		}
+		.@faith = .@devotion_faith;
+		mes "[King's Knight]";
+		mes "I see.";
+		next;
 		mes "[King's Knight]";
 		if (.@faith)
-			mes "Your faith and loyalty, is it?";
+			mes "Your faith and loyalty, huh.";
 		else
-			mes "Strong equipment and fine swordsmanship, is it?";
+			mes "You've chosen powerful equipment and exceptional swordsmanship.";
 		next;
 		mes "[King's Knight]";
-		mes "Very well. Show me what you can do with them.";
+		mes "Okay, then show me what you can do with them.";
 		next;
+		mes "[King's Knight]";
+		mes "Let me know when you're ready to join the tourney.";
+		close2;
 		for ( .@q = 3432; .@q <= 3435; .@q++ ) {
 			if (isbegin_quest(.@q) > 0)
 				erasequest .@q;
@@ -114,7 +163,11 @@ prt_cas,181,10,3	script	King's Knight#ig_start	4_M_KNIGHT_SILVER,{
 		setquest 3440;
 		job_ig_4th_answer = 0;
 		// Round 1 is the knight who shares the player's view.
-		setquest (.@faith ? 3438 : 3436);
+		if (.@faith)
+			setquest 3438;
+		else
+			setquest 3436;
+		end;
 	}
 	if (SkillPoint > 0) {
 		mes "[King's Knight]";
@@ -176,159 +229,246 @@ prt_cas,181,10,3	script	King's Knight#ig_start	4_M_KNIGHT_SILVER,{
 		end;
 	}
 	end;
+
+OnInit:
+	questinfo(QTYPE_JOB, QMARK_YELLOW, "(Class == JOB_ROYAL_GUARD || Class == JOB_ROYAL_GUARD_T) && BaseLevel >= 200 && JobLevel >= 70");
+	end;
 }
 
 prontera,58,364,5	script	Knight of Devotion#ig	20825,{
 	if (isbegin_quest(3430) != 1) {
 		mes "[Knight of Devotion]";
 		if (Class == JOB_IMPERIAL_GUARD) {
-			mes "You fought with honor in the tourney.";
-			mes "May your faith keep guiding your sword.";
+			mes "Let's meet on the battlefield.";
+			next;
+			mes "[Knight of Devotion]";
+			mes "I hope you achieve a favorable outcome.";
 		} else {
-			mes "I have given my life to the king.";
-			mes "Every day I pray that peace will last.";
+			mes "I am a knight devoted to the king.";
+			next;
+			mes "[Knight of Devotion]";
+			mes "I believe that devotion through prayer alone is the most ideal.";
 		}
 		close;
 	}
 	mes "[Knight of Devotion]";
-	mes "I have given my life to the king.";
+	mes "I've devoted myself to the king.";
 	next;
 	mes "[Knight of Devotion]";
-	mes "To me, prayer is the purest form of devotion.";
+	mes "I believe prayers are the most ideal kind of devotion.";
 	next;
 	mes "[Knight of Devotion]";
-	mes "Truth be told, I once wanted to become a priest.";
+	mes "It saddens me that we have to use force to protect the king against all threats.";
 	next;
 	mes "[Knight of Devotion]";
-	mes "But I didn't want my gift to go to waste, so I joined the knights.";
+	mes "To tell you the truth, I wanted to be a priest.";
 	next;
 	mes "[Knight of Devotion]";
-	mes "Every day I pray that peace will last, and that the troubles we face now will settle without a drop of blood.";
+	mes "But I was gifted in sword-fighting.";
 	next;
 	mes "[Knight of Devotion]";
-	mes "Not many in my order agree with me.";
+	mes "I didn't want my gift to go to waste, so I joined the Knights.";
 	next;
 	mes "[Knight of Devotion]";
-	mes "Soon a tourney will decide who holds an honored place among us.";
+	mes "I pray every day that peace will continue and all the conflicts we're experiencing now will solve themselves out without shedding a blood.";
 	next;
 	mes "[Knight of Devotion]";
-	mes "Of course, the King's Knight has to be strong.";
+	mes "I just want to be the shield of my king and my people instead of their sword to attack their enemies.";
 	next;
 	mes "[Knight of Devotion]";
-	mes "But in this tourney I will rather turn my opponents' blows aside than strike them, with no more force than I must.";
+	mes "But not many people in my group agree with me.";
 	next;
 	mes "[Knight of Devotion]";
-	mes "I believe that for us, the King's Knights, faith and loyalty count for more than strength and equipment.";
+	mes "I respect others' opinions, but I refuse to bend mine to conform with others.";
 	next;
 	mes "[Knight of Devotion]";
-	mes "Those are the qualities the king should value most in his guardians.";
+	mes "Soon, a tourney will be held over an honorable position in the group.";
 	next;
 	mes "[Knight of Devotion]";
-	mes "Now, what is your justice?";
+	mes "Without a doubt, one must be strong to be the King's Knight.";
+	next;
+	mes "[Knight of Devotion]";
+	mes "And strength doesn't just mean a physical superiority or excellent fighting skills. I want to prove that.";
+	next;
+	mes "[Knight of Devotion]";
+	mes "During this tourney, I'm going to focus more on deflecting my opponents' attacks than attacking them, using only the minimum amount of force.";
+	next;
+	mes "[Knight of Devotion]";
+	mes "I believe to us the King's Knights, faith and loyalty are more important than our strength and equipment.";
+	next;
+	mes "[Knight of Devotion]";
+	mes "Those two should be considered the most important qualities in his guardians.";
+	next;
+	mes "[Knight of Devotion]";
+	mes "Now, what's your justice?";
 	next;
 	while (true) {
 		mes "[Knight of Devotion]";
-		mes "Which do you value more? Your equipment and skills? Or your faith in your god and loyalty to your king?";
+		mes "What more do you value? Your equipment and skills? Or your faith in your god and loyalty toward your king?";
 		next;
 		.@faith = select( "Equipment and skills.", "Faith and loyalty." ) - 1;
 		mes "[Knight of Devotion]";
-		mes "Is that truly your justice?";
+		mes "Please think carefully.";
+		emotion ET_SURPRISE;
+		next;
+		mes "[Knight of Devotion]";
+		mes "Are you sure that's your kind of justice?";
 		next;
 		if (select( "Yes.", "Actually, no." ) == 1)
 			break;
 	}
 	erasequest 3430;
-	setquest (.@faith ? 3433 : 3432);
+	if (.@faith)
+		setquest 3433;
+	else
+		setquest 3432;
 	job_ig_4th_answer = .@faith;
+	mes "[Knight of Devotion]";
+	mes "I see.";
+	next;
 	mes "[Knight of Devotion]";
 	if (.@faith) {
 		mes "I'm glad to meet a kindred spirit.";
 		next;
 		mes "[Knight of Devotion]";
-		mes "Will you be in the tourney too?";
-		mes "I truly want our view to win.";
-	} else {
-		mes "I see. You trust your blade more than your prayers.";
+		mes "Would you be in the tourney as well?";
 		next;
 		mes "[Knight of Devotion]";
-		mes "Will you be in the tourney too?";
-		mes "Then perhaps we will meet there.";
+		mes "If I don't win, I hope you will.";
+		next;
+		mes "[Knight of Devotion]";
+		mes "I really want to carry our point.";
+		next;
+		mes "[Knight of Devotion]";
+		mes "Thank you. Have safe travel back home.";
+	} else {
+		mes "Is focusing solely on force truly the right way...";
+		next;
+		mes "[Knight of Devotion]";
+		mes "You hold different views than I do, but I respect that.";
+		next;
+		mes "[Knight of Devotion]";
+		mes "Are you joining the tourney as well? Perhaps we'll meet in the combat ring.";
+		next;
+		mes "[Knight of Devotion]";
+		mes "Well, I understand. Be safe on your travels.";
 	}
 	close;
+
+OnInit:
+	questinfo(QTYPE_JOB, QMARK_YELLOW, "isbegin_quest(3430) == 1");
+	end;
 }
 
 prontera,276,355,3	script	Knight of Armament#ig	20826,{
 	if (isbegin_quest(3431) != 1) {
 		mes "[Knight of Armament]";
 		if (Class == JOB_IMPERIAL_GUARD) {
-			mes "You beat us fair and square.";
-			mes "Keep training. Strength fades fast without it.";
+			mes "I hope we meet again on the battlefield.";
+			next;
+			mes "[Knight of Armament]";
+			mes "I hope you achieve a favorable outcome.";
 		} else {
-			mes "A comrade of mine rests here.";
-			mes "Leave me be for a while.";
+			mes "Here lies the grave of my comrade-in-arms who lost his life fighting alongside me on the battlefield.";
 		}
 		close;
 	}
 	mes "[Knight of Armament]";
-	mes "Here lies one of my comrades. He fell fighting beside me on the battlefield.";
+	mes "Here lies one of my comrades who died fighting alongside me on the battleground.";
 	next;
 	mes "[Knight of Armament]";
-	mes "Had he been stronger, he would still be alive.";
+	mes "If he were stronger, he wouldn't have died.";
 	next;
 	mes "[Knight of Armament]";
-	mes "To grow strong, you have to train without end.";
+	mes "To become strong, one has to train endlessly.";
 	next;
 	mes "[Knight of Armament]";
-	mes "Frankly, I don't like how much of our time goes to polishing our manners and going on mission trips";
+	mes "Good weapons and armor are important, too.";
 	next;
 	mes "[Knight of Armament]";
-	mes "instead of protecting the king and the people.";
+	mes "Personally, I don't like that we often spend our time on cultivating elegance and making mission trips";
 	next;
 	mes "[Knight of Armament]";
-	mes "All the rest can wait until a lasting peace comes and we no longer have to fight.";
+	mes "instead of focusing on protecting the king and others.";
 	next;
 	mes "[Knight of Armament]";
-	mes "This tourney is a good chance to make my case.";
+	mes "We should sacrifice ourselves, so priests can go on mission trips safely. That's how it works.";
 	next;
 	mes "[Knight of Armament]";
-	mes "Strength matters more than anything, all the more now, with fearsome monsters pressing on us from every side.";
+	mes "We can do everything else we couldn't once permanent peace is achieved and we don't have to fight anymore.";
+	next;
+	mes "[Knight of Armament]";
+	mes "Soon, a tourney will be held to decide the true warriors of the king.";
+	next;
+	mes "[Knight of Armament]";
+	mes "This is a good chance to carry my point.";
+	next;
+	mes "[Knight of Armament]";
+	mes "Physical strength is more important than anything else, especially at a time like this when we're threatened by formidable monsters from all sides.";
+	next;
+	mes "[Knight of Armament]";
+	mes "I'm going to prove that to everyone.";
 	next;
 	mes "[Knight of Armament]";
 	mes "Now, what do you think?";
 	next;
 	while (true) {
 		mes "[Knight of Armament]";
-		mes "Which do you value more? Your equipment and skills? Or your faith in your god and loyalty to your king?";
+		mes "What more do you value? Your equipment and skills? Or your faith in God and loyalty toward your king?";
 		next;
 		.@faith = select( "Equipment and skills.", "Faith and loyalty." ) - 1;
 		mes "[Knight of Armament]";
-		mes "Is that truly your justice?";
+		mes "Please think carefully.";
+		emotion ET_SURPRISE;
+		next;
+		mes "[Knight of Armament]";
+		mes "Are you sure that's your kind of justice?";
 		next;
 		if (select( "Yes.", "Actually, no." ) == 1)
 			break;
 	}
 	erasequest 3431;
-	setquest (.@faith ? 3435 : 3434);
+	if (.@faith)
+		setquest 3435;
+	else
+		setquest 3434;
 	job_ig_4th_answer = .@faith;
 	mes "[Knight of Armament]";
+	mes "I see.";
+	next;
+	mes "[Knight of Armament]";
 	if (.@faith) {
-		mes "I see.";
+		mes "For a moment, I thought you were just like me.";
 		next;
 		mes "[Knight of Armament]";
-		mes "For a moment I took you for someone like me...";
+		mes "Would you be in the tourney as well?";
 		next;
 		mes "[Knight of Armament]";
-		mes "Will you be in the tourney too?";
-		mes "If we meet there, I won't hold back.";
+		mes "Maybe we'll meet as opponents in the combat ring.";
 		next;
 		mes "[Knight of Armament]";
-		mes "Until then, travel safely.";
+		mes "If we do, I won't go easy on you.";
+		next;
+		mes "[Knight of Armament]";
+		mes "Now, be safe on your travels.";
+		next;
+		mes "[Knight of Armament]";
+		mes "Enjoy the rest of your day.";
 	} else {
-		mes "Ha! Finally someone who understands.";
+		mes "When I first saw you, I could sense you were a knight of the same kind as me.";
 		next;
 		mes "[Knight of Armament]";
-		mes "Will you be in the tourney too?";
-		mes "Then let's show them what real strength looks like.";
+		mes "It truly delights me to meet one who shares my purpose.";
+		next;
+		mes "[Knight of Armament]";
+		mes "Are you participating in the tourney as well? Perhaps we'll meet as opponents in the combat ring.";
+		next;
+		mes "[Knight of Armament]";
+		mes "It was a pleasure. Now, be safe on your travels.";
 	}
 	close;
+
+OnInit:
+	questinfo(QTYPE_JOB, QMARK_YELLOW, "isbegin_quest(3431) == 1");
+	end;
 }
