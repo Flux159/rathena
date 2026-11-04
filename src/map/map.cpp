@@ -4124,6 +4124,12 @@ int32 parse_console(const char* buf){
 	return 0;
 }
 
+/// Scripts removed by a `delnpc:` line in the map server's config. That config
+/// is read before the stock script list (map_reloadnpc), so a removal there
+/// would otherwise find nothing to remove when it names a stock script; these
+/// are applied again after every load of the list, @reloadscript included.
+static std::vector<std::string> map_conf_delnpc;
+
 /*==========================================
  * Read map server configuration files (conf/map_athena.conf...)
  *------------------------------------------*/
@@ -4185,9 +4191,11 @@ int32 map_config_read(const char *cfgName)
 			map_delmap(w2);
 		else if (strcmpi(w1, "npc") == 0)
 			npc_addsrcfile(w2, false);
-		else if (strcmpi(w1, "delnpc") == 0)
+		else if (strcmpi(w1, "delnpc") == 0) {
 			npc_delsrcfile(w2);
-		else if (strcmpi(w1, "autosave_time") == 0) {
+			if (strcmpi(w2, "all") != 0)
+				map_conf_delnpc.emplace_back(w2);
+		} else if (strcmpi(w1, "autosave_time") == 0) {
 			autosave_interval = atoi(w2);
 			if (autosave_interval < 1) //Revert to default saving.
 				autosave_interval = DEFAULT_AUTOSAVE_INTERVAL;
@@ -4281,6 +4289,9 @@ void map_reloadnpc(bool clear)
 #else
 	map_reloadnpc_sub("npc/pre-re/scripts_main.conf");
 #endif
+
+	for (const auto& file : map_conf_delnpc)
+		npc_delsrcfile(file.c_str());
 }
 
 int32 inter_config_read(const char *cfgName)
