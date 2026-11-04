@@ -2811,16 +2811,19 @@ function	script	F_MOS_WinterQuest	{
 }
 
 // changequest by the old ids. A character that started the quest before
-// the move still has the old id in its quest log: swap it for the new one.
+// the move may still hold the old id: drop it unless it could be Abyss
+// Chaser's. 18078-18079 are no longer in the db, so the map server has
+// already dropped them at login; then the new id is set directly.
 function	script	F_MOS_WinterStep	{
 	.@from = callfunc("F_MOS_WinterQuest", getarg(0));
 	.@to = callfunc("F_MOS_WinterQuest", getarg(1));
-	if (.@from != getarg(0) && isbegin_quest(.@from) == 0 && isbegin_quest(getarg(0)) == 1 && job_ac_4th == 0) {
+	if (.@from != getarg(0) && isbegin_quest(getarg(0)) == 1 && job_ac_4th == 0)
 		erasequest getarg(0);
-		setquest .@from;
-	}
-	if (.@from != .@to)
-		changequest .@from, .@to;
+	if (isbegin_quest(.@from) == 1) {
+		if (.@from != .@to)
+			changequest .@from, .@to;
+	} else if (isbegin_quest(.@to) == 0)
+		setquest .@to;
 	return;
 }
 
