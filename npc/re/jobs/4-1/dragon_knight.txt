@@ -2,8 +2,7 @@
 //= Job change : Dragon Knight
 //===== Description: =========================================
 //- [Walkthrough conversion]
-//- Follows the official quest flow; the dialog is our own
-//- wording, not a translation of the official text.
+//- Dialog and messages checked against the iRO quest video.
 //- The trials take place in an instance
 //- (npc/re/instances/DragonsTest.txt).
 //===== Changelogs: ==========================================
@@ -36,37 +35,24 @@ gef_fild08,54,101,5	script	Oscar#dk_start	4_ED_OSCAR,{
 	}
 	if (isbegin_quest(12508) == 0) {
 		cutin "OSCAR03.bmp",2;
-		mes "- Oscar is gazing into the distance, as if he were waiting for someone. -";
-		next;
-		select( "Oscar? What are you doing out here?" );
 		mes "[Oscar]";
-		mes "Ah, there you are.";
-		mes "Some time ago I saw someone in a vision. The face was a blur, but I knew they would come to me today.";
+		mes "Mm " + strcharinfo(0) + "? What are you doing here?";
 		next;
 		mes "[Oscar]";
-		mes "And now here you stand, ^0000ff" + strcharinfo(0) + "^000000.";
-		mes "You came to become a ^ff0000Dragon Knight^000000, didn't you?";
+		mes "I only saw a vague image of them, so I couldn't recognize who their face. I knew they'd be here today, though.";
+		mes strcharinfo(0) + ", you came to become a Dragon Knight, didn't you?";
 		next;
-		if (select( "Yes.", "No, I'm just passing by." ) == 2) {
+		if (select( "Yes.", "No. I was just passing by." ) == 2) {
 			mes "[Oscar]";
 			mes "Is that so? Then I won't keep you.";
 			mes "If you ever change your mind, you know where to find me.";
 			close3;
 		}
 		mes "[Oscar]";
-		mes "Nobody is ever pushed into this. Whatever you decide, we will respect it.";
-		mes "So, ^0000ff" + strcharinfo(0) + "^000000: will you take the ^ff0000Dragon's Test^000000 and become one of us?";
+		mes "So, what I had really was a revelation.";
+		mes "Good! I was worried I might have to stand here all day.";
 		next;
-		if (select( "I want to take the test.", "Maybe later." ) == 2) {
-			mes "[Oscar]";
-			mes "The dragons are patient. I'll be here.";
-			close3;
-		}
 		setquest 12508;
-		mes "[Oscar]";
-		mes "Good. The test has four parts: life, protection, strength and patience.";
-		mes "Each one is held in the Dragon's Test, a place I will open for you.";
-		next;
 	}
 	if (job_dk_4th == 1) {
 		cloakoffnpcself "Leticia#dk_end";
@@ -171,8 +157,7 @@ gef_fild08,54,101,5	script	Oscar#dk_start	4_ED_OSCAR,{
 
 // Leticia waits here after the last trial; the job change happens here.
 // Only players who beat her in the Dragon's Test can see her, and for them
-// fireflies dance over the field. The client doesn't draw EF_FIREFLY, so
-// another effect stands in for it: .firefly_ef, set in OnInit.
+// fireflies dance over the field. .firefly_ef is set in OnInit.
 gef_fild08	mapflag	loadevent
 
 gef_fild08,57,104,2	script	Leticia#dk_end	4_4JOB_LETICIA,{
@@ -180,11 +165,10 @@ gef_fild08,57,104,2	script	Leticia#dk_end	4_4JOB_LETICIA,{
 		end;
 	cutin "4job_leticia_04.png",2;
 	mes "[Leticia]";
-	mes "It's been ages since I met a creature this much fun.";
+	mes "I haven't met such an entertaining creature for a long time.";
 	next;
 	mes "[Leticia]";
-	mes "A dragon's companion needs the support of at least two dragon signs.";
-	mes "You earned them. What happens now is your choice.";
+	mes "To become our companion, you must gain support from at least two Dragon Signs and you did. Now, the final decision is up to you.";
 	next;
 	if (Class != JOB_RUNE_KNIGHT && Class != JOB_RUNE_KNIGHT_T) {
 		mes "[Leticia]";
@@ -208,7 +192,7 @@ gef_fild08,57,104,2	script	Leticia#dk_end	4_4JOB_LETICIA,{
 		close3;
 	}
 	mes "[Leticia]";
-	mes "Will you promise to stay our friend for a long, long time?";
+	mes "Do you promise that you will remain friends with us for a long time?";
 	next;
 	if (select( "Wait, let me think...", "Yes." ) == 1) {
 		mes "[Leticia]";
@@ -216,40 +200,24 @@ gef_fild08,57,104,2	script	Leticia#dk_end	4_4JOB_LETICIA,{
 		close3;
 	}
 	mes "[Leticia]";
-	mes "Then I'll give you a share of my dragon power. Stay still.";
-	close2;
-	// No picture or window over the animation.
-	cutin "",255;
-	// The official animation is not known. In its place: blue sparkles and
-	// an expanding circle around the player, Leticia's breath, then a white
-	// light.
-	specialeffect2 EF_CONCENTRATION2;
-	specialeffect2 EF_DHOWL_STR;
-	specialeffect EF_M05;
-	sleep2 1000;
-	specialeffect EF_M05;
-	specialeffect2 EF_DHOWL_STR;
-	sleep2 1000;
-	specialeffect2 EF_RK_LUXANIMA;
-	specialeffect2 EF_LEVEL99_4;
-	sleep2 1000;
+	mes "Okay, then I'll share my draconic energy with you. Relax.";
+	next;
+	// The official job-change effect is unavailable; do not substitute a
+	// different animation for it.
 	job_dk_4th = 0;
 	completequest 12508;
 	jobchange JOB_DRAGON_KNIGHT;
 	getitem 490087,1;	// 4th_Q_Necklace
-	specialeffect2 EF_JOBLVUP;
-	sleep2 2000;
 	cutin "4job_leticia_01.png",2;
 	mes "[Leticia]";
-	mes "Lovely!";
-	mes "From today you are a Dragon Knight. Keep the necklace as proof of your test.";
+	mes "How nice!";
 	close2;
 	cutin "",255;
 	cloakonnpcself;
 	end;
 
 OnInit:
-	.firefly_ef = EF_SAKURA;
+	.firefly_ef = EF_FIREFLY;
 	cloakonnpc;
 	end;
 
