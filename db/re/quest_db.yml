@@ -13082,25 +13082,21 @@ Body:
   - Id: 18069
     Title: Report to Gallina
   - Id: 18070
-    Title: Banishing Winter
+    Title: Job Change to Abyss Chaser-1
   - Id: 18071
-    Title: Making the magic dust
+    Title: Job Change to Abyss Chaser-2
   - Id: 18072
-    Title: Making the magic dust
+    Title: Job Change to Abyss Chaser-3
   - Id: 18073
-    Title: The Dragon's Lair
+    Title: Job Change to Abyss Chaser-4
   - Id: 18074
-    Title: The Magic Gourd Bottle
+    Title: Job Change to Abyss Chaser-5
   - Id: 18075
-    Title: Containing People's Speech
+    Title: Job Change to Abyss Chaser-6
   - Id: 18076
-    Title: Containing People's Speech
+    Title: Job Change to Abyss Chaser-7
   - Id: 18077
-    Title: Csar's Request
-  - Id: 18078
-    Title: Baba Yaga's Secret Medicine
-  - Id: 18079
-    Title: Winter is Banished
+    Title: Job Change to Abyss Chaser-8
   - Id: 18080
     Title: Goseong dungeon 1st floor attack
     TimeLimit: 4h
@@ -14250,3 +14246,23 @@ Body:
   - Id: 62238
     Title: Midgardian Mercenary timer
     TimeLimit: +3h
+  - Id: 100000
+    Title: Banishing Winter
+  - Id: 100001
+    Title: Making the magic dust
+  - Id: 100002
+    Title: Making the magic dust
+  - Id: 100003
+    Title: The Dragon's Lair
+  - Id: 100004
+    Title: The Magic Gourd Bottle
+  - Id: 100005
+    Title: Containing People's Speech
+  - Id: 100006
+    Title: Containing People's Speech
+  - Id: 100007
+    Title: Csar's Request
+  - Id: 100008
+    Title: Baba Yaga's Secret Medicine
+  - Id: 100009
+    Title: Winter is Banished
