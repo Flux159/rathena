@@ -612,5 +612,5 @@ Body:
     TimeLimit: 3600
     Enter:
       Map: 1@4sac
-      X: 88
-      Y: 24
+      X: 57
+      Y: 65
