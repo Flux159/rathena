@@ -3341,6 +3341,9 @@ bool itemdb_ishatched_egg( const item* item ) {
 * @param nameid ID of item
 */
 char itemdb_isidentified(t_itemid nameid) {
+	if( !battle_config.unidentified_equipment )
+		return 1;
+
 	int32 type=itemdb_type(nameid);
 	switch (type) {
 		case IT_WEAPON:
